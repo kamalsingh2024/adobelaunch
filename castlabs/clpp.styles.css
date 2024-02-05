@@ -1,0 +1,63 @@
+.clpp-container {
+  display: block;
+  vertical-align: top;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: transparent;
+  position: relative;
+  padding: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+}
+
+.clpp-hidden {
+  display: none;
+}
+
+.clpp-fill {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.clpp-16-9 {
+  /* padding-top: 56.25%; */
+  /* width: 100%; */
+  /* max-width: 100%; */
+  /* height: 0; */
+}
+
+#sample_title {
+  padding: 5px;
+}
+
+.clpp-ima > div {
+  position: absolute;
+  top: 0;
+  left: 0
+}
+
+/*
+Firefox unsets the font size of the video when setting
+the ::cue{font-size}. Normalize the font size.
+*/
+video {
+  font-size: 1em;
+}
+video:fullscreen {
+  font-size: 2em;
+}
+
+.clpp-subtitle-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
