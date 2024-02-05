@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+	<meta name=ADBMessageAssets content='[
+		[ "AFL-Kayo-Telstra.png" ]
+
+	]' />
+	<title></title>
+	<style>
+		html,body { margin:0;padding:0;text-align:center;background-color:#E8EAE9;width:100%;height:100%;
+			-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none; }
+		a { text-decoration:none; }
+		img { display:none; }
+		.background0 { position:absolute;background-position:center;background-repeat:no-repeat;background-size:cover;width:100%;top:0px;bottom:0px; }
+		.background { position:absolute;background-position:center;background-repeat:no-repeat;background-size:cover;width:100%;top:0px;bottom:0px; }
+		.button-container { position:relative; top:46%; bottom:0px;right:0px;left:0px;display:none; }
+  	    .button-small { display:block;margin-left:auto;margin-right:auto;margin-top:20px; }
+		/* Phones portrait */
+		@media only screen and (max-width:767px) and (orientation:portrait) {
+			.button-container { display:block;height:200px; }
+     	    .background0 {background-position:0% 0%;background-size:100% 100%; background-image:url('https://kamalsingh29.github.io/adobelaunch/MicrosoftTeams-image%20(2).jpg'); }
+	        .background {background-position:0% 0%;background-size:100% 100%; background-image:url('https://media.telstra.com.au/content/dam/homepage/images/hosting/afl/AFL-Kayo-Telstra.png'); }
+			.button-small {display: block; margin-left: auto;margin-right: auto;margin-top: 40px;background-color: #00BF6F;border: none;color: white;padding: 3% 16%;text-align: center;text-decoration: none;display: inline-block;			  font-size: 22px;			  border-radius: 4px;			  font-weight: bold;			}
+
+			.button-noThanks {
+			  display: block;
+			  margin-left: auto;
+			  margin-right: auto;
+			  margin-top: 0;
+			  border: none;
+			  color: white;
+			  padding: 4% 20%;
+			  text-align: center;
+			  text-decoration: none;
+			  display: inline-block;
+			  background-color: Transparent;
+			  font-size: 14px;
+			  border-radius: 6px;
+			}
+			.hidden { display: none !important; transition: height 350ms ease-in; }
+			}
+					/* Phones portrait and landscape */
+		@media only screen and (max-width :767px) {
+			.text { top:25px;left:35px; }
+			.logo { height:103px;width:60px; }
+			.information-small { display:block; }
+		}
+		/* Tablets portrait and landscape */
+		@media only screen and (min-width:768px) {
+			.text { top:60px;left:60px; }
+			.information-large { display:block; }
+		}
+	</style>
+<script>
+  function toggle() {
+    document.getElementById('elem').classList.toggle('hidden');
+  }
+  
+  function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+     document.getElementById("demo").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "http://medrx.telstra.com.au/online.php", true);
+  xhttp.send();
+}
+</script>
+</head>
+<body>
+<div class="background0">
+	<div class="button-container">
+		<a href="#" onclick="toggle()">
+			<button class="button-small" style="background-color:#b52e18;margin-top:55%">I'M A TELSTRA CUSTOMER</button>
+		</a>
+		<a href="adbinapp://cancel">
+			<button class="button-noThanks">Skip</button>
+		</a>
+	</div>
+</div>
+<div class="background hidden" id="elem">
+	<div class="button-container">
+		<a href="adbinapp://confirm/?url=http://hub.telstra.com.au/kayo.html?offerId=4b22e532-140a-4dc3-8e78-45c3a0f045c0&marketing=afl-1&extcamp=aflapptakeovertelstra-prt-afl-cta-acq-grc-afl&channel=afl&campaign=launch&voucher=LAUNCH&ref=aflapptakeovertelstra-prt-afl-cta-acq-grc-afl">
+			<button class="button-small">Get Offer Today</button>
+		</a>
+		<a href="adbinapp://cancel">
+			<button class="button-noThanks">No thanks</button>
+		</a>
+	</div>
+	<div id="demo">
+  		<h2>Let AJAX change this text</h2>
+  		<button type="button" onclick="loadDoc()">Change Content</button>
+	</div>
+</div>
+</body>
+</html>

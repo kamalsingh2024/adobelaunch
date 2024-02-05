@@ -1,0 +1,864 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<title>Virtual RAT Test - Australia</title>
+
+
+<style>
+
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+    display: block
+}
+
+html {
+    font-family: sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%
+}
+
+body {
+    margin: 0;
+    overflow-x: hidden
+}
+
+button,
+input,
+select,
+textarea {
+    margin: 0
+}
+
+button,
+html input[type=button],
+input[type=reset],
+input[type=submit] {
+    -webkit-appearance: button;
+    cursor: pointer
+}
+
+*,
+:after,
+:before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+html {
+    font-size: 62.5%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
+}
+
+body {
+    font-family: 'Open Sans', 'Source Sans Pro', Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    color: #000;
+    background-color: #fff
+}
+
+button,
+input,
+select[multiple],
+textarea {
+    background-image: none
+}
+
+a {
+    color: #4baad3;
+    text-decoration: none
+}
+
+p {
+    margin: 0 0 13.5px
+}
+
+.text-right {
+    text-align: right
+}
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Open Sans', 'Source Sans Pro', Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    line-height: 1.3
+}
+
+h1,
+h2,
+h3 {
+    margin-top: 13px;
+    margin-bottom: 13px;
+    color: #000
+}
+
+.h1,
+h1 {
+    font-size: 33px
+}
+
+.h2,
+h2 {
+    margin: 0 0 10px 0;
+    font-size: 22px;
+}
+
+.row {
+    margin-left: -10px;
+    margin-right: -10px
+}
+
+.row:after,
+.row:before {
+    content: ' ';
+    display: table
+}
+
+.row:after {
+    clear: both
+}
+
+.col-lg-1,
+.col-lg-10,
+.col-lg-11,
+.col-lg-12,
+.col-lg-2,
+.col-lg-3,
+.col-lg-4,
+.col-lg-5,
+.col-lg-6,
+.col-lg-7,
+.col-lg-8,
+.col-lg-9,
+.col-md-1,
+.col-md-10,
+.col-md-11,
+.col-md-12,
+.col-md-2,
+.col-md-3,
+.col-md-4,
+.col-md-5,
+.col-md-6,
+.col-md-7,
+.col-md-8,
+.col-md-9,
+.col-sm-1,
+.col-sm-10,
+.col-sm-11,
+.col-sm-12,
+.col-sm-2,
+.col-sm-3,
+.col-sm-4,
+.col-sm-5,
+.col-sm-6,
+.col-sm-7,
+.col-sm-8,
+.col-sm-9,
+.col-xs-1,
+.col-xs-10,
+.col-xs-11,
+.col-xs-12,
+.col-xs-2,
+.col-xs-3,
+.col-xs-4,
+.col-xs-5,
+.col-xs-6,
+.col-xs-7,
+.col-xs-8,
+.col-xs-9 {
+    position: relative;
+    min-height: 1px;
+    padding-left: 10px;
+    padding-right: 10px
+}
+
+label {
+    display: inline-block;
+    margin-bottom: 5px
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    height: auto
+}
+
+.color-1 {
+    background: #4baad3
+}
+
+.color-5 {
+    background: #010a0c;
+    color: #fff
+}
+
+.page {
+    padding-top: 0
+}
+
+.inner-page {
+    padding-top: 10px;
+    padding-bottom: 0;
+    max-width: 1100px;
+    margin: 0 auto;
+    max-width: 550px;
+}
+
+.newsletter,
+footer {
+    padding: 40px!important;
+    margin: 0!important
+}
+
+.newsletter a,
+footer a {
+    color: #fff
+}
+
+#header a {
+    color: #000
+}
+
+.copyright {
+    line-height: 50px;
+    text-align: left
+}
+
+a {
+    -webkit-transition: color .4s ease-out, background .7s ease-in;
+    transition: color .4s ease-out, background .7s ease-in
+}
+img {
+    font-size: 25px;
+    text-align: center;
+}
+.btn-container {
+    font-size: 19px;
+    position: relative;
+    text-align: center
+}
+
+body {
+    text-rendering: optimizeLegibility;
+    font-weight: 300
+}
+
+body {
+    padding: 0
+}
+
+[class*=col-md] {
+    padding: 0 20px
+}
+
+p {
+    margin: 10px auto;
+    padding: 0;
+    text-align: justify;
+    text-indent: 21px
+}
+
+.page {
+    padding-top: 20px
+}
+
+.newsletter,
+.sign-up,
+footer {
+    padding: 0 40px!important
+}
+
+.page {
+    padding-top: 30px
+}
+
+body,
+input:focus,
+textarea:focus {
+    outline: 0;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
+}
+
+html {
+    overflow-x: hidden
+}
+
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+    font-size: xx-large;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#main {
+min-height: 100vh;
+}
+
+
+
+h1 {
+font-family: 'Open Sans','Source Sans Pro',Helvetica,Arial,sans-serif;
+font-weight: 300;
+    line-height: 1.3;
+    font-size: 44px;
+}
+  
+
+.result {
+    overflow: hidden;
+    margin: 13px auto;
+    cursor: pointer;
+    border-radius: 50%;
+    height: 200px;
+    width: 200px;
+    display: block;
+
+}
+
+#getananswer {
+    margin: 0 auto 62px auto;
+}
+
+#maybe {
+    vertical-align: middle;
+}
+
+#maybelabel {
+    margin: 0;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+
+
+#navigation {
+    float:left;
+    padding: 0 30px 5px 0;
+}
+#menuToggle
+{
+  display: block;
+  position: relative;
+  top: 10px;
+  left: 20px;
+  float: left;
+ 
+  z-index: 555;
+  
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#menuToggle a
+{
+  text-decoration: none;
+  color: #fff;
+  
+  transition: color 0.3s ease;
+}
+
+#menuToggle a:hover
+{
+  color: tomato;
+}
+
+
+#menuToggle input
+{
+  display: block;
+  width: 40px;
+  height: 62px;
+  position: absolute;
+  top: -7px;
+  left: -5px;
+  float: left;
+  
+  cursor: pointer;
+  
+  opacity: 0; /* hide this */
+  z-index: 2; /* and place it over the hamburger */
+  
+  -webkit-touch-callout: none;
+}
+
+/*
+ * Just a quick hamburger
+ */
+#menuToggle span
+{
+  display: block;
+  width: 33px;
+  height: 4px;
+  margin-bottom: 5px;
+  position: relative;
+  
+  background: #000;
+  border-radius: 3px;
+  
+  z-index: 1;
+  
+  transform-origin: 4px 0px;
+  
+  transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+              background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+              opacity 0.55s ease;
+}
+
+#menuToggle span:first-child
+{
+  transform-origin: 0% 0%;
+}
+
+#menuToggle span:nth-last-child(2)
+{
+  transform-origin: 0% 100%;
+}
+
+/* 
+ * Transform all the slices of hamburger
+ * into a crossmark.
+ */
+#menuToggle input:checked ~ span
+{
+  opacity: 1;
+  transform: translateX(6px) rotate(45deg) translate(-2px, -1px);
+  background: #fff;
+}
+
+/*
+ * But let's hide the middle one.
+ */
+#menuToggle input:checked ~ span:nth-last-child(3)
+{
+  opacity: 0;
+  transform: rotate(0deg) scale(0.2, 0.2);
+}
+
+/*
+ * Ohyeah and the last one should go the other direction
+ */
+#menuToggle input:checked ~ span:nth-last-child(2)
+{
+  transform: translateX(6px) rotate(-45deg) translate(0, -1px);
+}
+
+/*
+ * Make this absolute positioned
+ * at the top left of the screen
+ */
+#menu
+{
+  position: absolute;
+  width: 300px;
+  margin: -100px 0 0 -50px;
+  padding: 50px;
+  padding-top: 125px;
+  overflow-y: scroll;
+  height: 600px;
+  background: #000;
+  list-style-type: none;
+  -webkit-font-smoothing: antialiased;
+  /* to stop flickering of text in safari */
+  
+  transform-origin: 0% 0%;
+  transform: translate(-100%, 0);
+  
+  transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0);  
+}
+
+.customscroll::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+.customscroll::-webkit-scrollbar:vertical {
+    width: 12px;
+}
+
+.customscroll::-webkit-scrollbar:horizontal {
+    height: 12px;
+}
+
+.customscroll::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .5);
+    border-radius: 10px;
+    border: 2px solid #ffffff;
+}
+
+.customscroll::-webkit-scrollbar-track {
+    border-radius: 10px;  
+    background-color: #ffffff; 
+}
+
+#menu li
+{
+  padding: 10px 0;
+  font-size: 22px;
+}
+
+/*
+ * And let's slide it in from the left
+ */
+#menuToggle input:checked ~ ul
+{
+  transform: none;
+}
+#menuToggle label
+{
+	font-size:13px;
+	color: #000;
+	display: block;
+	position: relative;
+	z-index: 1;
+	transition: color 0.55s;
+    margin-bottom: 5px;
+}
+#menuToggle input:checked ~ label
+{
+	opacity: 1;
+	color: #fff;
+	transition: color 0.55s;
+}
+
+
+
+
+
+.description{font-size:14px;color:#000;margin: 0 auto 7px auto;}
+#seealso {
+    margin: 10px auto 16px auto;
+    max-width: 160px;
+    background-color: #f0f0f0;
+    padding: 0 7px 3px 7px;
+    border: 0.1px solid black;
+}
+.readmore {
+    text-align: left;
+    margin: 0;
+    padding: 0;
+}
+.readmore li {
+    padding: 0 0 0 20px;
+    list-style: none;
+    background-image: url(./icons/list-icon.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 13px;
+    line-height: 30px;
+}
+.readmore a {
+    color: #065fd4;
+    font-family: Arial;
+    transition: color 0.3s ease;
+}
+.readmore a:hover {
+    color: #000000;
+}
+.readmore a:visited {
+    color: #0645ad;
+}
+.readmore a:visited:hover {
+    color: #000000;
+}
+#descriptionfooter {
+    line-height: 25px;
+}
+#checkbox {margin: 0 0 10px 0;}
+#share {
+    display: block;
+    margin: auto;
+    text-align: center;
+    background-color: #f0f0f0;
+    padding-top: 7px;
+    border-top: 0.1px solid #333;
+    border-bottom: 0.1px solid #333;
+    }
+#header{display:inline-block;vertical-align:top}
+.yesno {
+height: 200px;
+width: 200px;
+display: block;
+}
+@media only screen and (max-width:600px){
+#header{max-width:250px}
+}
+@media only screen and (max-width:260px){
+.yesno {
+height: 100%;
+width: 100%;
+}
+.result {
+height: 100%;
+width: 100%;
+}
+}
+
+.rightimg{float:right;margin: 7px 0 7px 11px}
+
+ul.share-buttons{
+  list-style: none;
+  padding: 0;
+  text-align:center;
+  margin: auto;
+}
+
+ul.share-buttons li{
+  display: inline;
+}
+
+#div-share-buttons {
+    display: inline-block;
+    vertical-align: top;
+    }
+
+#st-total {
+    color: #333;
+    display: inline-block;
+    font-weight: 600;
+    line-height: 12px;
+    margin-right: 0;
+    max-width: 80px;
+    padding: 0px 4px;
+    text-align: center;
+    }
+#st-label {
+    font-size: 16px;
+    line-height: 17px;
+    display: block;
+    padding: 0;
+    }
+#st-shares {
+    font-size: 13px;
+    line-height: 9px;
+    }
+
+
+.email, .facebook, .linkedin, .reddit, .tumblr, 
+.twitter, .whatsapp
+{ display: inline-block; background: url('png.png') no-repeat; overflow: hidden; text-indent: -9999px; text-align: left; background-size: 64px auto;}
+ 
+.email { background-position: -0px -0px; width: 32px; height: 32px; }
+.facebook { background-position: -32px -0px; width: 32px; height: 32px; }
+.linkedin { background-position: -0px -32px; width: 32px; height: 32px; }
+.reddit { background-position: -32px -32px; width: 32px; height: 32px; }
+.tumblr { background-position: -0px -64px; width: 32px; height: 32px; }
+.twitter { background-position: -32px -64px; width: 32px; height: 32px; }
+.whatsapp { background-position: -0px -96px; width: 32px; height: 32px; }
+
+
+
+
+
+
+@font-face{font-family:'Open Sans';font-style:normal;font-weight:300;font-display:swap;src:local('Open Sans Light'),local('OpenSans-Light'),url(/yesorno/fonts/mem5YaGs126MiZpBA-UN_r8OUuhp.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+</style>
+
+
+</head>
+
+<body>
+
+
+<div id="main" class="row inner-page">
+<div class="col-md-offset-1 col-md-10">
+<div class="btn-container" style="min-height: 20px !important;">
+
+<img src="https://clipground.com/images/australian-government-logo-clipart-14.png" style="width: 500px;>
+
+
+<div id="header"><h1>Virtual RAT Test - Australia</h1></div>
+<div class="description">Gently blow on your screen to perform the online Virtual RAT Test for COVID-19, if you are postive please self-isolate and redo the Virtual RAT test.</div>
+
+<div id="checkbox" style="visibility: hidden; display:inline;">
+    <input id="maybe" name="maybe" type="checkbox">
+    <label for="maybe" id="maybelabel">Maybe</label>
+</div>
+<div id="header"><h1>Are you positive with COVID-19? Click to find out. </h1></div>
+
+<div id="result" class="result">
+
+
+<img id="yesorno" src="https://aactionpc.net/wp-content/uploads/2017/04/Rat-Circle-Compress.png" alt="RAT" class="yesno">
+
+</div>
+
+
+<div class="description">Gently blow on your screen and click on the start button.</div>
+  <button id="getananswer">Start Virtual RAT</button>
+  
+</div>
+</div>
+
+
+
+
+<script src="https://www.homestructions.com/yesorno/polyfill.js" type="27f9a9804bd8cddb7e06bbbc-text/javascript"></script>
+<script type="27f9a9804bd8cddb7e06bbbc-text/javascript">
+
+
+
+function preloadImages(sources, callback) {
+      var counter = 0;
+
+      function onLoad() {
+        counter++;
+        if (counter == sources.length) callback();
+      }
+
+      for(var source = 0; source < sources.length; source++) {
+        var img = document.createElement('img');
+        img.onload = img.onerror = onLoad;
+        img.src = sources[source];
+      }
+    }
+
+   
+
+    var sources = [
+      "yes.png",
+      "no.png",
+      "maybe.png",
+      "yesornobutton.png"
+    ]; 
+    
+    
+function visibility() {
+//  document.getElementById('result').style.visibility='visible';
+//  document.getElementById('getananswer').style.visibility='visible';
+var btn = document.getElementById('getananswer').disabled = false;
+document.getElementById('yesorno').setAttribute('onclick','yesNoGenerator();');  
+};
+
+
+preloadImages(sources, visibility);
+
+var div = document.getElementById("result")
+
+
+function yesNoGenerator() {
+
+var btn = document.getElementById('getananswer').disabled = true;
+document.getElementById('yesorno').removeAttribute("onclick");
+div.style.visibility = "hidden";
+
+
+
+
+        
+var elem = document.getElementById("yesorno");
+
+setTimeout(function () {
+
+if (document.getElementById('maybe').checked) {
+var rnd = Math.floor(Math.random() * 3);
+if (rnd == 0) {
+    elem.setAttribute("alt", "No");
+    elem.setAttribute("src", "https://www.homestructions.com/yesorno/no.png");
+		      } else if (rnd == 1) {
+    elem.setAttribute("alt", "Yes");
+    elem.setAttribute("src", "https://www.homestructions.com/yesorno/yes.png");
+              } else {
+    elem.setAttribute("alt", "Maybe");
+    elem.setAttribute("src", "https://www.homestructions.com/yesorno/maybe.png");
+              }
+} else { 
+if (Math.random() < 0.5) {
+    elem.setAttribute("alt", "No");
+    elem.setAttribute("src", "https://www.homestructions.com/yesorno/no.png");
+						 } else {
+    elem.setAttribute("alt", "Yes");
+    elem.setAttribute("src", "https://www.homestructions.com/yesorno/yes.png");
+    							}
+}
+
+}, 700);
+               
+
+fadeIn(div, 2000, endFadeIn, 777);
+
+function fadeIn(el, timems, callback, delay) {
+    function fade() {
+    el.style.opacity = 0;
+    el.style.display = 'block';
+    el.style.visibility = "visible";
+  var step = 0.005;
+  var steps = 1/step;
+  var interval = setInterval(function() {
+    if (+el.style.opacity >= 1) {
+      clearInterval(interval);    
+      if(callback && typeof(callback) === "function") {callback();}
+      							}
+      
+    el.style.opacity = +el.style.opacity + step;
+  }, timems / steps);
+    }
+    if(delay && !isNaN(delay)) {
+    setTimeout(fade, delay);
+    } else {
+    fade();
+    }
+}
+
+
+
+function endFadeIn () {
+document.getElementById('getananswer').disabled = false; 
+document.getElementById('yesorno').setAttribute('onclick','yesNoGenerator();');  
+}
+
+}
+
+
+
+
+
+getananswer.addEventListener("click", yesNoGenerator);
+
+
+</script>
+<script type="27f9a9804bd8cddb7e06bbbc-text/javascript">
+new Image().src = "https://counter.yadro.ru/hit?r"+
+escape(document.referrer)+((typeof(screen)=="undefined")?"":
+";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+";h"+escape(document.title.substring(0,150))+
+";"+Math.random();</script>
+ <script src="https://www.homestructions.com/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="27f9a9804bd8cddb7e06bbbc-|49" defer=""></script></body>
+</html>
