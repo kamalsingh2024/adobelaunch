@@ -271,7 +271,11 @@
 				$("#campaignform").submit();
 				if ($('#campaigncode').val() !== '' && $('#targeturl').val() !== '') {
 					$('#output1').show();
-					$('#redirecturl1').val($('#targeturl').val() + $('#targetprod').val());
+					
+					//$('#redirecturl1').val($('#targeturl').val() + $('#targetprod').val());
+					$('#redirecturl1').val(modifyUrl($('#targeturl').val(), '?ref=' + 'TMHF_'+$('#campaigncode').val() + "_" + $('#targetprod').val()+"_"+new Date().toISOString().slice(0, 7).replace('-', '_')));
+
+					    
 					$('#output1').animate({
 						backgroundColor: 'red'
 					}, 300);
@@ -294,6 +298,16 @@
 					$('#redirecturl').select();
 				}
 			});
+function modifyUrl(url, appendStr) {
+  if (url.includes('#')) {
+    const parts = url.split('#');
+    const modifiedUrl = parts[0] + appendStr + '#' + parts[1];
+    return modifiedUrl;
+  } else {
+    return url + appendStr;
+  }
+}
+
 		</script>
 	</body>
 </html>
