@@ -184,17 +184,17 @@
 							id="targetprod"
 							title="You can create a redirect campaign to be recorded in any of the BigPond campaign types"
 							required="required">
-							<option value="Apple Music">Apple Music</option>
+							<option value="Apple Music">AppleMusic</option>
 							<option value="Netflix">Netflix</option>
 							<option value="Foxtel">Foxtel</option>
 							<option value="Hayu">Hayu</option>
-							<option value="Madman AnimeLab">Madman AnimeLab</option>
+							<option value="Madman AnimeLab">MadmanAnimeLab</option>
 							<option value="Garage">Garage</option>
-							<option value="Kayo Sports">Kayo Sports</option>
-							<option value="Madman DocPlay">Madman DocPlay</option>
+							<option value="Kayo Sports">KayoSports</option>
+							<option value="Madman DocPlay">MadmanDocPlay</option>
 							<option value="Binge">Binge</option>
-							<option value="Trend Micro">Trend Micro</option>
-							<option value="Xbox Game Pass">Xbox Game Pass</option>
+							<option value="Trend Micro">TrendMicro</option>
+							<option value="Xbox Game Pass">XboxGamePass</option>
 							<option value="AppleTVPlus">AppleTVPlus</option>
 							<option value="Disney Plus">Disney Plus</option>
 							<option value="Flash">Flash</option>
@@ -283,7 +283,7 @@
 
 					$('#output').show();
 					//$('#redirecturl').val(campaignCode.stem + $('#reportsuites').val() + campaignCode.thirdbit + ($('#targeturl').val() + $('#targetprod').val()) + '&pe=lnk_o&' + $('#campaigntype option:selected').val() + '=' + $('#campaigncode').val() + "_" + $('#targetprod').val() + '&events=' + campaignCode.events);
-					$('#redirecturl').val('ref=' + 'tmhf_'+$('#campaigncode').val() + "_" + $('#targetprod').val()+"_"+new Date().toISOString().slice(0, 7).replace('-', '_'));
+					$('#redirecturl').val('ref=' + 'TMHF_'+$('#campaigncode').val() + "_" + $('#targetprod').val()+"_"+new Date().toISOString().slice(0, 7).replace('-', '_'));
 					$('#output').animate({
 						backgroundColor: 'red'
 					}, 300);
