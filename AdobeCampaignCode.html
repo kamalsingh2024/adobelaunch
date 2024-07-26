@@ -184,13 +184,13 @@
 
 					<li>
 						<label for="targetprod">Target Poduct:</label>
-						<input type="text"
-							name="targetprod"
-							id="targetprod"
-							title="The product code is what will appear"
-							required="required"
-						        value="kayo"
-							placeholder="kayo" />
+						<select name="campaigntype"
+							title="You can create a redirect campaign to be recorded in any of the BigPond campaign types"
+							id="campaigntype" value="v13" />
+							<option value="v7">BigPond Internal campaign</option>
+							<option value="v8">BigPond External campaign</option>
+							<option value="v13" selected >BigPond Intra Site campaign</option>
+						</select>
 					</li>
 			                 <li>
 						<label for="targeturl">Target URL:</label>
