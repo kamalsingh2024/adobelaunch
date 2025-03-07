@@ -469,7 +469,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
 
     // AdsLoader listeners
     this.adsManagerLoaded = function (event) { log("<<++adsManagerLoaded - " + player.mediainfo.name, prod);
-        this.adsManager = event.originalEvent.g; //BC ima3 admanager
+        this.adsManager = event.originalEvent.getAdsManager();//event.originalEvent.g; //BC ima3 admanager
         this.registerAdsManagerListeners();
     };
 
