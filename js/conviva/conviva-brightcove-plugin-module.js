@@ -558,7 +558,10 @@ var convivaBcIntegration = function(n, i) {
         }),
         h.Tn("loadstart", function(n) {
             h.C("loadstart", n);
+
+            buildMetadata(this, h.h);
             this.ima3.settings.serverUrl = 'https://kamalsingh2024.github.io/adobelaunch/Pre-roll.xml?sz=640x480&iu=/7414/TEL.AFL/cx-on-stream&impl=s&gdfp_req=1&env=vp&output=xml_vast2&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]&ad_rule=1&cmsid=2513968&vid=[mediainfo.id]';
+
         }),
         h.Tn("firstplay", function(n) {
             h.C("firstplay", n),
@@ -1035,3 +1038,102 @@ var convivaBcIntegration = function(n, i) {
 };
 "undefined" != typeof ConvivaModule && (ConvivaModule.Impl = ConvivaModule.Impl || {},
 ConvivaModule.Impl.VideojsProxy = videojsProxy);
+
+function getSafe(fn, defaultVal) {
+    try {
+        return fn();
+    } catch (e) {
+        return defaultVal;
+    }
+}
+function getHostName() {
+   var hostname = window.location.hostname.replace(/^(www\.|m\.)/, '');
+    if (/^aflw/i.test(location.pathname.split('/')[1])) hostname = 'womens.afl'; //add old womens playername 
+    return hostname;
+}   
+function getPlayerName() {
+    var hostname = window.location.hostname.replace(/^(www\.|m\.)/, '');
+        if (/^aflw/i.test(location.pathname.split('/')[1])) hostname = 'womens.afl'; //add old womens playername 
+
+    aflSitesArray = new Object();
+    aflSitesArray['afl.com.au'] = 'AFL Network';
+    aflSitesArray['fantasy.afl.com.au'] = 'AFL Fantasy';
+    aflSitesArray['tipping.afl.com.au'] = 'AFL Tipping';
+    aflSitesArray['afc.com.au'] = 'Adelaide Crows';
+    aflSitesArray['lions.com.au'] = 'Brisbane Lions';
+    aflSitesArray['carltonfc.com.au'] = 'Carlton Blues';
+    aflSitesArray['collingwoodfc.com.au'] = 'Collingwood Magpies';
+    aflSitesArray['essendonfc.com.au'] = 'Essendon Bombers';
+    aflSitesArray['fremantlefc.com.au'] = 'Fremantle';
+    aflSitesArray['geelongcats.com.au'] = 'Geelong Cats';
+    aflSitesArray['goldcoastfc.com.au'] = 'Gold Coast';
+    aflSitesArray['gwsgiants.com.au'] = 'GWS';
+    aflSitesArray['hawthornfc.com.au'] = 'Hawthorn Hawks';
+    aflSitesArray['melbournefc.com.au'] = 'Melbourne Demons';
+    aflSitesArray['nmfc.com.au'] = 'Kangaroos';
+    aflSitesArray['portadelaidefc.com.au'] = 'Port Adelaide';
+    aflSitesArray['richmondfc.com.au'] = 'Richmond Tigers';
+    aflSitesArray['saints.com.au'] = 'St.Kilda Saints';
+    aflSitesArray['sydneyswans.com.au'] = 'Sydney Swans';
+    aflSitesArray['westcoasteagles.com.au'] = 'West Coast Eagles';
+    aflSitesArray['westernbulldogs.com.au'] = 'Western Bulldogs';
+    aflSitesArray['womens.afl'] = 'AFLW Network';
+
+    return aflSitesArray[hostname] || "AFL test";
+}
+
+function buildMetadata(myPlayer, convivaConfig) {
+    const metadata = {};
+    const viewerID = "random:" + Math.floor(Math.random() * 1e9);
+
+    // Basic metadata
+    metadata["id"] = myPlayer.mediainfo.id;
+    metadata["title"] = myPlayer.mediainfo.name;
+    metadata["url"] = myPlayer.mediainfo.sources[0].src;
+    metadata["live"] = myPlayer.mediainfo.duration == 0 ? "true" : "false";
+    metadata["durationSec"] = "" + myPlayer.mediainfo.duration;
+    metadata["streamType"] = myPlayer.mediainfo.sources[0].type;
+    metadata["applicationName"] = getPlayerName();
+
+    const isLive = myPlayer.mediainfo.duration == 0;
+    const adobeMediaName = isLive ? "Live:" + myPlayer.mediainfo.name : myPlayer.mediainfo.name;
+    const tmAFLW = /^aflw/i.test(myPlayer.mediainfo.custom_fields.competition); // Check if AFLW or AFL
+
+    // Append match name from dataLayer if available
+    const matchName = getSafe(() => dataLayer.filter(obj => obj.event === 'matchView')[0].matchName, false);
+    if (matchName) {
+        metadata["title"] = adobeMediaName + " - " + matchName;
+    }
+
+    // Append page title for Unily URLs
+    const top_url = (window.location != window.parent.location) ? document.referrer || document.location.href : document.location.href;
+    const t_test = new URL(top_url);
+
+    if (/telstra\.unily\.com/.test(top_url) && t_test.pathname.length > 0) {
+        metadata["title"] = adobeMediaName + " [" + t_test.pathname + "]";
+    }
+
+    // Custom metadata
+    metadata["assetID"] = myPlayer.mediainfo.id;
+    metadata["channel"] = getHostName();
+    metadata["playerName"] = getPlayerName();
+    metadata["adobeViewerID"] = viewerID;
+
+    // User data
+    const userData = {
+        viewerID: viewerID,
+        hostname: getHostName()
+    };
+
+    // Merge custom fields and user data into metadata
+    Object.assign(metadata, myPlayer.mediainfo.customFields);
+    Object.assign(metadata, userData);
+
+    // Append metadata to the provided JSON object under the "tags" key
+    if (!convivaConfig.tags) {
+        convivaConfig.tags = {};
+    }
+    Object.assign(convivaConfig.tags, metadata);
+
+    return convivaConfig;
+}
