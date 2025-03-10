@@ -35,7 +35,7 @@
                 var tmCC = false;
                 var tmAFLW = false;
 
-                var integration, convivaIntegration;
+                //var integration, convivaIntegration;
                 //Setting Up Conviva Configs default as test
                 
                 var TEST_CUSTOMER_KEY = options.testing.customerKey; //'69b93c2f8bf26c0edf513501a13f4da18556fb68';
@@ -180,7 +180,7 @@
                     integration = null;
                     }
                     //start new sessions
-                       integration = new ConvivaIma3Integration(myPlayer,convivaConfigs,metadata );
+                    //   integration = new ConvivaIma3Integration(myPlayer,convivaConfigs,metadata );
                                 
                     firstPlay = true;
                     //Check that metadata is loaded
