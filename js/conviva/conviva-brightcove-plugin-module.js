@@ -1205,6 +1205,12 @@ function getDeviceMetadataReal() {
     return deviceMetadata;
 }
 
+function log(m, p) {
+    if (!p) {
+        console.log(m)
+    }
+}
+
 function adobe(player,options) {
 var prod = true; 
 var adobe = true; 
