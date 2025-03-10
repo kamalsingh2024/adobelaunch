@@ -1105,14 +1105,6 @@ function buildMetadata(myPlayer, convivaConfig) {
         metadata["title"] = adobeMediaName + " - " + matchName;
     }
 
-    // Append page title for Unily URLs
-    const top_url = (window.location != window.parent.location) ? document.referrer || document.location.href : document.location.href;
-    const t_test = new URL(top_url);
-
-    if (/telstra\.unily\.com/.test(top_url) && t_test.pathname.length > 0) {
-        metadata["title"] = adobeMediaName + " [" + t_test.pathname + "]";
-    }
-
     // Custom metadata
     metadata["assetID"] = myPlayer.mediainfo.id;
     metadata["channel"] = getHostName();
@@ -1129,6 +1121,26 @@ function buildMetadata(myPlayer, convivaConfig) {
     Object.assign(metadata, myPlayer.mediainfo.customFields);
     Object.assign(metadata, userData);
 
+    // Add Conviva-specific metadata
+    metadata[Conviva.Constants.ASSET_NAME] = "[" + metadata.assetID + "] " + metadata.title;
+    metadata[Conviva.Constants.STREAM_URL] = metadata.url;
+    metadata[Conviva.Constants.IS_LIVE] = metadata.live == 'true' ? Conviva.Constants.StreamType.LIVE : Conviva.Constants.StreamType.VOD;
+    metadata[Conviva.Constants.PLAYER_NAME] = metadata.playerName;
+    metadata[Conviva.Constants.VIEWER_ID] = metadata.adobeViewerID;
+    metadata[Conviva.Constants.DURATION] = metadata.durationSec;
+    metadata[Conviva.Constants.DEFAULT_RESOURCE] = 'Akamai';
+    metadata[Conviva.Constants.APPLICATION_VERSION] = _satellite.getVar("publish_ver") || 'Launch PublishDate:2999-12-31 | sCode version:2.1.0';
+
+    // Add device metadata
+    const deviceMetadataReal = getDeviceMetadataReal();
+    metadata[Conviva.Constants.DeviceMetadata.BRAND] = deviceMetadataReal.BRAND;
+    metadata[Conviva.Constants.DeviceMetadata.MANUFACTURER] = deviceMetadataReal.MANUFACTURER;
+    metadata[Conviva.Constants.DeviceMetadata.MODEL] = deviceMetadataReal.MODEL;
+    metadata[Conviva.Constants.DeviceMetadata.TYPE] = Conviva.Constants.DeviceType.DESKTOP;
+    metadata[Conviva.Constants.DeviceMetadata.OS_NAME] = deviceMetadataReal.OS_NAME;
+    metadata[Conviva.Constants.DeviceMetadata.OS_VERSION] = deviceMetadataReal.OS_VERSION;
+    metadata[Conviva.Constants.DeviceMetadata.CATEGORY] = Conviva.Constants.DeviceCategory.WEB;
+
     // Append metadata to the provided JSON object under the "tags" key
     if (!convivaConfig.tags) {
         convivaConfig.tags = {};
@@ -1136,4 +1148,53 @@ function buildMetadata(myPlayer, convivaConfig) {
     Object.assign(convivaConfig.tags, metadata);
 
     return convivaConfig;
+}
+
+// Device metadata function
+function getDeviceMetadataReal() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    let manufacturer = 'Unknown';
+    let model = 'Unknown';
+
+    if (userAgent.includes('iphone')) {
+        manufacturer = 'Apple';
+        model = 'iPhone';
+    } else if (userAgent.includes('ipad')) {
+        manufacturer = 'Apple';
+        model = 'iPad';
+    } else if (userAgent.includes('macintosh') || userAgent.includes('mac os')) {
+        manufacturer = 'Apple';
+        model = 'Mac';
+    } else if (userAgent.includes('android')) {
+        manufacturer = 'Android';
+        // Extract model from the user agent if available
+        const match = userAgent.match(/android [\d.]+; (.*?);/);
+        if (match && match[1]) {
+            model = match[1];
+        }
+    } else if (userAgent.includes('windows')) {
+        manufacturer = 'Windows';
+        // Extract model from the user agent if available
+        const match = userAgent.match(/windows nt [\d.]+; (.*?);/);
+        if (match && match[1]) {
+            model = match[1];
+        }
+    } else if (userAgent.includes('linux')) {
+        manufacturer = 'Linux';
+        // Extract model from the user agent if available
+        const match = userAgent.match(/\((.*?)\)/);
+        if (match && match[1]) {
+            model = match[1];
+        }
+    }
+
+    const deviceMetadata = {
+        BRAND: manufacturer,
+        MANUFACTURER: manufacturer,
+        MODEL: model,
+        OS_NAME: navigator.platform,
+        OS_VERSION: navigator.appVersion,
+    };
+
+    return deviceMetadata;
 }
