@@ -3,7 +3,7 @@ videojs.registerPlugin("convivaPlugin", function(n) {
     n.i = "BrightcovePlayer",
     n.o = (bc || videojs).VERSION,
     new convivaBcIntegration(this,n),
-    adobe(n)
+    adobe(this,n)
 });
 var convivaBcIntegration = function(n, i) {
     var u = this;
@@ -1205,7 +1205,7 @@ function getDeviceMetadataReal() {
     return deviceMetadata;
 }
 
-function adobe(options) {
+function adobe(player,options) {
 var prod = true; 
 var adobe = true; 
 if (!options) {
@@ -1215,7 +1215,7 @@ if (!options) {
     adobe = options["adobe"];
 }
 
-var myPlayer = this;
+var myPlayer = player;
 var isContentLoaded = false;
 var videoDuration;
 var mediaName;
