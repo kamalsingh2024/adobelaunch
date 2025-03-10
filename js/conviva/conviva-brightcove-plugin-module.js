@@ -1091,7 +1091,6 @@ function buildMetadata(myPlayer, convivaConfig) {
     }
 
     const metadata = {};
-    const viewerID = "random:" + Math.floor(Math.random() * 1e9);
 
     var viewerID = "random:" + Math.random() * 1e9;
 
