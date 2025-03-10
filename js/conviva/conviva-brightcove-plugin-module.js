@@ -1346,10 +1346,10 @@ myPlayer.on('loadstart', function() {
     buildMetadata();
 
     //kill all old sessions                
-    if (integration) {
+    //if (integration) {
        //integration.ConvivaIma3Integration(myPlayer,convivaConfigs,metadata);
-    integration = null;
-    }
+    //integration = null;
+   // }
     //start new sessions
     //   integration = new ConvivaIma3Integration(myPlayer,convivaConfigs,metadata );
                 
