@@ -1083,6 +1083,12 @@ function getPlayerName() {
 }
 
 function buildMetadata(myPlayer, convivaConfig) {
+
+       // Delete the existing tags object if it exists
+       if (convivaConfig.tags) {
+        delete convivaConfig.tags;
+    }
+
     const metadata = {};
     const viewerID = "random:" + Math.floor(Math.random() * 1e9);
 
@@ -1097,7 +1103,6 @@ function buildMetadata(myPlayer, convivaConfig) {
 
     const isLive = myPlayer.mediainfo.duration == 0;
     const adobeMediaName = isLive ? "Live:" + myPlayer.mediainfo.name : myPlayer.mediainfo.name;
-    const tmAFLW = /^aflw/i.test(myPlayer.mediainfo.custom_fields.competition); // Check if AFLW or AFL
 
     // Append match name from dataLayer if available
     const matchName = getSafe(() => dataLayer.filter(obj => obj.event === 'matchView')[0].matchName, false);
