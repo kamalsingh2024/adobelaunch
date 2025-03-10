@@ -1098,6 +1098,12 @@ function buildMetadata(myPlayer, convivaConfig) {
     const metadata = {};
     const viewerID = "random:" + Math.floor(Math.random() * 1e9);
 
+    var viewerID = "random:" + Math.random() * 1e9;
+
+    if (s?.visitor !== undefined) {
+        viewerID = s.visitor.getMarketingCloudVisitorID();
+    }
+
     // Basic metadata
     metadata["id"] = myPlayer.mediainfo.id;
     metadata["title"] = myPlayer.mediainfo.name;
@@ -1242,7 +1248,7 @@ var tmAFLW = false;
 
 var viewerID = "random:" + Math.random() * 1e9;
 
-if (adobe) {
+if (s?.visitor !== undefined) {
     viewerID = s.visitor.getMarketingCloudVisitorID();
 }
 
