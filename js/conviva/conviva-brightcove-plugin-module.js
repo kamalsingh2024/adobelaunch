@@ -1235,35 +1235,6 @@ var tmAdBeacon = false;
 var tmCC = false;
 var tmAFLW = false;
 
-//var integration, convivaIntegration;
-//Setting Up Conviva Configs default as test
-
-var TEST_CUSTOMER_KEY = options.testing.customerKey; //'69b93c2f8bf26c0edf513501a13f4da18556fb68';
-var TOUCHSTONE_SERVICE_URL = options.testing.gatewayUrl; //'https://telstra-afl.testonly.conviva.com';
-
-var convivaConfigs = {};
-convivaConfigs[Conviva.Constants.GATEWAY_URL] = TOUCHSTONE_SERVICE_URL;
-convivaConfigs[Conviva.Constants.LOG_LEVEL] = Conviva.Constants.LogLevel.ERROR;
-convivaConfigs[Conviva.Constants.CUSTOMER_KEY] = TEST_CUSTOMER_KEY;
-
-switch (prod)
-{
-    case true:
-        
-        convivaConfigs[Conviva.Constants.GATEWAY_URL] = options.production.gatewayUrl;
-        convivaConfigs[Conviva.Constants.LOG_LEVEL] = Conviva.Constants.LogLevel.ERROR;
-        convivaConfigs[Conviva.Constants.CUSTOMER_KEY] = options.production.customerKey;
-    break;    
-    case false:
-        convivaConfigs[Conviva.Constants.GATEWAY_URL] = options.testing.gatewayUrl;
-        convivaConfigs[Conviva.Constants.LOG_LEVEL] = Conviva.Constants.LogLevel.DEBUG;
-        convivaConfigs[Conviva.Constants.CUSTOMER_KEY] = options.testing.customerKey;
-
-    break;    
-}
-
-
-
 var viewerID = "random:" + Math.random() * 1e9;
 
 if (adobe) {
