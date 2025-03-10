@@ -1208,12 +1208,6 @@ function getDeviceMetadataReal() {
 function adobe(player,options) {
 var prod = true; 
 var adobe = true; 
-if (!options) {
-    console.log("Options has not been added, please add the options on video cloud")
-} else {
-    prod = options["env"] == "production";
-    adobe = options["adobe"];
-}
 
 var myPlayer = player;
 var isContentLoaded = false;
