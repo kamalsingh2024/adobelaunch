@@ -1,4 +1,6 @@
-"gatewayUrl": "https://69b93c2f8bf26c0edf513501a13f4da18556fb68.ts-testonly.conviva.com", 
-"customerKey": "69b93c2f8bf26c0edf513501a13f4da18556fb68", 
-"toggleTraces":true, 
-"enableAdExperience":true 
+{
+    "gatewayUrl": "https://69b93c2f8bf26c0edf513501a13f4da18556fb68.ts-testonly.conviva.com", 
+    "customerKey": "69b93c2f8bf26c0edf513501a13f4da18556fb68", 
+    "toggleTraces":true, 
+    "enableAdExperience":true 
+}

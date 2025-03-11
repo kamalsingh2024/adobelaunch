@@ -1,5 +1,5 @@
-"gatewayUrl": "https://cws.conviva.com", 
-"customerKey": "141c85a0da4e3dce9923e9aae4809e05476786e9", 
-"enableAdExperience":true 
-
-        //var options = { "testing": { "gatewayUrl": "https://69b93c2f8bf26c0edf513501a13f4da18556fb68.ts-testonly.conviva.com/", "customerKey": "69b93c2f8bf26c0edf513501a13f4da18556fb68" }, "production": { "gatewayUrl": "https://cws.conviva.com", "customerKey": "141c85a0da4e3dce9923e9aae4809e05476786e9" }, "env": "testing", "version": "0.11", "adobe": true };
+{
+        "gatewayUrl": "https://cws.conviva.com", 
+        "customerKey": "e653500594a781dbc42026afe046762692966809", 
+        "enableAdExperience":true 
+}
