@@ -81,6 +81,7 @@ var convivaBcIntegration = function(n, i) {
     }
     ,
     u.F = function() {
+        buildMetadata(this, u.h);
         null === u.p && (window.ConvivaVideoAnalytics = u.p = Conviva.Analytics.buildVideoAnalytics(),
         u.V ? u.V.un(u.v, u.p) : "function" == typeof videojsProxy && (u.V = new videojsProxy(u.v,null,u.p,Conviva,u.C,u.h)))
     }
@@ -560,7 +561,7 @@ var convivaBcIntegration = function(n, i) {
         h.Tn("loadstart", function(n) {
             h.C("loadstart", n);
 
-            buildMetadata(this, h.h);
+            //buildMetadata(this, h.h);
             //this.ima3.settings.serverUrl = 'https://kamalsingh2024.github.io/adobelaunch/Pre-roll.xml?sz=640x480&iu=/7414/TEL.AFL/cx-on-stream&impl=s&gdfp_req=1&env=vp&output=xml_vast2&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]&ad_rule=1&cmsid=2513968&vid=[mediainfo.id]';
 
         }),
