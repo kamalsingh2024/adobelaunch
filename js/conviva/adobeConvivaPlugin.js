@@ -11,7 +11,7 @@
                 if (!options) {
                     console.log("Options has not been added, please add the options on video cloud")
                 } else {
-                    prod = options["env"] == "production";
+                    prod = (window.localStorage.getItem("sdsat_debug") == null || window.localStorage.getItem("sdsat_debug") == 'false');
                     adobe = options["adobe"];
                 }
 
