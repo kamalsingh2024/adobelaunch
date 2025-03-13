@@ -14,13 +14,6 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
     }
     log("<<++ConvivaIma3Integration - " + player.mediainfo.name, prod);
     
-    if (window.convivaVideoAnalytics != null) {
-        log("<<++ConvivaIma3Integration - Ending any previous Conviva Sessions " + player.mediainfo.name, prod);
-        this.onEnded(); 
-    }
-
-
-
     var _s = this;
     window.convivaIntegration = this;
     this.videoPlayer = player;
