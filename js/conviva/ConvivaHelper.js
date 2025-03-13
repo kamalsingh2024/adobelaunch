@@ -218,6 +218,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             this.videoPlayer.on('seeked', this.onSeeked.bind(this));
             this.videoPlayer.on('ended', this.onEnded.bind(this));            
             this.videoPlayer.on('abort', this.onEnded.bind(this));
+            this.videoPlayer.on('dispose', this.onDispose.bind(this));
             this.videoPlayer.on('stopcompleted', this.onEnded.bind(this));
         
         //if(this.videoPlayer.playlist.currentItem() == 0){
@@ -245,6 +246,8 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         this.videoPlayer.off('seeked', this.onSeeked);
         this.videoPlayer.off('ended', this.onEnded);
         this.videoPlayer.off('stopcompleted', this.onEnded);
+        this.videoPlayer.off('dispose', this.onDispose.bind(this));
+
         
         //if(this.videoPlayer.playlist.currentItem() == 0){
         this.videoPlayer.off('ima3-ads-manager-loaded',this.adsManagerLoaded);
