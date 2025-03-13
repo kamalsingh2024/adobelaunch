@@ -449,7 +449,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
           // (Note: the exact output may be browser-dependent)
         }
 
-                                       try {
+    try {
             if (convivaVideoAnalytics != null) {
             convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.PLAYER_STATE, Conviva.Constants.PlayerState.STOPPED);
             convivaVideoAnalytics.reportPlaybackEnded();
@@ -466,6 +466,41 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         }
 
     };
+    this.onDispose = function () { log("<<++onDispose - " + player.mediainfo.name, prod);
+        try {
+            if (convivaVideoAnalytics != null) {
+            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.PLAYER_STATE, Conviva.Constants.PlayerState.STOPPED);
+            convivaVideoAnalytics.reportPlaybackEnded();
+            convivaVideoAnalytics.release();
+            convivaVideoAnalytics = null;
+            Conviva.Analytics.release();
+            this.destroy();
+        }
+        this.contentPlaybackEnded = true;
+        } catch (error) {
+          log("<<++onDispose - " + error, prod);
+          // Expected output: ReferenceError: nonExistentFunction is not defined
+          // (Note: the exact output may be browser-dependent)
+        }
+
+    try {
+            if (convivaVideoAnalytics != null) {
+            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.PLAYER_STATE, Conviva.Constants.PlayerState.STOPPED);
+            convivaVideoAnalytics.reportPlaybackEnded();
+            convivaVideoAnalytics.release();
+            convivaVideoAnalytics = null;
+            Conviva.Analytics.release();
+            this.destroy();
+        }
+        this.contentPlaybackEnded = true;
+        } catch (error) {
+          log("<<++onDispose - " + error, prod);
+          // Expected output: ReferenceError: nonExistentFunction is not defined
+          // (Note: the exact output may be browser-dependent)
+        }
+
+    };
+
 
     // AdsLoader listeners
     this.adsManagerLoaded = function (event) { log("<<++adsManagerLoaded - " + player.mediainfo.name, prod);
