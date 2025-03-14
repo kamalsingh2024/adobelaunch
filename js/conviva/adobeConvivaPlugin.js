@@ -177,12 +177,13 @@
                        if (window.convivaVideoAnalytics != null) {
                         log("++loadstart - Ending any previous Conviva Sessions " + myPlayer.mediainfo.name, prod);
                         integration.onEnded(); 
+                        }
                     }
 
                     buildMetadata();
 
                     integration = null;
-                    }
+                    
                     //start new sessions
                        integration = new ConvivaIma3Integration(myPlayer,convivaConfigs,metadata );
                                 
