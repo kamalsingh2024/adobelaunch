@@ -24,7 +24,6 @@
     <script src="//assets.adobedtm.com/launch-EN3d02652f91254186bbc3ab768d3098b9.min.js"></script>
     
     <script src="//players.brightcove.net/6076300361001/1aK7JicjJ_default/index.js"></script>
-    <script src="/adobelaunch/js/conviva/conviva-brightcove-plugin-module.js"></script>    
 
     <!--script src="/adobelaunch/js/conviva/adobeConvivaPlugin.js"></script-->
     <script type="text/javascript">
@@ -34,7 +33,11 @@
         //var options = { "testing": { "gatewayUrl": "https://69b93c2f8bf26c0edf513501a13f4da18556fb68.ts-testonly.conviva.com/", "customerKey": "69b93c2f8bf26c0edf513501a13f4da18556fb68" }, "production": { "gatewayUrl": "https://cws.conviva.com", "customerKey": "141c85a0da4e3dce9923e9aae4809e05476786e9" }, "env": "testing", "version": "0.11", "adobe": true };
         var options = { "gatewayUrl": "https://69b93c2f8bf26c0edf513501a13f4da18556fb68.ts-testonly.conviva.com", "customerKey": "69b93c2f8bf26c0edf513501a13f4da18556fb68", "toggleTraces":true, "enableAdExperience":true };
     </script>
-    <script>
+
+
+<script src="/adobelaunch/js/conviva/conviva-brightcove-plugin-module.js"></script>    
+
+<script>
     videojs.getPlayer('player').AdobeConviva(options);
     //videojs.getPlayer('player').convivaPlugin(options); data-video-id="6270393700001"
 	</script>
