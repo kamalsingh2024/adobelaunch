@@ -178,7 +178,7 @@
                         log("++loadstart - Ending any previous Conviva Sessions " + myPlayer.mediainfo.name, prod);
                         integration.onEnded(); 
                     }
-                    
+
                     buildMetadata();
 
                     integration = null;
