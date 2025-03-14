@@ -444,6 +444,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             convivaVideoAnalytics = null;
             Conviva.Analytics.release();
             this.destroy();
+            this.contentMetadata = {};
         }
         this.contentPlaybackEnded = true;
         } catch (error) {
