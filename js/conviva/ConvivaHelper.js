@@ -369,8 +369,8 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
     
     this.onPlay = function () { 
         log("<<++onPlay - " + player.mediainfo.name, prod);
-       this.monitoringSessionInit();
-        if(this.contentPlaybackEnded){
+        if (!this.contentPlaybackEnded ) this.monitoringSessionInit();
+        else {
             this.podIndex = 1;
             this.podPosition = null;
             if(convivaVideoAnalytics) convivaVideoAnalytics.release();
