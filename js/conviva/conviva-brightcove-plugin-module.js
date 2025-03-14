@@ -443,7 +443,9 @@ var convivaBcIntegration = function(n, i) {
     u.C = function(n) {
         var i;
         u.h.toggleTraces && u.R && u.S && (i = (u.S.getEpochTimeMs() / 1e3).toFixed(3).toString(),
-        u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
+        //u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
+        u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] [ ***" + (u.h.tags.title||"title missing") + "***] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
+
     }
     ,
     u.u = function(n) {
@@ -1035,8 +1037,9 @@ var convivaBcIntegration = function(n, i) {
         h.Sn = !1,
         h._n = "",
         h.bn = "",
-        h.On = ""
-        //detele h.h.tags
+        h.On = "",
+        debugger,
+        detele h.h.tags
     }
 };
 "undefined" != typeof ConvivaModule && (ConvivaModule.Impl = ConvivaModule.Impl || {},
