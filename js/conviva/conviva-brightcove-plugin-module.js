@@ -444,7 +444,7 @@ var convivaBcIntegration = function(n, i) {
         var i;
         u.h.toggleTraces && u.R && u.S && (i = (u.S.getEpochTimeMs() / 1e3).toFixed(3).toString(),
         //u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
-        u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] [ ***" + (u.h.?tags.?title||"title missing") + "***] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
+        u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] [ ***" + (u?.h?.tags?.title||"title missing") + "***] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
 
     }
     ,
