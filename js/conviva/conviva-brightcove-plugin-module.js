@@ -1035,7 +1035,8 @@ var convivaBcIntegration = function(n, i) {
         h.Sn = !1,
         h._n = "",
         h.bn = "",
-        h.On = ""
+        h.On = "",
+        detele h.h.tags
     }
 };
 "undefined" != typeof ConvivaModule && (ConvivaModule.Impl = ConvivaModule.Impl || {},
