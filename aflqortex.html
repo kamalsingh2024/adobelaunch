@@ -38,6 +38,13 @@
 <script src="/adobelaunch/js/conviva/conviva-brightcove-plugin-module.js"></script>    
 
 <script>
+    videojs.registerPlugin("AdobeConviva", function(n) {
+    n.i = "BrightcovePlayer",
+    n.o = (bc || videojs).VERSION,
+    new convivaBcIntegration(this,n),
+    adobe(this,n)
+});
+
     videojs.getPlayer('player').AdobeConviva(options);
     //videojs.getPlayer('player').convivaPlugin(options); data-video-id="6270393700001"
 	</script>
