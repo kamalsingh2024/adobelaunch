@@ -3,7 +3,8 @@
 videojs.registerPlugin("AdobeConviva", function(n) {
     n.i = "BrightcovePlayer",
     n.t = (bc || videojs).VERSION,
-    new convivaBcIntegration(this,n)
+    new convivaBcIntegration(this,n),
+    adobeTracking(this,n)
 });
 var convivaBcIntegration = function(n, i) {
     var u = this;
@@ -104,6 +105,8 @@ var convivaBcIntegration = function(n, i) {
     }
     ,
     u.G = function(n) {
+        //add buildMetadata here
+        buildMetadata(this, u.h),
         o(n),
         e(!0, n)
     }
@@ -544,7 +547,11 @@ var convivaBcIntegration = function(n, i) {
             h.C("abort", n)
         }),
         h.Sn("loadstart", function(n) {
-            h.C("loadstart", n)
+            h.C("loadstart", n),
+            buildMetadata(this, h.h)
+            //test ads if needed
+            //this.ima3.settings.serverUrl = 'https://kamalsingh2024.github.io/adobelaunch/Pre-roll.xml?sz=640x480&iu=/7414/TEL.AFL/cx-on-stream&impl=s&gdfp_req=1&env=vp&output=xml_vast2&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]&ad_rule=1&cmsid=2513968&vid=[mediainfo.id]';
+
         }),
         h.Sn("firstplay", function(n) {
             h.C("firstplay", n),
@@ -1016,3 +1023,583 @@ var convivaBcIntegration = function(n, i) {
 };
 "undefined" != typeof ConvivaModule && (ConvivaModule.Impl = ConvivaModule.Impl || {},
 ConvivaModule.Impl.VideojsProxy = videojsProxy);
+
+function getSafe(fn, defaultVal) {
+    try {
+        return fn();
+    } catch (e) {
+        return defaultVal;
+    }
+}
+function getHostName() {
+   var hostname = window.location.hostname.replace(/^(www\.|m\.)/, '');
+    if (/^aflw/i.test(location.pathname.split('/')[1])) hostname = 'womens.afl'; //add old womens playername 
+    return hostname;
+}   
+function getPlayerName() {
+    var hostname = window.location.hostname.replace(/^(www\.|m\.)/, '');
+        if (/^aflw/i.test(location.pathname.split('/')[1])) hostname = 'womens.afl'; //add old womens playername 
+
+    aflSitesArray = new Object();
+    aflSitesArray['afl.com.au'] = 'AFL Network';
+    aflSitesArray['fantasy.afl.com.au'] = 'AFL Fantasy';
+    aflSitesArray['tipping.afl.com.au'] = 'AFL Tipping';
+    aflSitesArray['afc.com.au'] = 'Adelaide Crows';
+    aflSitesArray['lions.com.au'] = 'Brisbane Lions';
+    aflSitesArray['carltonfc.com.au'] = 'Carlton Blues';
+    aflSitesArray['collingwoodfc.com.au'] = 'Collingwood Magpies';
+    aflSitesArray['essendonfc.com.au'] = 'Essendon Bombers';
+    aflSitesArray['fremantlefc.com.au'] = 'Fremantle';
+    aflSitesArray['geelongcats.com.au'] = 'Geelong Cats';
+    aflSitesArray['goldcoastfc.com.au'] = 'Gold Coast';
+    aflSitesArray['gwsgiants.com.au'] = 'GWS';
+    aflSitesArray['hawthornfc.com.au'] = 'Hawthorn Hawks';
+    aflSitesArray['melbournefc.com.au'] = 'Melbourne Demons';
+    aflSitesArray['nmfc.com.au'] = 'Kangaroos';
+    aflSitesArray['portadelaidefc.com.au'] = 'Port Adelaide';
+    aflSitesArray['richmondfc.com.au'] = 'Richmond Tigers';
+    aflSitesArray['saints.com.au'] = 'St.Kilda Saints';
+    aflSitesArray['sydneyswans.com.au'] = 'Sydney Swans';
+    aflSitesArray['westcoasteagles.com.au'] = 'West Coast Eagles';
+    aflSitesArray['westernbulldogs.com.au'] = 'Western Bulldogs';
+    aflSitesArray['womens.afl'] = 'AFLW Network';
+
+    return aflSitesArray[hostname] || "AFL test";
+}
+
+function buildMetadata(myPlayer, convivaConfig) {
+
+       // Delete the existing tags object if it exists
+       if (convivaConfig.tags) {
+        delete convivaConfig.tags;
+    }
+
+    const metadata = {};
+
+    var viewerID = "random:" + Math.random() * 1e9;
+
+    if (s?.visitor !== undefined) {
+        viewerID = s.visitor.getMarketingCloudVisitorID();
+    }
+
+    // Basic metadata
+    metadata["id"] = myPlayer.mediainfo.id;
+    metadata["title"] = myPlayer.mediainfo.name;
+    metadata["url"] = myPlayer.mediainfo.sources[0].src;
+    metadata["live"] = myPlayer.mediainfo.duration == 0 ? "true" : "false";
+    metadata["durationSec"] = "" + myPlayer.mediainfo.duration;
+    metadata["streamType"] = myPlayer.mediainfo.sources[0].type;
+    metadata["applicationName"] = getPlayerName();
+
+    const isLive = myPlayer.mediainfo.duration == 0;
+    const adobeMediaName = isLive ? "Live:" + myPlayer.mediainfo.name : myPlayer.mediainfo.name;
+
+    // Append match name from dataLayer if available
+    const matchName = getSafe(() => dataLayer.filter(obj => obj.event === 'matchView')[0].matchName, false);
+    if (matchName) {
+        metadata["title"] = adobeMediaName + " - " + matchName;
+    }
+
+    // Custom metadata
+    metadata["assetID"] = myPlayer.mediainfo.id;
+    metadata["channel"] = getHostName();
+    metadata["playerName"] = getPlayerName();
+    metadata["adobeViewerID"] = viewerID;
+
+    // User data
+    const userData = {
+        viewerID: viewerID,
+        hostname: getHostName()
+    };
+
+    // Merge custom fields and user data into metadata
+    Object.assign(metadata, myPlayer.mediainfo.customFields);
+    Object.assign(metadata, userData);
+
+    // Add Conviva-specific metadata
+    metadata[Conviva.Constants.ASSET_NAME] = "[" + metadata.assetID + "] " + metadata.title;
+    metadata[Conviva.Constants.STREAM_URL] = metadata.url;
+    metadata[Conviva.Constants.IS_LIVE] = metadata.live == 'true' ? Conviva.Constants.StreamType.LIVE : Conviva.Constants.StreamType.VOD;
+    metadata[Conviva.Constants.PLAYER_NAME] = metadata.playerName;
+    metadata[Conviva.Constants.VIEWER_ID] = metadata.adobeViewerID;
+    metadata[Conviva.Constants.DURATION] = metadata.durationSec;
+    metadata[Conviva.Constants.DEFAULT_RESOURCE] = 'Akamai';
+    metadata[Conviva.Constants.APPLICATION_VERSION] = _satellite.getVar("publish_ver") || 'Launch PublishDate:2999-12-31 | sCode version:2.1.0';
+
+    // Add device metadata
+    const deviceMetadataReal = getDeviceMetadataReal();
+    metadata[Conviva.Constants.DeviceMetadata.BRAND] = deviceMetadataReal.BRAND;
+    metadata[Conviva.Constants.DeviceMetadata.MANUFACTURER] = deviceMetadataReal.MANUFACTURER;
+    metadata[Conviva.Constants.DeviceMetadata.MODEL] = deviceMetadataReal.MODEL;
+    metadata[Conviva.Constants.DeviceMetadata.TYPE] = Conviva.Constants.DeviceType.DESKTOP;
+    metadata[Conviva.Constants.DeviceMetadata.OS_NAME] = deviceMetadataReal.OS_NAME;
+    metadata[Conviva.Constants.DeviceMetadata.OS_VERSION] = deviceMetadataReal.OS_VERSION;
+    metadata[Conviva.Constants.DeviceMetadata.CATEGORY] = Conviva.Constants.DeviceCategory.WEB;
+
+    // Append metadata to the provided JSON object under the "tags" key
+    if (!convivaConfig.tags) {
+        convivaConfig.tags = {};
+    }
+    Object.assign(convivaConfig.tags, metadata);
+
+    log(JSON.stringify(metadata), true);
+
+
+    return convivaConfig;
+}
+
+// Device metadata function
+function getDeviceMetadataReal() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    let manufacturer = 'Unknown';
+    let model = 'Unknown';
+
+    if (userAgent.includes('iphone')) {
+        manufacturer = 'Apple';
+        model = 'iPhone';
+    } else if (userAgent.includes('ipad')) {
+        manufacturer = 'Apple';
+        model = 'iPad';
+    } else if (userAgent.includes('macintosh') || userAgent.includes('mac os')) {
+        manufacturer = 'Apple';
+        model = 'Mac';
+    } else if (userAgent.includes('android')) {
+        manufacturer = 'Android';
+        // Extract model from the user agent if available
+        const match = userAgent.match(/android [\d.]+; (.*?);/);
+        if (match && match[1]) {
+            model = match[1];
+        }
+    } else if (userAgent.includes('windows')) {
+        manufacturer = 'Windows';
+        // Extract model from the user agent if available
+        const match = userAgent.match(/windows nt [\d.]+; (.*?);/);
+        if (match && match[1]) {
+            model = match[1];
+        }
+    } else if (userAgent.includes('linux')) {
+        manufacturer = 'Linux';
+        // Extract model from the user agent if available
+        const match = userAgent.match(/\((.*?)\)/);
+        if (match && match[1]) {
+            model = match[1];
+        }
+    }
+
+    const deviceMetadata = {
+        BRAND: manufacturer,
+        MANUFACTURER: manufacturer,
+        MODEL: model,
+        OS_NAME: navigator.platform,
+        OS_VERSION: navigator.appVersion,
+    };
+
+    return deviceMetadata;
+}
+
+function log(m, p) {
+    var prod = (window.localStorage.getItem("sdsat_debug") == null || window.localStorage.getItem("sdsat_debug") == 'false');
+
+    if (!prod) {
+        console.log(m)
+    }
+}
+
+function adobeTracking(player,options) {
+
+var prod = true; 
+var adobe = true; 
+
+var myPlayer = player;
+var isContentLoaded = false;
+var videoDuration;
+var mediaName;
+var adobeMediaName;            
+var mediaPlayerName = getHostName();
+var currentTime;
+var isPlaying = false;
+var videoEnd = false;
+var bitRate = 0;
+var isLive = false;
+
+var metadata = {};
+var firstPlay = false;
+var tmAdReq = false;
+var tmAdPlay = false;
+var tmAdBeacon = false;
+var tmCC = false;
+var tmAFLW = false;
+
+var viewerID = "random:" + Math.random() * 1e9;
+
+if (s?.visitor !== undefined) {
+    viewerID = s.visitor.getMarketingCloudVisitorID();
+}
+
+function ABDMediaOPEN() {
+    log("++ IN ABDMediaOPEN TOP ++", prod);
+
+    //Check the metadata is loaded
+    if (isContentLoaded) {
+        log("++ IN ABDMediaOPEN content loaded ++", prod);
+        //Get all required metadata
+        currentTime = myPlayer.currentTime();
+        mediaName = myPlayer.mediainfo.name;
+        videoDuration = myPlayer.mediainfo.duration;
+
+        buildMetadataAdobe();
+
+        //Open adobe Analytics Media Module	
+
+        adobe && s.Media.open(adobeMediaName, videoDuration, mediaPlayerName);
+
+        //Check if video is playing
+        //if (isPlaying) {
+        //    log("++IN ABDMediaOPEN video is playing " + mediaName + " | " + videoDuration, prod);
+        //Play Adobe Analytics Media module from beginning.
+        //    adobe && s.Media.play(adobeMediaName, currentTime);
+        // }
+    }
+}
+
+            
+//Used to reset the variables as when the next videos play, the play event is called before loadstart ...
+function resetVariables() {
+    isContentLoaded = false;
+    videoDuration = currentTime = "";
+    videoEnd = true;
+    bitRate = 0;
+    tmAdBeacon=false;
+    tmCC = false;
+    isLive=false;
+    adobeMediaName="";
+    tmAFLW=false;
+}
+//Used to build metadata 
+function buildMetadataAdobe() {
+         metadata = {};
+
+        metadata["id"] = myPlayer.mediainfo.id;
+        metadata["title"] = myPlayer.mediainfo.name;;
+        metadata["url"] = myPlayer.mediainfo.sources[0].src;
+        metadata["live"] = myPlayer.mediainfo.duration == 0 ? "true" : "false";
+        metadata["durationSec"] = ""+myPlayer.mediainfo.duration;
+        metadata["streamType"] = myPlayer.mediainfo.sources[0].type;
+        metadata["applicationName"] = getPlayerName();
+        isLive = myPlayer.mediainfo.duration == 0 ? true : false;
+        adobeMediaName = isLive ? "Live:"+myPlayer.mediainfo.name : myPlayer.mediainfo.name;
+        tmAFLW = /^aflw/i.test(myPlayer.mediainfo.custom_fields.competition); //check is aflw or afl    
+
+        //when live streaming append the matchname from the datalayer // may need to be fixed up
+        if (getSafe(()=>dataLayer.filter(function(obj) {
+            return obj.event === 'matchView'
+        })[0].matchName, false)) {
+            metadata["title"] = mediaName + " - " + dataLayer.filter(function(obj) {
+                return obj.event === 'matchView'
+            })[0].matchName;
+        }
+
+        //when unily grab the page title as well
+        var top_url = top_url = (window.location != window.parent.location) ? document.referrer != "" ? document.referrer : document.location.href : document.location.href;
+        var t_test = new URL(top_url);
+
+        if (/telstra\.unily\.com/.test(top_url) && t_test.pathname.length > 0) {
+            metadata["title"] = mediaName + " [" + t_test.pathname + "]";
+        }
+
+        //custom 
+        metadata["assetID"] = myPlayer.mediainfo.id;
+        metadata["channel"] = getHostName();
+        metadata["playerName"] = getPlayerName();
+
+        metadata["adobeViewerID"] = viewerID;
+
+        //createConvivaSession
+        userData = {}
+        userData["viewerID"] = viewerID;
+        userData["hostname"] = getHostName();
+
+        //add all custom fields 
+        Object.assign(metadata, myPlayer.mediainfo.customFields);
+        Object.assign(metadata, userData);
+
+        log(JSON.stringify(metadata), prod)
+}
+
+
+myPlayer.on('ima3-ads-manager-loaded', function(event) {
+  log("++ima3-ads-manager-loaded", prod); 
+  //myPlayer.ima3.toggleLogger(!prod);
+               
+});
+            
+myPlayer.on('loadstart', function() {
+    log("++loadstart * update *  " + myPlayer.mediainfo.name, prod);
+    //if(!prod)myPlayer.ima3.settings.serverUrl = 'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpremidpostoptimizedpod&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&cmsid=496&vid=short_onecue&correlator=';        
+    //if(!prod)myPlayer.ima3.settings.serverUrl = 'https://pubads.g.doubleclick.net/gampad/ads?iu=/7414/TEL.AFL/cx-on-stream&sz=640x480&vid_d=600&allcues=60000,90000,110000&cust_params=po%3D0000501303&keyword%3DxAFLTestingx&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&cmsid=496&vid=short_onecue&correlator=';        
+    if(!prod)myPlayer.ima3.settings.serverUrl = 'https://kamalsingh2024.github.io/adobelaunch/Pre-roll.xml?sz=640x480&iu=/7414/TEL.AFL/cx-on-stream&impl=s&gdfp_req=1&env=vp&output=xml_vast2&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]&ad_rule=1&cmsid=2513968&vid=[mediainfo.id]';
+    buildMetadataAdobe();
+
+    //kill all old sessions                
+    //if (integration) {
+       //integration.ConvivaIma3Integration(myPlayer,convivaConfigs,metadata);
+    //integration = null;
+   // }
+    //start new sessions
+    //   integration = new ConvivaIma3Integration(myPlayer,convivaConfigs,metadata );
+                
+    firstPlay = true;
+    //Check that metadata is loaded
+    if (myPlayer.mediainfo.name) {
+        isContentLoaded = true;
+        //Initiate Adobe Analytics Media Module tracking && Conviva Analytics
+    }
+});
+
+myPlayer.on('ads-request', function() {
+    log("++ads-ad-request - " + myPlayer.mediainfo.name, prod);
+    tmAdReq = true;
+});
+
+myPlayer.on('ads-ad-ended', function() {
+    log("++ads-ad-ended - " + myPlayer.mediainfo.name, prod);
+    tmAdPlay = true;
+});
+
+myPlayer.on('play', function() {
+    log("++play - " + myPlayer.mediainfo.name, prod);
+    isPlaying = true;
+    if (firstPlay) {
+        log("++ First Play via played - *****Video Start**** - " + myPlayer.mediainfo.name, prod);
+        firstPlay = false;
+        isContentLoaded = true;
+        ABDMediaOPEN();
+        //integration = new NewConvivaIntegration(myPlayer, convivaConfigs, metadata);
+        //convivaHelper.createConvivaSession(userData, metadata);
+        //convivaHelper.attachPlayerToSession();
+
+
+    }
+
+    if (videoEnd) {
+        //user has restarted video from end 
+        videoEnd = false;
+        isContentLoaded = false;
+        ABDMediaOPEN();
+        
+    }
+
+    //Check if metadata loaded - needed to make sure correct video media module instance is tracked.
+    if (isContentLoaded) {
+        currentTime = myPlayer.currentTime();
+        //Play Adobe Analytics Media module from the current head.
+        if (adobe && currentTime != 0 ) { //resume from pause
+            s.eVar63 = adobeMediaName;
+            s.Media.play(adobeMediaName, currentTime);
+
+        }
+
+    }
+});
+
+myPlayer.on("playing", function() {
+    log("++ In Playing ++", prod)
+
+    //convivaHelper.setPlayerWidthAndHeight(myPlayer.videoWidth(), myPlayer.videoHeight());
+    //convivaHelper.updatePlayerState("playing");
+                
+});
+
+myPlayer.on('pause', function() {
+    isPlaying = false;
+    log("++paused - " + myPlayer.mediainfo.name, prod);
+    //Check if metadata loaded - needed to make sure correct video media module instance is tracked.
+    if (isContentLoaded) {
+        currentTime = myPlayer.currentTime();
+        //Play Adobe Analytics Media module from the current head.
+        adobe && s.Media.stop(adobeMediaName, currentTime);
+        //convivaHelper.updatePlayerState("pause");
+    }
+});
+
+myPlayer.on('progress', function() {
+    log("progressed - " + myPlayer.mediainfo.name, prod);
+
+});
+
+myPlayer.on('resize', function() {
+    log("resized - " + myPlayer.mediainfo.name, prod);
+});
+
+myPlayer.on('seeked', function() {
+    log("++seeked - " + myPlayer.mediainfo.name, prod);
+    //Check if metadata loaded - needed to make sure correct video media module instance is tracked.
+    if (isContentLoaded) {
+        currentTime = myPlayer.currentTime();
+        //Play Adobe Analytics Media module from the current head.
+        adobe && s.Media.play(adobeMediaName, currentTime);
+        //convivaHelper.contentSeeked();
+    }
+});
+
+myPlayer.on('seeking', function() {
+    log("++seeking - " + myPlayer.mediainfo.name, prod);
+    //Check if metadata loaded - needed to make sure correct video media module instance is tracked.
+    if (isContentLoaded) {
+        currentTime = myPlayer.currentTime();
+        //Play Adobe Analytics Media module from the current head.
+        adobe && s.Media.stop(adobeMediaName, currentTime);
+    }
+});
+
+myPlayer.on('stalled', function() {
+    log("++stalled - " + myPlayer.mediainfo.name, prod);
+    //Check if metadata loaded - needed to make sure correct video media module instance is tracked.
+
+});
+
+myPlayer.on('timeupdate', function() {
+    
+    currentTime = myPlayer.currentTime();
+    if(myPlayer.currentTime() % 5 <= 0.25)log("++timeupdate - " + currentTime, prod);
+
+    // adobe keep alive if video is live
+    if(adobe && isLive && currentTime != 0 &&  currentTime % 300 <= 0.25 ){
+       log("++timeupdate - keep alive beacon " + currentTime, prod);
+            s.Media.track(adobeMediaName, currentTime);
+            s.Media.play(adobeMediaName, currentTime);
+
+        }
+
+    if (adobe && isPlaying && !tmAdBeacon && currentTime > 0) {
+
+        //s.Media.trackVars+= ",contextData.tmAdReq,contextData.tmAdPlay"
+        tmAdReq ? s.contextData['tmAdReq'] = "yes" : s.contextData['tmAdReq'] = "no";
+        tmAdPlay ? s.contextData['tmAdPlay'] = "yes" : s.contextData['tmAdPlay'] = "no";
+        tmAFLW ? s.contextData['tmAFLW'] = "yes" : s.contextData['tmAFLW'] = "no"; 
+        s.contextData['tmIsCC'] = "";
+
+        //s.tl();
+        tmAdBeacon = true;
+        log("++ In timeupdate and adreq adplay update ++ " + mediaName + " | " + videoDuration, prod);
+        //Play Adobe Analytics Media module from beginning.
+        s.Media.play(adobeMediaName, currentTime);
+    }
+
+    if(adobe && isPlaying && !tmCC && currentTime > 0 ) {
+
+     var tracks = myPlayer.textTracks();
+
+     for (var i = 0; i < tracks.length; i++) {
+     var track = tracks[i];
+
+     // Find the English captions track and mark it as "showing".
+     if (track.kind === 'captions' && track.mode === 'showing') {
+         //track.mode = 'showing';
+         s.contextData['tmAdReq'] = "";
+         s.contextData['tmAdPlay'] = "";
+         s.contextData['tmAFLW'] = "";
+         s.contextData['tmMidroll']= "";
+                     
+         s.contextData['tmIsCC'] = "yes";
+         log("++ In timeupdate and CC turned on by user ++ " + mediaName + " | " + videoDuration, prod);
+         tmCC = true;
+          //send info to adobe 
+          s.Media.track(adobeMediaName, currentTime);
+          s.Media.play(adobeMediaName, currentTime);
+       }
+      }
+    }
+
+});
+
+myPlayer.on('volumechange', function() {
+    log("++volumechange - " + myPlayer.mediainfo.name, prod);
+});
+
+myPlayer.on('waiting', function() {
+    log("++waiting - " + myPlayer.mediainfo.name, prod);
+    if (isContentLoaded) {//convivaHelper.updatePlayerState("waiting");
+    }
+});
+
+myPlayer.on('durationchange', function() {
+    log("++durationchange - " + myPlayer.mediainfo.name, prod);
+     myPlayer.mediainfo.duration > myPlayer.duration() ? myPlayer.mediainfo.duration = myPlayer.mediainfo.duration : myPlayer.mediainfo.duration = myPlayer.duration()
+});
+
+myPlayer.on('ended', function() {
+    log("++ended - " + myPlayer.mediainfo.name, prod);
+    //Check if metadata loaded - needed to make sure correct video media module instance is tracked.
+    if (isContentLoaded) {
+        currentTime = myPlayer.currentTime();
+        //Play Adobe Analytics Media module from the current head.
+        adobe && s.Media.stop(adobeMediaName, currentTime);
+        adobe && s.Media.close(adobeMediaName);
+        //convivaHelper.updatePlayerState("ended");
+        //convivaHelper.cleanupConvivaSession();
+        resetVariables();
+    }
+});
+            
+myPlayer.on('abort', function() {
+    log("++abort - " + myPlayer.mediainfo.name, prod);
+    //Check if metadata loaded - needed to make sure correct video media module instance is tracked.
+        currentTime = myPlayer.currentTime();
+        //Play Adobe Analytics Media module from the current head.
+        adobe && s.Media.stop(adobeMediaName, currentTime);
+        adobe && s.Media.close(adobeMediaName);
+        //convivaHelper.updatePlayerState("ended");
+        //convivaHelper.cleanupConvivaSession();
+        resetVariables();
+});                            
+
+myPlayer.on("bc-catalog-error", function() {
+    log("++ In Catalog Error ++", prod);
+    var error = myPlayer.error_;
+    var code = error.code;
+    var message = error.message;
+    var type = error.type;
+    //convivaHelper.contentReportError(code + ": " + message + " " + type, Conviva.Client.ErrorSeverity.FATAL);
+    //convivaHelper.cleanupConvivaSession();
+});
+
+myPlayer.on("error", function() {
+    log("++ In Error ++", prod);
+    var error = myPlayer.error_;
+    var code = error.code;
+    var message = error.message;
+    var type = error.type;
+    //convivaHelper.contentReportError(code + ": " + message + " " + type, Conviva.Client.ErrorSeverity.FATAL);
+    //convivaHelper.cleanupConvivaSession();
+});
+
+myPlayer.on('fullscreenchange', function() {
+    log("++fullscreenchange - " + myPlayer.mediainfo.name, prod);
+});
+
+myPlayer.on('loadedalldata', function() {
+    log("++loadedalldata - " + myPlayer.mediainfo.name, prod);
+
+});
+
+myPlayer.on('loadeddata', function() {
+    log("++loadeddata ++ " + myPlayer.mediainfo.name, prod);
+
+    //integration.collectContentMetdata();
+    //    adobe && s.Media.stop(adobeMediaName, currentTime);
+    //    adobe && s.Media.close(adobeMediaName);
+
+
+});
+
+myPlayer.on('loadedmetadata', function() {
+    log("++loadedmetadata - " + myPlayer.mediainfo.name, prod);
+    if (myPlayer.mediainfo.name) {
+        isContentLoaded = true;
+        //Initiate Adobe Analytics Media Module tracking && Conviva Analytics
+        //ABDMediaOPEN();
+        //integration = new NewConvivaIntegration(myPlayer,convivaConfigs,metadata);
+    }
+});
+}
