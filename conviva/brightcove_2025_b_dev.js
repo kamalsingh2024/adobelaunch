@@ -7,11 +7,12 @@
 videojs.registerPlugin("AdobeConviva", function(n) {
     n.i = "BrightcovePlayer",
     n.t = (bc || videojs).VERSION,
-    new convivaBcIntegration(this,n),
-    adobeTracking(this,n)
+    new convivaBcIntegration(this,n)
+    //adobeTracking(this,n)
 });
 var convivaBcIntegration = function(n, i) {
     var u = this;
+    adobeTracking(n,i);
     function e(n, i) {
         (n || void 0 !== u.o) && u.v.playlist && u.o !== u.v.playlist.currentItem() && (u.u(i),
         u.l(i))
