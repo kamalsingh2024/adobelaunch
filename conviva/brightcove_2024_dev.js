@@ -8,7 +8,7 @@ videojs.registerPlugin("AdobeConviva", function(n) {
     n.i = "BrightcovePlayer",
     n.o = (bc || videojs).VERSION,
     new convivaBcIntegration(this,n),
-    adobe(this,n)
+    adobeTracking(this,n)
 });
 var convivaBcIntegration = function(n, i) {
     var u = this;
@@ -86,6 +86,7 @@ var convivaBcIntegration = function(n, i) {
     }
     ,
     u.F = function() {
+        //buildMetadata(this, u.h);
         null === u.p && (window.ConvivaVideoAnalytics = u.p = Conviva.Analytics.buildVideoAnalytics(),
         u.V ? u.V.un(u.v, u.p) : "function" == typeof videojsProxy && (u.V = new videojsProxy(u.v,null,u.p,Conviva,u.C,u.h)))
     }
@@ -110,6 +111,8 @@ var convivaBcIntegration = function(n, i) {
     }
     ,
     u.J = function(n) {
+        //add buildMetadata here
+        buildMetadata();
         t(n),
         o(!0, n)
     }
@@ -447,7 +450,9 @@ var convivaBcIntegration = function(n, i) {
     u.C = function(n) {
         var i;
         u.h.toggleTraces && u.R && u.S && (i = (u.S.getEpochTimeMs() / 1e3).toFixed(3).toString(),
-        u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
+        //u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
+        u.R.consoleLog("[Conviva] [" + i + "] [DEBUG] [SDK] [BrightcoveProxy] [ ***" + (u?.h?.tags?.title||"title missing") + "***] " + n, Conviva.SystemSettings.LogLevel.DEBUG))
+
     }
     ,
     u.u = function(n) {
@@ -1163,6 +1168,9 @@ function buildMetadata(myPlayer, convivaConfig) {
     }
     Object.assign(convivaConfig.tags, metadata);
 
+    log(JSON.stringify(metadata), prod);
+
+
     return convivaConfig;
 }
 
@@ -1216,12 +1224,15 @@ function getDeviceMetadataReal() {
 }
 
 function log(m, p) {
-    if (!p) {
+    var prod = (window.localStorage.getItem("sdsat_debug") == null || window.localStorage.getItem("sdsat_debug") == 'false');
+
+    if (!prod) {
         console.log(m)
     }
 }
 
-function adobe(player,options) {
+function adobeTracking(player,options) {
+
 var prod = true; 
 var adobe = true; 
 
@@ -1262,7 +1273,7 @@ function ABDMediaOPEN() {
         mediaName = myPlayer.mediainfo.name;
         videoDuration = myPlayer.mediainfo.duration;
 
-        buildMetadata();
+        buildMetadataAdobe();
 
         //Open adobe Analytics Media Module	
 
@@ -1291,7 +1302,7 @@ function resetVariables() {
     tmAFLW=false;
 }
 //Used to build metadata 
-function buildMetadata() {
+function buildMetadataAdobe() {
          metadata = {};
 
         metadata["id"] = myPlayer.mediainfo.id;
@@ -1353,7 +1364,7 @@ myPlayer.on('loadstart', function() {
     //if(!prod)myPlayer.ima3.settings.serverUrl = 'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpremidpostoptimizedpod&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&cmsid=496&vid=short_onecue&correlator=';        
     //if(!prod)myPlayer.ima3.settings.serverUrl = 'https://pubads.g.doubleclick.net/gampad/ads?iu=/7414/TEL.AFL/cx-on-stream&sz=640x480&vid_d=600&allcues=60000,90000,110000&cust_params=po%3D0000501303&keyword%3DxAFLTestingx&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&cmsid=496&vid=short_onecue&correlator=';        
     if(!prod)myPlayer.ima3.settings.serverUrl = 'https://kamalsingh2024.github.io/adobelaunch/Pre-roll.xml?sz=640x480&iu=/7414/TEL.AFL/cx-on-stream&impl=s&gdfp_req=1&env=vp&output=xml_vast2&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]&ad_rule=1&cmsid=2513968&vid=[mediainfo.id]';
-    buildMetadata();
+    buildMetadataAdobe();
 
     //kill all old sessions                
     //if (integration) {
