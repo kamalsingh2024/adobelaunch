@@ -41,8 +41,8 @@
     videojs.registerPlugin("AdobeConviva", function(n) {
     n.i = "BrightcovePlayer",
     n.o = (bc || videojs).VERSION,
-    new convivaBcIntegration(this,n),
-    adobeTracking(this,n)
+    new convivaBcIntegration(this,n)
+    //adobeTracking(this,n)
 });
 
     videojs.getPlayer('player').AdobeConviva(options);
