@@ -107,7 +107,7 @@ var convivaBcIntegration = function(n, i) {
     ,
     u.J = function(n) {
         //add buildMetadata here
-        buildMetadata();
+        buildMetadata(this, u.h);
         t(n),
         o(!0, n)
     }
