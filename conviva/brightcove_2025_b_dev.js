@@ -5,7 +5,7 @@
 
 /*! (C) 2023 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 "use strict";
-videojs.registerPlugin("convivaPlugin", function(n) {
+videojs.registerPlugin("AdobeConviva", function(n) {
     n.i = "BrightcovePlayer",
     n.t = (bc || videojs).VERSION,
     new convivaBcIntegration(this,n)
