@@ -1163,7 +1163,7 @@ function buildMetadata(myPlayer, convivaConfig) {
     }
     Object.assign(convivaConfig.tags, metadata);
 
-    log(JSON.stringify(metadata), prod);
+    log(JSON.stringify(metadata), true);
 
 
     return convivaConfig;
