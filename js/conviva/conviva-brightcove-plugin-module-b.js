@@ -1,5 +1,4 @@
 /*! (C) 2023 Conviva, Inc. All rights reserved. Confidential and proprietary. */
-"use strict";
 videojs.registerPlugin("AdobeConviva", function(n) {
     n.i = "BrightcovePlayer",
     n.t = (bc || videojs).VERSION,
@@ -1040,7 +1039,7 @@ function getPlayerName() {
     var hostname = window.location.hostname.replace(/^(www\.|m\.)/, '');
         if (/^aflw/i.test(location.pathname.split('/')[1])) hostname = 'womens.afl'; //add old womens playername 
 
-    aflSitesArray = new Object();
+    let aflSitesArray = {};
     aflSitesArray['afl.com.au'] = 'AFL Network';
     aflSitesArray['fantasy.afl.com.au'] = 'AFL Fantasy';
     aflSitesArray['tipping.afl.com.au'] = 'AFL Tipping';
