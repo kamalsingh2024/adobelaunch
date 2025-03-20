@@ -12,7 +12,7 @@ videojs.registerPlugin("AdobeConviva", function(n) {
 });
 var convivaBcIntegration = function(n, i) {
     var u = this;
-    adobeTracking(n,i);
+    //adobeTracking(n,i);
     function e(n, i) {
         (n || void 0 !== u.o) && u.v.playlist && u.o !== u.v.playlist.currentItem() && (u.u(i),
         u.l(i))
