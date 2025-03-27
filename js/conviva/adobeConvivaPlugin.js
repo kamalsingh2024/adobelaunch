@@ -106,6 +106,7 @@
                     isLive=false;
                     adobeMediaName="";
                     tmAFLW=false;
+                    firstPlay=false;
                 }
                 //Used to build metadata 
                 function buildMetadata() {
