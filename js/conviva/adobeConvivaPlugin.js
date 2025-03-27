@@ -186,7 +186,7 @@
                     integration = null;
                     
                     //start new sessions
-                       integration = new ConvivaIma3Integration(myPlayer,convivaConfigs,metadata );
+                       //integration = new ConvivaIma3Integration(myPlayer,convivaConfigs,metadata );
                                 
                     firstPlay = true;
                     //Check that metadata is loaded
