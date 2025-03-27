@@ -245,6 +245,12 @@
                 myPlayer.on("playing", function() {
                     log("++ In Playing ++", prod)
 
+                    if (firstPlay && isContentLoaded) {
+                        ABDMediaOPEN();
+                        firstPlay = false;
+                
+                    }
+
                     //convivaHelper.setPlayerWidthAndHeight(myPlayer.videoWidth(), myPlayer.videoHeight());
                     //convivaHelper.updatePlayerState("playing");
                                 
