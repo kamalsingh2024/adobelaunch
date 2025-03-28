@@ -191,7 +191,7 @@
 
                         // pass new details on 
                         buildMetadata();
-                        integration.ConvivaIma3Integration(myPlayer,convivaConfigs,metadata);
+                        integration.updateConvivaClient(myPlayer,convivaConfigs,metadata);
 
                         
                     }

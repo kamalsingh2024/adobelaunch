@@ -25,6 +25,29 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
     var convivaAdAnalytics = null;
     var sessionActive = false;
 
+    this.updateConvivaClient = function (player, convivaConfiguration, contentMetadata) {     log("<<++updateConvivaClient - " + player.mediainfo.name, prod);
+    
+        this.videoPlayer = player;
+        this.contentMetadata = contentMetadata;
+        this.videoPlayerContainer = player.el();
+        
+        this.isAdBreakEnabled = true; // set to false to disable ad breaks
+        this.convivaVideoAnalytics = null;
+        this.convivaAdAnalytics = null;
+        this.sessionActive = false;
+
+        this.adsManager = null;
+        this.podIndex = 1;
+        this.podPosition = null;
+        this.initConvivaClient();
+        this.registerPlayerListeners();
+        //this.monitoringSessionInit();
+        //this.ConvivaAdsAnalyticsInit();
+        this.currentPodIndex = 0;
+    
+    }
+
+
     this.initConvivaClient = function () {     log("<<++initConvivaClient - " + player.mediainfo.name, prod);
 
 
