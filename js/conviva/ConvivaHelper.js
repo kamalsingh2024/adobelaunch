@@ -40,7 +40,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         this.podIndex = 1;
         this.podPosition = null;
         this.initConvivaClient();
-        this.registerPlayerListeners();
+        //this.registerPlayerListeners();
         //this.monitoringSessionInit();
         //this.ConvivaAdsAnalyticsInit();
         this.currentPodIndex = 0;
@@ -474,7 +474,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             convivaVideoAnalytics = null;
             window.convivaVideoAnalytics = null;
             Conviva.Analytics.release();
-            this.destroy();
+            //this.destroy();
             this.contentMetadata = {};
             sessionActive = false;
         }
@@ -496,7 +496,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             convivaVideoAnalytics = null;
             window.convivaVideoAnalytics = null;
             Conviva.Analytics.release();
-            this.destroy();
+            //this.destroy();
             sessionActive = false;
         }
         this.contentPlaybackEnded = true;
