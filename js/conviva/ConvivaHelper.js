@@ -32,8 +32,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         Conviva.Analytics.setDeviceMetadata(this.getDeviceMetadata());
 
         this.checkTabWinClose(this);
-        sessionActive = false;
-        
+       
     };
 
         this.checkTabWinClose =  function(t) {log("<<++checkTabWinClose - " + player.mediainfo.name, prod)
@@ -439,6 +438,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         window.convivaVideoAnalytics = null;
         Conviva.Analytics.release();
         this.contentPlaybackEnded = true;
+        sessionActive = false;
     };
     this.onEnded = function () { log("<<++onEnded - " + player.mediainfo.name, prod);
         try {
@@ -451,6 +451,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             Conviva.Analytics.release();
             this.destroy();
             this.contentMetadata = {};
+            sessionActive = false;
         }
         this.contentPlaybackEnded = true;
         } catch (error) {
@@ -471,6 +472,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             window.convivaVideoAnalytics = null;
             Conviva.Analytics.release();
             this.destroy();
+            sessionActive = false;
         }
         this.contentPlaybackEnded = true;
         } catch (error) {
