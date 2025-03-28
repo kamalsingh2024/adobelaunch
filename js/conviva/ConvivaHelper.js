@@ -455,21 +455,6 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
           // (Note: the exact output may be browser-dependent)
         }
 
-    try {
-            if (convivaVideoAnalytics != null) {
-            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.PLAYER_STATE, Conviva.Constants.PlayerState.STOPPED);
-            convivaVideoAnalytics.reportPlaybackEnded();
-            convivaVideoAnalytics.release();
-            convivaVideoAnalytics = null;
-            Conviva.Analytics.release();
-            this.destroy();
-        }
-        this.contentPlaybackEnded = true;
-        } catch (error) {
-          log("<<++onEnded2 - " + error, prod);
-          // Expected output: ReferenceError: nonExistentFunction is not defined
-          // (Note: the exact output may be browser-dependent)
-        }
 
     };
     this.onDispose = function () { log("<<++onDispose - " + player.mediainfo.name, prod);
@@ -479,6 +464,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             convivaVideoAnalytics.reportPlaybackEnded();
             convivaVideoAnalytics.release();
             convivaVideoAnalytics = null;
+            window.convivaVideoAnalytics = null;
             Conviva.Analytics.release();
             this.destroy();
         }
@@ -569,6 +555,8 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
                 convivaVideoAnalytics.reportPlaybackEnded();
                 convivaVideoAnalytics.release();
                 convivaVideoAnalytics = null;
+                window.convivaVideoAnalytics = null;
+
                 Conviva.Analytics.release();
                 this.contentPlaybackEnded = true;
             }
@@ -608,6 +596,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
                 convivaVideoAnalytics.reportPlaybackEnded();
                 convivaVideoAnalytics.release();
                 convivaVideoAnalytics = null;
+                window.convivaVideoAnalytics = null;
                 Conviva.Analytics.release();
             }
         } else if (adEvent.type == google.ima.AdEvent.Type.LOG) {
