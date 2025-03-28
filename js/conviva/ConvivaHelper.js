@@ -391,7 +391,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         if (convivaVideoAnalytics != null) {
             convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.PLAYER_STATE, Conviva.Constants.PlayerState.PLAYING);
         }
-        if (!sessionActive) this.onPlay; //make a new session
+        if (!sessionActive) this.onPlay(); //make a new session
     };
     this.onPause = function () { log("<<++onPause - " + player.mediainfo.name, prod);
         if (convivaVideoAnalytics != null) {
