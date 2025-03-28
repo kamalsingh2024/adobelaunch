@@ -432,6 +432,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         }
         convivaVideoAnalytics.release();
         convivaVideoAnalytics = null;
+        window.convivaVideoAnalytics = null;
         Conviva.Analytics.release();
         this.contentPlaybackEnded = true;
     };
@@ -442,6 +443,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             convivaVideoAnalytics.reportPlaybackEnded();
             convivaVideoAnalytics.release();
             convivaVideoAnalytics = null;
+            window.convivaVideoAnalytics = null;
             Conviva.Analytics.release();
             this.destroy();
             this.contentMetadata = {};
