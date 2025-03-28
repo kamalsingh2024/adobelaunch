@@ -32,6 +32,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         Conviva.Analytics.setDeviceMetadata(this.getDeviceMetadata());
 
         this.checkTabWinClose(this);
+        sessionActive = false;
         
     };
 
