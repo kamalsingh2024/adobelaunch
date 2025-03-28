@@ -23,6 +23,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
     this.isAdBreakEnabled = true; // set to false to disable ad breaks
     var convivaVideoAnalytics = null;
     var convivaAdAnalytics = null;
+    var sessionActive = false;
 
     this.initConvivaClient = function () {     log("<<++initConvivaClient - " + player.mediainfo.name, prod);
 
@@ -343,11 +344,12 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             // contentMetadata.appVersion = appVersion;
             //contentMetadata.tag2 = '100';
             //contentMetadata.tag3 = 'false';
-             Object.assign(contentMetadata,this.contentMetadata);
+            Object.assign(contentMetadata,this.contentMetadata);
 
             // Create a monitoring session for content
             convivaVideoAnalytics = Conviva.Analytics.buildVideoAnalytics();
             window.convivaVideoAnalytics = convivaVideoAnalytics;
+            sessionActive = true;
             var playerInfo = {};
             playerInfo[Conviva.Constants.FRAMEWORK_NAME] = "Brightcove Media Player";
             playerInfo[Conviva.Constants.FRAMEWORK_VERSION] = bc.VERSION; //this.videoPlayer.getPlayerVersion();
@@ -369,7 +371,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
     
     this.onPlay = function () { 
         log("<<++onPlay - " + player.mediainfo.name, prod);
-        if (!this.contentPlaybackEnded ) this.monitoringSessionInit();
+        if (!this.contentPlaybackEnded) this.monitoringSessionInit();
         else {
             this.podIndex = 1;
             this.podPosition = null;
@@ -389,6 +391,7 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         if (convivaVideoAnalytics != null) {
             convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.PLAYER_STATE, Conviva.Constants.PlayerState.PLAYING);
         }
+        if (!sessionActive) this.onPlay; //make a new session
     };
     this.onPause = function () { log("<<++onPause - " + player.mediainfo.name, prod);
         if (convivaVideoAnalytics != null) {
@@ -465,22 +468,6 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             convivaVideoAnalytics.release();
             convivaVideoAnalytics = null;
             window.convivaVideoAnalytics = null;
-            Conviva.Analytics.release();
-            this.destroy();
-        }
-        this.contentPlaybackEnded = true;
-        } catch (error) {
-          log("<<++onDispose - " + error, prod);
-          // Expected output: ReferenceError: nonExistentFunction is not defined
-          // (Note: the exact output may be browser-dependent)
-        }
-
-    try {
-            if (convivaVideoAnalytics != null) {
-            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.PLAYER_STATE, Conviva.Constants.PlayerState.STOPPED);
-            convivaVideoAnalytics.reportPlaybackEnded();
-            convivaVideoAnalytics.release();
-            convivaVideoAnalytics = null;
             Conviva.Analytics.release();
             this.destroy();
         }
