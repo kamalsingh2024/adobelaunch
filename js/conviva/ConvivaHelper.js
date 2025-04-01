@@ -411,12 +411,15 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
         
     };
     this.onPlaying = function () { log("<<++onPlaying - " + player.mediainfo.name, prod);
+
+        if (!sessionActive) {
+            sessionActive = true; 
+            this.monitoringSessionInit();
+        } //make a new session if not active one already
+
         if (convivaVideoAnalytics != null) {
             convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.PLAYER_STATE, Conviva.Constants.PlayerState.PLAYING);
         }
-        if (!sessionActive) {
-            sessionActive = true; this.monitoringSessionInit();
-        } //make a new session if not active one already
     };
     this.onPause = function () { log("<<++onPause - " + player.mediainfo.name, prod);
         if (convivaVideoAnalytics != null) {
