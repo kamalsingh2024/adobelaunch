@@ -343,9 +343,13 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
                 convivaVideoAnalytics.setContentInfo(contentInfo);
             }
             var currentVideoBitrate = this.videoPlayer.tech(true).vhs.playlists.media().attributes;
+            var width = (currentVideoBitrate && currentVideoBitrate.RESOLUTION) ? currentVideoBitrate.RESOLUTION.width : 0;
+            var height = (currentVideoBitrate && currentVideoBitrate.RESOLUTION) ? currentVideoBitrate.RESOLUTION.height : 0;
+            var bitrate = (currentVideoBitrate && currentVideoBitrate.BANDWIDTH) ? currentVideoBitrate.BANDWIDTH / 1024 : 0;
+ 
+             convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.RESOLUTION, width, height);
+             convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.BITRATE, bitrate);
 
-            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.RESOLUTION, currentVideoBitrate?.RESOLUTION?.width ?? 0, currentVideoBitrate?.RESOLUTION?.height ?? 0);
-            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.BITRATE, currentVideoBitrate.BANDWIDTH/1024);
             convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.RENDERED_FRAMERATE, currentVideoBitrate['FRAME-RATE']);
 
         }
@@ -439,8 +443,12 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
     this.onTimeUpdate = function () { if(player.currentTime() % 5 <= 0.25) {log("<<++onTimeUpdate - " + player.currentTime() , prod);}
         if (convivaVideoAnalytics != null) {
             var currentVideoBitrate = this.videoPlayer.tech(true).vhs.playlists.media().attributes;
-            
-            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.RESOLUTION, currentVideoBitrate?.RESOLUTION?.width ?? 0, currentVideoBitrate?.RESOLUTION?.height ?? 0);
+            var width = (currentVideoBitrate && currentVideoBitrate.RESOLUTION) ? currentVideoBitrate.RESOLUTION.width : 0;
+            var height = (currentVideoBitrate && currentVideoBitrate.RESOLUTION) ? currentVideoBitrate.RESOLUTION.height : 0;
+            var bitrate = (currentVideoBitrate && currentVideoBitrate.BANDWIDTH) ? currentVideoBitrate.BANDWIDTH / 1024 : 0;
+ 
+            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.RESOLUTION, width, height);
+            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.BITRATE, bitrate);
             convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.BITRATE, currentVideoBitrate.BANDWIDTH/1024);
            }
      };
@@ -650,8 +658,13 @@ var ConvivaIma3Integration = function (player, convivaConfiguration, contentMeta
             // convivaAdAnalytics.setAdInfo(adMetadata); // can set via setAdInfo or reportAdStarted
             convivaAdAnalytics.reportAdStarted(adMetadata);
            var currentVideoBitrate = this.videoPlayer.tech(true).vhs.playlists.media().attributes;
-            convivaAdAnalytics.reportAdMetric(Conviva.Constants.Playback.RESOLUTION, currentVideoBitrate?.RESOLUTION?.width ?? 0, currentVideoBitrate?.RESOLUTION?.height ?? 0);
-            convivaAdAnalytics.reportAdMetric(Conviva.Constants.Playback.BITRATE, currentVideoBitrate.BANDWIDTH/1024);
+
+           var width = (currentVideoBitrate && currentVideoBitrate.RESOLUTION) ? currentVideoBitrate.RESOLUTION.width : 0;
+           var height = (currentVideoBitrate && currentVideoBitrate.RESOLUTION) ? currentVideoBitrate.RESOLUTION.height : 0;
+           var bitrate = (currentVideoBitrate && currentVideoBitrate.BANDWIDTH) ? currentVideoBitrate.BANDWIDTH / 1024 : 0;
+
+            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.RESOLUTION, width, height);
+            convivaVideoAnalytics.reportPlaybackMetric(Conviva.Constants.Playback.BITRATE, bitrate);
             convivaAdAnalytics.reportAdMetric(Conviva.Constants.Playback.RENDERED_FRAMERATE, currentVideoBitrate['FRAME-RATE']);
         }
     };
