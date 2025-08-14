@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Home</title>
+<title>Ad Test Page</title>
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -27,30 +27,17 @@ ul li a {
 }
 
 #container {
-  width: 800px;
+  width: 900px;
   margin: 0 auto;
 }
 
 #header, #footer {
   background-color: #FFA500;
   padding: 10px;
-  text-align: center;
 }
 
-#menu {
-  background-color: #FFD700;
-  height: 200px;
-  width: 100px;
-  float: left;
-  padding: 10px;
-}
-
-#content {
-  background-color: #EEEEEE;
-  min-height: 200px;
-  width: 400px;
-  float: left;
-  padding: 10px;
+.advert__container {
+  margin: 20px 0;
 }
 
 .advert__component {
@@ -58,21 +45,28 @@ ul li a {
   visibility: visible !important;
   opacity: 1 !important;
   width: 100%;
-  min-height: 100px;
-  border: 2px dotted #999; /* dotted border stays */
+  border: 2px dotted red;
   position: relative;
-  z-index: 9999;
-  margin: 10px 0;
   text-align: center;
-  line-height: normal;
-  font-weight: bold;
-  padding: 10px;
+  padding: 0;
+  line-height: 0;
 }
 
-.clearfix::after {
-  content: "";
-  display: table;
-  clear: both;
+.advert__component strong {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 16px;
+  background: white;
+  padding: 2px 4px;
+  z-index: 10;
+}
+
+.advert__component img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: none;
 }
 </style>
 </head>
@@ -86,47 +80,53 @@ ul li a {
 
 <div id="container">
 
-<!-- Billboard at top -->
+<div id="header">
+  <h1>Ad Layout Test</h1>
+</div>
+
+<!-- Billboard -->
 <div class="advert__container">
-  <aside class="advert__component js-advert" data-advert-name="billboard" data-advert-dimensions="970x250">Billboard</aside>
+  <aside class="advert__component">
+    <strong>Billboard</strong>
+    <img src="billboard-ad.jpg" alt="Billboard Ad">
+  </aside>
   <span class="tmframe" ad-index="1" title="970x250"></span>
 </div>
 
 <!-- Leaderboard -->
 <div class="advert__container">
-  <aside class="advert__component js-advert" data-advert-name="leaderboard" data-advert-dimensions="728x90">Leaderboard</aside>
+  <aside class="advert__component">
+    <strong>Leaderboard</strong>
+    <img src="leaderboard-ad.jpg" alt="Leaderboard Ad">
+  </aside>
   <span class="tmframe" ad-index="1" title="728x90"></span>
 </div>
 
-<div id="header">
-  <h1>Main Title of Web Page</h1>
-</div>
-
-<div id="menu">
-  <b>Menu</b><br>
-  HTML<br>
-  CSS<br>
-  JavaScript
-</div>
-
-<div id="content">
-  Content goes here
-</div>
-
-<!-- Smaller Ads at the end -->
+<!-- MREC -->
 <div class="advert__container">
-  <aside class="advert__component js-advert" data-advert-name="mrec" data-advert-dimensions="300x250">MREC</aside>
+  <aside class="advert__component" style="max-width:300px; margin:auto;">
+    <strong>MREC</strong>
+    <img src="mrec-ad.jpg" alt="MREC Ad">
+  </aside>
   <span class="tmframe" ad-index="1" title="300x250"></span>
 </div>
 
+<!-- MREC or Half Page -->
 <div class="advert__container">
-  <aside class="advert__component js-advert" data-advert-name="mrec-half" data-advert-dimensions="300x250,300x600">MREC / Half Page</aside>
-  <span class="tmframe" ad-index="1" title="300x250,300x600"></span>
+  <aside class="advert__component" style="max-width:300px; margin:auto;">
+    <strong>MREC / Half Page</strong>
+    <img src="halfpage-ad.jpg" alt="Half Page Ad">
+  </aside>
+  <span class="tmframe" ad-index="1" title="300x250, 300x600"></span>
 </div>
 
+<!-- Mobile Banner -->
 <div class="advert__container">
-  <aside class="advert__component js-advert" data-advert-name="mobile-banner" data-advert-dimensions="300x50,320x50">Mobile Banner</aside>
-  <span class="tmframe" ad-index="1" title="300x50,320x50"></span>
+  <aside class="advert__component" style="max-width:320px; margin:auto;">
+    <strong>Mobile Banner</strong>
+    <img src="mobilebanner-ad.jpg" alt="Mobile Banner Ad">
+  </aside>
+  <span class="tmframe" ad-index="1" title="300x50, 320x50"></span>
 </div>
 
 <div id="footer">
@@ -134,18 +134,6 @@ ul li a {
 </div>
 
 </div>
-
-<!-- Telstra Ad Framework setup -->
-<script>
-window._telstra = window._telstra || {};
-_telstra.before = _telstra.before || [];
-_telstra.before.push(function(lib) {
-  lib.publisher("afl");
-  lib.area = "news";
-  lib.targeting("device", "desktop");
-});
-</script>
-<script async src="//medrx.telstra.com.au/tmaf/lib.js"></script>
 
 </body>
 </html>
