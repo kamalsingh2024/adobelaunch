@@ -59,7 +59,7 @@ ul li a {
   opacity: 1 !important;
   width: 100%;
   min-height: 100px;
-  border: 2px dotted #999;
+  border: 2px dotted #999; /* dotted border stays */
   position: relative;
   z-index: 9999;
   margin: 10px 0;
@@ -86,6 +86,18 @@ ul li a {
 
 <div id="container">
 
+<!-- Billboard at top -->
+<div class="advert__container">
+  <aside class="advert__component js-advert" data-advert-name="billboard" data-advert-dimensions="970x250">Billboard</aside>
+  <span class="tmframe" ad-index="1" title="970x250"></span>
+</div>
+
+<!-- Leaderboard -->
+<div class="advert__container">
+  <aside class="advert__component js-advert" data-advert-name="leaderboard" data-advert-dimensions="728x90">Leaderboard</aside>
+  <span class="tmframe" ad-index="1" title="728x90"></span>
+</div>
+
 <div id="header">
   <h1>Main Title of Web Page</h1>
 </div>
@@ -101,7 +113,7 @@ ul li a {
   Content goes here
 </div>
 
-<!-- Ad slots -->
+<!-- Smaller Ads at the end -->
 <div class="advert__container">
   <aside class="advert__component js-advert" data-advert-name="mrec" data-advert-dimensions="300x250">MREC</aside>
   <span class="tmframe" ad-index="1" title="300x250"></span>
@@ -113,18 +125,8 @@ ul li a {
 </div>
 
 <div class="advert__container">
-  <aside class="advert__component js-advert" data-advert-name="leaderboard" data-advert-dimensions="728x90">Leaderboard</aside>
-  <span class="tmframe" ad-index="1" title="728x90"></span>
-</div>
-
-<div class="advert__container">
   <aside class="advert__component js-advert" data-advert-name="mobile-banner" data-advert-dimensions="300x50,320x50">Mobile Banner</aside>
   <span class="tmframe" ad-index="1" title="300x50,320x50"></span>
-</div>
-
-<div class="advert__container">
-  <aside class="advert__component js-advert" data-advert-name="billboard" data-advert-dimensions="970x250">Billboard</aside>
-  <span class="tmframe" ad-index="1" title="970x250"></span>
 </div>
 
 <div id="footer">
