@@ -34,6 +34,7 @@ ul li a {
 #header, #footer {
   background-color: #FFA500;
   padding: 10px;
+  text-align: center;
 }
 
 #menu {
@@ -46,7 +47,7 @@ ul li a {
 
 #content {
   background-color: #EEEEEE;
-  height: 200px;
+  min-height: 200px;
   width: 400px;
   float: left;
   padding: 10px;
@@ -57,16 +58,15 @@ ul li a {
   visibility: visible !important;
   opacity: 1 !important;
   width: 100%;
-  height: 100px;
-  background: red;
-  color: white;
-  border: 2px dotted red;
+  min-height: 100px;
+  border: 2px dotted #999;
   position: relative;
   z-index: 9999;
   margin: 10px 0;
   text-align: center;
-  line-height: 100px;
+  line-height: normal;
   font-weight: bold;
+  padding: 10px;
 }
 
 .clearfix::after {
@@ -90,59 +90,60 @@ ul li a {
   <h1>Main Title of Web Page</h1>
 </div>
 
-<div class="advert advert--leaderboard advert--with-bars">
-        <div class="advert__container">
-            <aside class="advert__component js-advert" data-advert-dimensions="1920x250, 1280x100, 970x250, 970x90, 970x40, 728x90, 320x50" data-advert-name="leaderboard-advert" data-advert-label="Advertisement" data-disable-lazyload="true" data-previous-size="1280x100, 970x250, 970x90, 970x40, 728x90, 320x50" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100%; height: 100px; background: red; color: white; border: 2px dotted red; position: relative; z-index: 9999;">Hello = 0</aside>
-        <span class="tmframe" ad-index="1" title="728x90"></span>
-          </div>
-    </div>
+<div id="menu">
+  <b>Menu</b><br>
+  HTML<br>
+  CSS<br>
+  JavaScript
+</div>
 
-  <div class="clearfix">
-  <div id="menu">
-    <b>Menu</b><br>
-    HTML<br>
-    CSS<br>
-    JavaScript
-  </div>
-  <div id="content">
-    Content goes here
-    <div class="advert advert--floating-ad">
-      <aside class="advert__component">MREC Ad (Hello = 1)</aside>
-      <span class="tmframe" ad-index="1" title="300x250"></span>
-    </div>
-  </div>
+<div id="content">
+  Content goes here
+</div>
+
+<!-- Ad slots -->
+<div class="advert__container">
+  <aside class="advert__component js-advert" data-advert-name="mrec" data-advert-dimensions="300x250">MREC</aside>
+  <span class="tmframe" ad-index="1" title="300x250"></span>
 </div>
 
 <div class="advert__container">
-  <aside class="advert__component">MREC Ad (Hello = 2)</aside>
-  <span class="tmframe" ad-index="1" title="300x50, 320x50"></span>
-
+  <aside class="advert__component js-advert" data-advert-name="mrec-half" data-advert-dimensions="300x250,300x600">MREC / Half Page</aside>
+  <span class="tmframe" ad-index="1" title="300x250,300x600"></span>
 </div>
 
 <div class="advert__container">
-  <aside class="advert__component">MREC Ad (Hello = 2)</aside>
-<span class="tmframe" ad-index="1" title="970x250"></span>
+  <aside class="advert__component js-advert" data-advert-name="leaderboard" data-advert-dimensions="728x90">Leaderboard</aside>
+  <span class="tmframe" ad-index="1" title="728x90"></span>
 </div>
 
+<div class="advert__container">
+  <aside class="advert__component js-advert" data-advert-name="mobile-banner" data-advert-dimensions="300x50,320x50">Mobile Banner</aside>
+  <span class="tmframe" ad-index="1" title="300x50,320x50"></span>
+</div>
 
+<div class="advert__container">
+  <aside class="advert__component js-advert" data-advert-name="billboard" data-advert-dimensions="970x250">Billboard</aside>
+  <span class="tmframe" ad-index="1" title="970x250"></span>
+</div>
 
 <div id="footer">
   Copyright © W3Schools.com
 </div>
 
 </div>
-    <script>
-    window._telstra = window._telstra || {};
-  _telstra.before = _telstra.before || [];
-  _telstra.before.push(function(lib) {
-    lib.publisher("afl");
-    lib.area = "news";
-    lib.targeting("device", "desktop");
-  });
-    </script>
-    <script async src="//medrx.telstra.com.au/tmaf/lib.js"></script>
-    
-    
+
+<!-- Telstra Ad Framework setup -->
+<script>
+window._telstra = window._telstra || {};
+_telstra.before = _telstra.before || [];
+_telstra.before.push(function(lib) {
+  lib.publisher("afl");
+  lib.area = "news";
+  lib.targeting("device", "desktop");
+});
+</script>
+<script async src="//medrx.telstra.com.au/tmaf/lib.js"></script>
 
 </body>
 </html>
