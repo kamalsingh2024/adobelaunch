@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Cards for Adam Creek</title>
+    <style>
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-size: cover;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #FF6B35;
+            font-size: 2.5em;
+            text-shadow: 3px 3px 0px #000;
+            margin-bottom: 30px;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .birthday-card {
+            background: #FFEB3B;
+            border: 4px solid #000;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 8px 8px 0px #666;
+            transition: transform 0.3s ease;
+
+        }
+        
+        .birthday-card:hover {
+            transform: scale(1.05) rotate(1deg);
+        }
+        
+        .card-header {
+            background: #FF6B35;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-shadow: 2px 2px 0px #000;
+        }
+        
+        .family-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .family-member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border: 3px solid #000;
+            border-radius: 10px;
+            min-width: 80px;
+        }
+        
+        .icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .label {
+            font-size: 0.8em;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .message {
+            background: white;
+            padding: 15px;
+            border: 2px solid #000;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+        
+        .cats-colors {
+            background: linear-gradient(45deg, #003366, #FFFFFF);
+            color: #003366;
+        }
+        
+        .analytics-theme {
+            background: linear-gradient(45deg, #2E7D32, #81C784);
+            background: url(adam.jpg) no-repeat center center fixed;
+        }
+        
+        .family-theme {
+            background: linear-gradient(45deg, #FF6B35, #FFE4B5);
+        }
+        
+        .birthday-quote {
+            font-style: italic;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            background: rgba(255,255,255,0.8);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .speech-bubble {
+            background: white;
+            border: 3px solid #000;
+            border-radius: 20px;
+            padding: 15px;
+            position: relative;
+            margin: 15px 0;
+        }
+        
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 30px;
+            width: 0;
+            height: 0;
+            border: 15px solid transparent;
+            border-top-color: #000;
+        }
+        
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 33px;
+            width: 0;
+            height: 0;
+            border: 12px solid transparent;
+            border-top-color: white;
+        }
+        
+        .download-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            border: 2px solid #000;
+        }
+
+        .big-emoji {
+            font-size: 3em;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .family-member .icon img {
+    width: 60px;      /* adjust size as needed */
+    height: 60px;
+    object-fit: cover;
+    border-radius: 50%; /* makes it circular */
+    border: 2px solid #fff;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎂 Happy Birthday Adam!!! 🎂</h1>
+        
+        <div class="cards-container">
+            <!-- Card 1: Geelong Cats Theme -->
+  
+            
+            <!-- Card 2: Analytics & Work Theme -->
+            <div class="birthday-card analytics-theme">
+                <div class="card-header">Data Shows: It's Your Birthday!</div>
+                
+                <div class="big-emoji">📊</div>
+                
+                <div class="family-icons">
+                <div class="family-member">
+  
+  				  <div class="icon">
+			        <img src="adam.jpg" alt="Adam" />
+				    </div>
+				    <div class="label">Adam<br>Analytics/Ads/Data Pro</div>
+				</div>
+ 
+                    <div class="family-member">
+                        <div class="icon">📈</div>
+                        <div class="label">Data<br>Expert</div>
+                    </div>
+                    <div class="family-member">
+                        <div class="icon">💡</div>
+                        <div class="label">Ad<br>Genius</div>
+                    </div>
+                    <div class="family-member">
+                        <div class="icon">✨</div>
+                        <div class="label">Success<br>Story</div>
+                    </div>
+                    <div class="family-member">
+                        <div class="icon">❤️</div>
+                        <div class="label">Family<br>First</div>
+                    </div>
+                </div>
+                
+                 <div class="speech-bubble">
+    <strong>"Analyzing the data... confirmed.... yep, you're awesome!!"</strong><br><br>
+    Your birthday metrics are off the charts! 100% top-tier boss, elite ad guru, analytics mastermind, and database wizard. Whether it’s home renos, toys, or tackling any challenge, you get it done with style. The only thing trending faster than your results is the respect you’ve earned from the whole team!
+</div>
+
+                <div class="birthday-quote">
+                    "Hope your birthday weekend is absolutely legendary!" 🚀
+                </div>
+            </div>
+            
+            <!-- Card 3: Family Theme -->
+        
+  
+    </div>
+
+    <script>
+        // Add some fun hover effects
+        document.querySelectorAll('.family-member').forEach(member => {
+            member.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1) rotate(5deg)';
+            });
+            member.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+        
+        // Add click effects to cards
+        document.querySelectorAll('.birthday-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(1.05) rotate(2deg)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1) rotate(0deg)';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
