@@ -83,6 +83,42 @@ ul li a {
 <div id="header">
   <h1>Ad Layout Test</h1>
 </div>
+!-- Dropdown for selecting areas -->
+<label for="ad-area">Select area:</label>
+<select id="ad-area">
+    <option value="home">Home</option>
+    <option value="news">News</option>
+    <option value="stats">Stats</option>
+    <option value="video">Video</option>
+</select>
+
+<script>
+  // Function to update _telstra.before and refresh ads
+  function updateAds(area) {
+    // Push a new function to _telstra.before with the selected area
+    window._telstra = window._telstra || {};
+    _telstra.before = _telstra.before || [];
+    _telstra.before.push(function(lib) {
+      lib.publisher("afl");
+      lib.area = area; // set to selected area
+      lib.targeting("device", "mobile");
+    });
+
+    // Refresh ads
+    if (typeof _telstra.adlib !== "undefined" && typeof _telstra.adlib.refresh === "function") {
+      _telstra.adlib.refresh();
+    }
+  }
+
+  // Listen for dropdown changes
+  const select = document.getElementById("ad-area");
+  select.addEventListener("change", function() {
+    updateAds(this.value);
+  });
+
+  // Optionally, run once on page load for default selection
+  updateAds(select.value);
+</script>
 
 <!-- Billboard -->
 <div class="advert advert--leaderboard advert--with-bars">
