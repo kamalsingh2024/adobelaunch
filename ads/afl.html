@@ -83,7 +83,9 @@ ul li a {
 <div id="header">
   <h1>Ad Layout Test</h1>
 </div>
-!-- Dropdown for selecting areas -->
+
+<!-- Dropdown for selecting areas -->
+
 <label for="ad-area">Select area:</label>
 <select id="ad-area">
     <option value="home">Home</option>
@@ -104,10 +106,12 @@ ul li a {
       lib.targeting("device", "mobile");
     });
 
-    // Refresh ads
-    if (typeof _telstra.adlib !== "undefined" && typeof _telstra.adlib.refresh === "function") {
-      _telstra.adlib.refresh();
-    }
+   // Delay refresh by 500ms
+   setTimeout(function() {
+      if (typeof _telstra.adlib !== "undefined" && typeof _telstra.adlib.refresh === "function") {
+        _telstra.adlib.refresh();
+      }
+    }, 500);
   }
 
   // Listen for dropdown changes
