@@ -86,52 +86,64 @@ ul li a {
 
 <!-- Billboard -->
 <div class="advert advert--leaderboard advert--with-bars">
-        <div class="advert__container">
-            <aside class="advert__component js-advert" data-advert-dimensions="1920x250, 1280x100, 970x250, 970x90, 970x40, 728x90, 320x50" data-advert-name="leaderboard-advert" data-advert-label="Advertisement" data-previous-size="1280x100, 970x250, 970x90, 970x40, 728x90, 320x50">
-              <span id="leaderboard-advert" class="tmframe" title="1280x100, 970x250, 970x90, 970x40, 728x90, 320x50" lazyload="true"></span></aside>
-        </div>
+    <div class="advert__container">
+        <aside class="advert__component js-advert"
+               data-advert-dimensions="1920x250, 1280x100, 970x250, 970x90, 970x40, 728x90, 320x50"
+               data-advert-name="leaderboard-advert"
+               data-advert-label="Advertisement"
+               data-previous-size="1280x100, 970x250, 970x90, 970x40, 728x90, 320x50">
+            <span id="leaderboard-advert" class="tmframe" 
+                  title="1280x100, 970x250, 970x90, 970x40, 728x90, 320x50" 
+                  lazyload="true"></span>
+        </aside>
     </div>
-
-<!-- Leaderboard -->
-<div id="29641891-6f1e-4e4a-8813-9ec2ac91b881" class="advert advert--newspaper-page">
-    <aside class="advert__component js-advert" data-advert-dimensions="300x250" data-advert-name="newspaper-page-advert" data-advert-label="Advertisement" data-previous-size="300x250">
-      <span id="newspaper-page-advert" class="tmframe" title="300x250" lazyload="true"></span></aside>
 </div>
 
-<!-- MREC -->
-<div class="advert__container">
-  <aside class="advert__component" style="max-width:300px; margin:auto;">
-    <strong>MREC</strong>
-    <img src="mrec-ad.jpg" alt="MREC Ad">
-  </aside>
-  <span class="tmframe" ad-index="1" title="300x250"></span>
+<!-- Floating MREC 1 -->
+<div class="advert advert--floating-ad u-hide" id="advert-d940128c-eee2-402f-9913-284f1079ed51">
+    <aside class="advert__component advert__component--floating js-advert"
+           data-advert-dimensions="300x250"
+           data-advert-name="mrec-advert"
+           data-advert-label="Advertisement">
+        <span id="mrec-advert-1" class="tmframe" title="300x250" lazyload="true"></span>
+    </aside>
 </div>
 
-<!-- MREC or Half Page -->
-<div class="advert__container">
-  <aside class="advert__component" style="max-width:300px; margin:auto;">
-    <strong>MREC / Half Page</strong>
-    <img src="halfpage-ad.jpg" alt="Half Page Ad">
-  </aside>
-  <span class="tmframe" ad-index="1" title="300x600"></span>
+<!-- Floating MREC 2 -->
+<div class="advert advert--floating-ad u-hide" id="advert-d940128c-eee2-402f-9913-284f1079ed52">
+    <aside class="advert__component advert__component--floating js-advert"
+           data-advert-dimensions="300x250"
+           data-advert-name="mrec-advert"
+           data-advert-label="Advertisement">
+        <span id="mrec-advert-2" class="tmframe" title="300x250" lazyload="true"></span>
+    </aside>
 </div>
 
-<!-- Mobile Banner -->
+<!-- Closeable MREC -->
 <div class="advert__container">
-  <aside class="advert__component" style="max-width:320px; margin:auto;">
-    <strong>Mobile Banner</strong>
-    <img src="mobilebanner-ad.jpg" alt="Mobile Banner Ad">
-  </aside>
-  <span class="tmframe" ad-index="1" title="300x50"></span>
+    <button class="advert__close js-close-ad">
+        <svg class="icon" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/resources/v5.36.17/i/svg-output/icons.svg#icn-close"></use>
+        </svg>
+    </button>
+    <aside class="advert__component js-advert"
+           data-advert-dimensions="320x50"
+           data-advert-name="mrec-advert"
+           data-advert-close="true">
+        <span id="mrec-advert-3" class="tmframe" title="320x50" lazyload="true"></span>
+    </aside>
 </div>
-<!-- Mobile Banner -->
-<div class="advert__container">
-  <aside class="advert__component" style="max-width:320px; margin:auto;">
-    <strong>Mobile Banner</strong>
-    <img src="mobilebanner-ad.jpg" alt="Mobile Banner Ad">
-  </aside>
-  <span class="tmframe" ad-index="1" title="320x50"></span>
+
+<!-- Large MREC -->
+<div id="eb8cdf33-5fef-4fda-8449-9a9322072fcf" class="advert advert--mrec advert--with-bars">
+    <aside class="advert__component js-advert"
+           data-advert-dimensions="300x600, 300x250"
+           data-advert-name="mrec-advert"
+           data-advert-label="Advertisement">
+        <span id="mrec-advert-4" class="tmframe" title="300x600, 300x250" lazyload="true"></span>
+    </aside>
 </div>
+
 
 <div id="footer">
   Copyright © kdschool.com
