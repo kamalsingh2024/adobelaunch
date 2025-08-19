@@ -85,14 +85,29 @@ ul li a {
 
 
 <!-- Dropdown for selecting areas -->
-
 <label for="ad-area">Select area:</label>
-<select id="ad-area">
-    <option value="home">Home</option>
-    <option value="news">News</option>
-    <option value="stats">Stats</option>
-    <option value="video">Video</option>
+<select id="ad-area" class="ad-dropdown">
+    <option value="HOME">Home</option>
+    <option value="NEWS">News</option>
+    <option value="NEWS/injury_list">Injury List</option>
+    <option value="LADDER">Ladder</option>
+    <option value="STATS">Stats</option>
+    <option value="FIXTURE">Fixture</option>
+    <option value="TICKETS">Tickets</option>
+    <option value="WOMENS">Womens</option>
+    <option value="TV_RADIO">TV and Radio</option>
+    <option value="VIDEO">Videos</option>
 </select>
+
+<style>
+.ad-dropdown {
+    font-size: 16px;       /* Bigger text */
+    padding: 8px 12px;     /* Extra padding */
+    min-width: 200px;      /* Make dropdown wider */
+}
+</style>
+
+
 </div>
 
 <script>
