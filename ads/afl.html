@@ -89,7 +89,7 @@ ul li a {
 <select id="ad-publisher" class="ad-dropdown">
   <option value="afl">AFL</option>
   <option value="aflw">AFLW</option>
-  <option value="aflclubs">AFL Clubs</option>
+  <option value="afl.clubs">AFL Clubs</option>
 </select>
 
 <!-- Dropdown for selecting areas -->
@@ -144,19 +144,16 @@ ul li a {
 
 <script>
 function updateAds(area, publisher, club) {
-  window._telstra = window._telstra || {};
-  _telstra.before = _telstra.before || [];
-
-  _telstra.before.push(function(lib) {
-    lib.publisher(publisher);
-    lib.area = area;
-    lib.targeting("device", "mobile");
+  
+    _telstra.adlib.publisher(publisher);
+    _telstra.adlib.area = area;
+    _telstra.adlib.targeting("device", "mobile");
 
     // If publisher is aflclubs, add the club targeting
-    if (publisher === "aflclubs" && club) {
-      lib.targeting("club", club);
+    if (publisher === "afl.clubs" && club) {
+      _telstra.adlib.targeting("club", club);
     }
-  });
+  };
 
   // Delay refresh by 1280ms
   setTimeout(function() {
