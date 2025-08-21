@@ -83,62 +83,115 @@ ul li a {
 <div id="header">
   <h1>Ad Layout Test</h1>
 
+<!-- Dropdown for selecting publisher -->
+<!-- Dropdown for selecting publisher -->
+<label for="ad-publisher">Select publisher:</label>
+<select id="ad-publisher" class="ad-dropdown">
+  <option value="afl">AFL</option>
+  <option value="aflw">AFLW</option>
+  <option value="aflclubs">AFL Clubs</option>
+</select>
 
 <!-- Dropdown for selecting areas -->
 <label for="ad-area">Select area:</label>
 <select id="ad-area" class="ad-dropdown">
-    <option value="HOME">Home</option>
-    <option value="NEWS">News</option>
-    <option value="NEWS/injury_list">Injury List</option>
-    <option value="LADDER">Ladder</option>
-    <option value="STATS">Stats</option>
-    <option value="FIXTURE">Fixture</option>
-    <option value="TICKETS">Tickets</option>
-    <option value="WOMENS">Womens</option>
-    <option value="TV_RADIO">TV and Radio</option>
-    <option value="VIDEO">Videos</option>
+  <option value="HOME">Home</option>
+  <option value="NEWS">News</option>
+  <option value="NEWS/injury_list">Injury List</option>
+  <option value="LADDER">Ladder</option>
+  <option value="STATS">Stats</option>
+  <option value="FIXTURE">Fixture</option>
+  <option value="TICKETS">Tickets</option>
+  <option value="WOMENS">Womens</option>
+  <option value="TV_RADIO">TV and Radio</option>
+  <option value="VIDEO">Videos</option>
 </select>
+
+<!-- Clubs dropdown (hidden by default) -->
+<div id="club-select-wrapper" style="display:none; margin-top:8px;">
+  <label for="ad-club">Select club:</label>
+  <select id="ad-club" class="ad-dropdown">
+    <option value="">-- Select Club --</option>
+    <option value="CROWS">CROWS</option>
+    <option value="LIONS">LIONS</option>
+    <option value="BLUES">BLUES</option>
+    <option value="MAGPIES">MAGPIES</option>
+    <option value="BOMBERS">BOMBERS</option>
+    <option value="DOCKERS">DOCKERS</option>
+    <option value="CATS">CATS</option>
+    <option value="SUNS">SUNS</option>
+    <option value="GIANTS">GIANTS</option>
+    <option value="HAWKS">HAWKS</option>
+    <option value="DEMONS">DEMONS</option>
+    <option value="KANGS">KANGS</option>
+    <option value="POWER">POWER</option>
+    <option value="TIGERS">TIGERS</option>
+    <option value="SAINTS">SAINTS</option>
+    <option value="SWANS">SWANS</option>
+    <option value="EAGLES">EAGLES</option>
+    <option value="BULLDOGS">BULLDOGS</option>
+  </select>
+</div>
 
 <style>
 .ad-dropdown {
-    font-size: 16px;       /* Bigger text */
-    padding: 8px 12px;     /* Extra padding */
-    min-width: 200px;      /* Make dropdown wider */
+  font-size: 16px;
+  padding: 8px 12px;
+  min-width: 200px;
+  margin: 8px;
 }
 </style>
 
-
-</div>
-
 <script>
-  // Function to update _telstra.before and refresh ads
-  function updateAds(area) {
-    // Push a new function to _telstra.before with the selected area
-    window._telstra = window._telstra || {};
-    _telstra.before = _telstra.before || [];
-    _telstra.before.push(function(lib) {
-      lib.publisher("afl");
-      lib.area = area; // set to selected area
-      lib.targeting("device", "mobile");
-    });
+function updateAds(area, publisher, club) {
+  window._telstra = window._telstra || {};
+  _telstra.before = _telstra.before || [];
 
-   // Delay refresh by 500ms
-   setTimeout(function() {
-      if (typeof _telstra.adlib !== "undefined" && typeof _telstra.adlib.refresh === "function") {
-        _telstra.adlib.refresh();
-      }
-    }, 1280);
-  }
+  _telstra.before.push(function(lib) {
+    lib.publisher(publisher);
+    lib.area = area;
+    lib.targeting("device", "mobile");
 
-  // Listen for dropdown changes
-  const select = document.getElementById("ad-area");
-  select.addEventListener("change", function() {
-    updateAds(this.value);
+    // If publisher is aflclubs, add the club targeting
+    if (publisher === "aflclubs" && club) {
+      lib.targeting("club", club);
+    }
   });
 
-  // Optionally, run once on page load for default selection
-  updateAds(select.value);
+  // Delay refresh by 1280ms
+  setTimeout(function() {
+    if (typeof _telstra.adlib !== "undefined" && typeof _telstra.adlib.refresh === "function") {
+      _telstra.adlib.refresh();
+    }
+  }, 1280);
+}
+
+const selectArea = document.getElementById("ad-area");
+const selectPublisher = document.getElementById("ad-publisher");
+const selectClub = document.getElementById("ad-club");
+const clubWrapper = document.getElementById("club-select-wrapper");
+
+function refreshFromSelections() {
+  const publisher = selectPublisher.value;
+
+  // Toggle club dropdown
+  if (publisher === "aflclubs") {
+    clubWrapper.style.display = "block";
+  } else {
+    clubWrapper.style.display = "none";
+  }
+
+  updateAds(selectArea.value, publisher, selectClub.value);
+}
+
+selectArea.addEventListener("change", refreshFromSelections);
+selectPublisher.addEventListener("change", refreshFromSelections);
+selectClub.addEventListener("change", refreshFromSelections);
+
+// Initialize on page load
+refreshFromSelections();
 </script>
+
 
 <!-- Billboard -->
 <div class="advert advert--leaderboard advert--with-bars">
