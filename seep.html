@@ -491,8 +491,7 @@
             }
 
             function onPlayerCardClick(card) {
-                const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-                if (currentPlayer && currentPlayer.isHuman && !gameState.biddingPhase) {
+                if (gameState.players[gameState.currentPlayerIndex].isHuman) {
                     clearSelections();
                     selectedHandCard = card;
                     document.querySelector(`[data-card-id="${card.id}"]`).classList.add('selected');
@@ -501,8 +500,7 @@
             }
 
             function onPlayerCardDoubleClick(card) {
-                const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-                if (currentPlayer && currentPlayer.isHuman && !gameState.biddingPhase) {
+                if (gameState.players[gameState.currentPlayerIndex].isHuman) {
                     clearSelections();
                     const action = { type: 'throw', card: card };
                     executeMove(gameState.currentPlayerIndex, action);
