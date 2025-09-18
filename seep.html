@@ -1017,6 +1017,7 @@
 
             // --- AI Logic ---
             function getAIBestMove(player, hand) {
+                // Filter out any undefined cards and ensure we have a valid hand
                 const validHand = (hand || player.hand).filter(card => card && card.id && card.captureValue !== undefined);
                 
                 if (validHand.length === 0) {
@@ -1029,18 +1030,18 @@
                 for (const card of validHand) {
                     if (!card || !card.captureValue) continue;
 
-                    // PRIORITY 1: Evaluate picking up houses (highest priority)
+                    // Evaluate picking up houses
                     for (const house of gameState.floor.houses) {
                         if (house && house.value && card.captureValue === house.value) {
                             const housePoints = house.cards.reduce((sum, c) => sum + getCardPointValue(c), 0);
-                            const score = 200 + housePoints; // Very high priority
+                            const score = 100 + housePoints;
                             if (score > bestMove.score) {
                                 bestMove = { score, move: { type: 'pickup', card, targets: [house] } };
                             }
                         }
                     }
 
-                    // PRIORITY 2: Evaluate picking up loose cards
+                    // Evaluate picking up loose cards
                     const combinations = findCombinations(gameState.floor.loose, card.captureValue);
                     if (combinations.length > 0) {
                         let bestCombo = { points: -1, cards: [] };
@@ -1050,20 +1051,20 @@
                                 bestCombo = { points, cards: combo };
                             }
                         });
-                        const score = 100 + bestCombo.points;
+                        const score = 50 + bestCombo.points;
                         if (score > bestMove.score) {
                             bestMove = { score, move: { type: 'pickup', card, targets: bestCombo.cards } };
                         }
                     }
 
-                    // PRIORITY 3: Evaluate building houses (strategic play)
+                    // Evaluate building a house
                     const hasPair = validHand.filter(c => c && c.captureValue === card.captureValue).length > 1;
                     if (hasPair) {
                         for (const looseCard of gameState.floor.loose) {
                             if (!looseCard || !looseCard.captureValue) continue;
                             const newValue = card.captureValue + looseCard.captureValue;
                             if (newValue >= 9 && newValue <= 13 && validHand.some(c => c && c.captureValue === newValue)) {
-                                const score = 50 - getCardPointValue(looseCard); // Build to control floor
+                                const score = 20 - getCardPointValue(looseCard);
                                 if (score > bestMove.score) {
                                     bestMove = { score, move: { type: 'build', card, value: newValue, targets: [looseCard] } };
                                 }
@@ -1072,45 +1073,9 @@
                     }
                 }
                 
-                // LAST RESORT: Strategic throwing
                 if (!bestMove.move) {
-                    // AI strategy for throwing: keep floor populated but don't give away valuable cards
-                    const throwOptions = validHand.map(card => {
-                        let score = 0;
-                        
-                        // Avoid throwing high-value cards unless necessary
-                        score -= getCardPointValue(card) * 10;
-                        
-                        // Avoid throwing cards that match floor values (prevents easy pickups)
-                        const matchesFloor = gameState.floor.loose.some(floorCard => 
-                            floorCard.captureValue === card.captureValue
-                        );
-                        if (matchesFloor) score -= 20;
-                        
-                        // Avoid throwing cards that match house values
-                        const matchesHouse = gameState.floor.houses.some(house => 
-                            house.value === card.captureValue
-                        );
-                        if (matchesHouse) score -= 30;
-                        
-                        // Prefer throwing cards that won't easily combine
-                        const wouldCreateEasyCombination = gameState.floor.loose.some(floorCard => {
-                            const sum = card.captureValue + floorCard.captureValue;
-                            return sum >= 9 && sum <= 13;
-                        });
-                        if (wouldCreateEasyCombination) score -= 15;
-                        
-                        // If floor is getting empty, prefer to throw something to keep it populated
-                        if (gameState.floor.loose.length <= 2) score += 10;
-                        
-                        return { card, score };
-                    });
-                    
-                    const bestThrow = throwOptions.reduce((best, current) => 
-                        current.score > best.score ? current : best
-                    );
-                    
-                    bestMove.move = { type: 'throw', card: bestThrow.card };
+                    const throwCard = validHand.sort((a,b) => (getCardPointValue(a) + a.captureValue/10) - (getCardPointValue(b) + b.captureValue/10))[0];
+                    bestMove.move = { type: 'throw', card: throwCard };
                 }
 
                 return bestMove.move;
