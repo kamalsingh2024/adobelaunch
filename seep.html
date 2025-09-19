@@ -256,7 +256,7 @@
 
         <!-- Game Message Area -->
         <div id="message-area" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 text-gray-800 font-semibold px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg text-center min-w-[250px] md:min-w-[300px] text-sm md:text-base border-2 border-gray-200">
-            Welcome to Seep! 🃏
+            Welcome to Seep!
         </div>
     </div>
 
@@ -268,7 +268,7 @@
         <div class="modal-content">
             <h2 id="modal-title" class="text-2xl md:text-3xl font-bold mb-4 text-gray-800">Game Over</h2>
             <p id="modal-body" class="mb-6 text-gray-600 text-base md:text-lg">North/South team wins the Baazi!</p>
-            <button id="modal-button" class="action-button bg-blue-600 text-white hover:bg-blue-700">Play Again 🎮</button>
+            <button id="modal-button" class="action-button bg-blue-600 text-white hover:bg-blue-700">Play Again</button>
         </div>
     </div>
 
@@ -371,6 +371,8 @@
                     lastPicker: null,
                     isFirstPlay: true,
                     gameRunning: true,
+                    biddingPhase: false,
+                    currentBid: { value: 0, player: null }
                 };
             }
 
@@ -491,7 +493,8 @@
             }
 
             function onPlayerCardClick(card) {
-                if (gameState.players[gameState.currentPlayerIndex].isHuman) {
+                const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+                if (currentPlayer && currentPlayer.isHuman && !gameState.biddingPhase) {
                     clearSelections();
                     selectedHandCard = card;
                     document.querySelector(`[data-card-id="${card.id}"]`).classList.add('selected');
@@ -500,7 +503,8 @@
             }
 
             function onPlayerCardDoubleClick(card) {
-                if (gameState.players[gameState.currentPlayerIndex].isHuman) {
+                const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+                if (currentPlayer && currentPlayer.isHuman && !gameState.biddingPhase) {
                     clearSelections();
                     const action = { type: 'throw', card: card };
                     executeMove(gameState.currentPlayerIndex, action);
@@ -546,7 +550,7 @@
 
             function renderActionButtons() {
                 actionContainer.innerHTML = '';
-                if (!selectedHandCard) return;
+                if (!selectedHandCard || gameState.biddingPhase) return;
 
                 const selectedValue = selectedFloorItems.reduce((sum, item) => {
                     if (item.type === 'card') return sum + item.obj.captureValue;
@@ -555,20 +559,20 @@
 
                 // Pick up action
                 if (selectedValue === selectedHandCard.captureValue || (selectedFloorItems.length === 1 && selectedFloorItems[0].type === 'house' && selectedFloorItems[0].obj.value === selectedHandCard.captureValue)) {
-                    actionContainer.appendChild(createActionButton('🎯 Pick Up', handlePlayerAction, 'green'));
+                    actionContainer.appendChild(createActionButton('Pick Up', handlePlayerAction, 'green'));
                 }
 
                 // Build house action
                 const newHouseValue = selectedHandCard.captureValue + selectedValue;
                 if (selectedFloorItems.every(i => i.type === 'card') && newHouseValue >= 9 && newHouseValue <= 13) {
-                    actionContainer.appendChild(createActionButton(`🏠 Build ${newHouseValue}`, handlePlayerAction, 'blue'));
+                    actionContainer.appendChild(createActionButton(`Build ${newHouseValue}`, handlePlayerAction, 'blue'));
                 }
                 
                 // Throw card
-                actionContainer.appendChild(createActionButton('🎲 Throw', handlePlayerAction, 'gray'));
+                actionContainer.appendChild(createActionButton('Throw', handlePlayerAction, 'gray'));
 
                 // Cancel
-                actionContainer.appendChild(createActionButton('❌ Cancel', clearSelections, 'red'));
+                actionContainer.appendChild(createActionButton('Cancel', clearSelections, 'red'));
             }
 
             function handlePlayerAction() {
@@ -627,6 +631,8 @@
                 gameState.sweeps = { NS: 0, EW: 0 };
                 gameState.isFirstPlay = true;
                 gameState.lastPicker = null;
+                gameState.biddingPhase = true;
+                gameState.currentBid = { value: 0, player: null };
                 
                 const lead = gameState.scores.NS - gameState.scores.EW;
                 if (lead < 0) {
@@ -638,45 +644,88 @@
                 const bidderIndex = (gameState.dealerIndex + 1) % 4;
                 gameState.currentPlayerIndex = bidderIndex;
                 
-                // Deal initial cards
+                // Deal initial cards - 4 to bidder, 4 to floor
                 for (let i = 0; i < 4; i++) {
                     gameState.players[bidderIndex].hand.push(gameState.deck.pop());
                     gameState.floor.loose.push(gameState.deck.pop());
                 }
 
                 render();
-                updateMessage(`🎴 Round ${gameState.roundNumber + 1} - ${gameState.players[bidderIndex].name} to bid first`);
+                updateMessage(`Round ${gameState.roundNumber + 1} - ${gameState.players[bidderIndex].name} to bid (9-13)`);
                 
-                setTimeout(() => handleBid(bidderIndex), 1500);
+                if (gameState.players[bidderIndex].isHuman) {
+                    showBiddingInterface(bidderIndex);
+                } else {
+                    setTimeout(() => handleAIBid(bidderIndex), 1500);
+                }
             }
 
-            function handleBid(bidderIndex) {
+            function showBiddingInterface(bidderIndex) {
                 const bidder = gameState.players[bidderIndex];
                 const possibleBids = bidder.hand.filter(c => c && c.captureValue >= 9 && c.captureValue <= 13);
                 
                 if (possibleBids.length === 0) {
-                    updateMessage(`❌ ${bidder.name} cannot bid - redealing cards`);
-                    console.log(`${bidder.name}'s hand:`, bidder.hand);
+                    updateMessage("You cannot bid (no 9-K cards). Redealing...");
                     setTimeout(startNewRound, 2500);
                     return;
                 }
-                 
-                const bidValue = Math.max(...possibleBids.map(c => c.captureValue));
+                
+                actionContainer.innerHTML = '';
+                const bidTitle = document.createElement('div');
+                bidTitle.textContent = 'Choose your bid (9-13):';
+                bidTitle.className = 'text-white font-bold mb-2';
+                actionContainer.appendChild(bidTitle);
+                
+                // Group cards by value for bidding
+                const bidOptions = {};
+                possibleBids.forEach(card => {
+                    if (!bidOptions[card.captureValue]) {
+                        bidOptions[card.captureValue] = [];
+                    }
+                    bidOptions[card.captureValue].push(card);
+                });
+                
+                Object.keys(bidOptions).sort((a, b) => b - a).forEach(value => {
+                    const btn = createActionButton(`Bid ${value}`, () => {
+                        const cardToBid = bidOptions[value][0]; // Use first card of this value
+                        gameState.currentBid = { value: parseInt(value), player: bidder.name };
+                        completeBidding(bidderIndex, cardToBid);
+                    }, 'green');
+                    actionContainer.appendChild(btn);
+                });
+            }
+
+            function handleAIBid(bidderIndex) {
+                const bidder = gameState.players[bidderIndex];
+                const possibleBids = bidder.hand.filter(c => c && c.captureValue >= 9 && c.captureValue <= 13);
+                
+                if (possibleBids.length === 0) {
+                    updateMessage(`${bidder.name} cannot bid - redealing cards`);
+                    setTimeout(startNewRound, 2500);
+                    return;
+                }
+                
+                const bidValue = Math.min(...possibleBids.map(c => c.captureValue));
                 const bidCard = possibleBids.find(c => c.captureValue === bidValue);
-                 
+                
+                gameState.currentBid = { value: bidValue, player: bidder.name };
                 updateMessage(`${bidder.name} bids ${bidValue}`);
-                 
-                // Force the bidder to play the bid card
-                const bidderAction = { type: 'throw', card: bidCard };
-                 
+                
+                setTimeout(() => completeBidding(bidderIndex, bidCard), 1500);
+            }
+
+            function completeBidding(bidderIndex, bidCard) {
+                gameState.biddingPhase = false;
+                actionContainer.innerHTML = '';
+                
+                // Bidder plays their bid card first
+                const bidAction = { type: 'throw', card: bidCard };
+                executeMove(bidderIndex, bidAction);
+                
+                // Complete the deal for all players
                 setTimeout(() => {
-                    executeMove(bidderIndex, bidderAction);
-                    
-                    // Complete the deal - each player should have 12 cards total
-                    // Other players currently have 0, need 12 each
                     for (let p_idx = 0; p_idx < 4; p_idx++) {
                         if (p_idx !== bidderIndex) {
-                            // Give 12 cards to each other player
                             for (let cardNum = 0; cardNum < 12; cardNum++) {
                                 if (gameState.deck.length > 0) {
                                     gameState.players[p_idx].hand.push(gameState.deck.pop());
@@ -685,14 +734,14 @@
                         }
                     }
                     
-                    // Bidder has 3 cards left (had 4, played 1), needs 9 more to make 12
-                    while (gameState.players[bidderIndex].hand.length < 12 && gameState.deck.length > 0) {
+                    while (gameState.players[bidderIndex].hand.length < 11 && gameState.deck.length > 0) {
                         gameState.players[bidderIndex].hand.push(gameState.deck.pop());
                     }
-
+                    
                     render();
+                    updateMessage(`Bidding complete. ${gameState.currentBid.player} bid ${gameState.currentBid.value}.`);
                     setTimeout(nextTurn, 1000);
-                }, 1500);
+                }, 1000);
             }
             
             function nextTurn() {
@@ -715,12 +764,10 @@
                             setTimeout(nextTurn, 1200);
                         } else {
                             console.error("AI could not generate valid move for", currentPlayer.name);
-                            // Skip this player's turn if no valid move
                             setTimeout(nextTurn, 500);
                         }
                     }, 800);
                 } else {
-                    // Human player's turn - wait for their input
                     updateMessage("Your turn! Select a card from your hand, then choose your action.");
                 }
             }
@@ -728,12 +775,16 @@
             function executeMove(playerIndex, move) {
                 const player = gameState.players[playerIndex];
                 
-                // Remove card from hand first
-                const cardIndex = player.hand.findIndex(c => c.id === move.card.id);
+                if (!move || !move.card || !move.card.id) {
+                    console.error("Invalid move:", move);
+                    return;
+                }
+                
+                const cardIndex = player.hand.findIndex(c => c && c.id === move.card.id);
                 if (cardIndex > -1) {
                     player.hand.splice(cardIndex, 1);
                 } else {
-                    console.error("Card not found in hand!", move.card, player.hand);
+                    console.error("Card not found in hand!", move.card.id, player.hand.map(c => c ? c.id : 'undefined'));
                     return;
                 }
 
@@ -741,32 +792,36 @@
                 switch(move.type) {
                     case 'pickup':
                         let captured = [move.card];
-                        let isSweep = false;
 
-                        if (move.targets.length === 1 && move.targets[0].cards) {
+                        if (move.targets && move.targets.length === 1 && move.targets[0].cards) {
                             const house = move.targets[0];
                             captured.push(...house.cards);
                             gameState.floor.houses = gameState.floor.houses.filter(h => h.value !== house.value);
-                        } else {
+                        } else if (move.targets) {
                             move.targets.forEach(card => {
-                                captured.push(card);
-                                gameState.floor.loose = gameState.floor.loose.filter(c => c.id !== card.id);
+                                if (card && card.id) {
+                                    captured.push(card);
+                                    gameState.floor.loose = gameState.floor.loose.filter(c => c.id !== card.id);
+                                }
                             });
                         }
                         
                         let potentialPickups = findCombinations(gameState.floor.loose, move.card.captureValue);
                         if (potentialPickups.length > 0) {
                             potentialPickups[0].forEach(card => {
-                                captured.push(card);
-                                gameState.floor.loose = gameState.floor.loose.filter(c => c.id !== card.id);
+                                if (card && card.id) {
+                                    captured.push(card);
+                                    gameState.floor.loose = gameState.floor.loose.filter(c => c.id !== card.id);
+                                }
                             });
                         }
 
                         gameState.capturedCards[player.team].push(...captured);
                         gameState.lastPicker = player.team;
 
-                        if (gameState.floor.loose.length === 0 && gameState.floor.houses.length === 0) {
-                            isSweep = true;
+                        const isSweep = (gameState.floor.loose.length === 0 && gameState.floor.houses.length === 0);
+                        
+                        if (isSweep) {
                             if (gameState.isFirstPlay) {
                                 gameState.sweeps[player.team] += 25;
                             } else if (gameState.players.reduce((sum, p) => sum + p.hand.length, 0) > 0) {
@@ -776,6 +831,11 @@
                         break;
                     
                     case 'build':
+                        if (!move.targets || !move.value) {
+                            console.error("Invalid build move:", move);
+                            break;
+                        }
+                        
                         const newHouse = {
                             value: move.value,
                             cards: [move.card, ...move.targets],
@@ -792,13 +852,19 @@
                         }
 
                         move.targets.forEach(card => {
-                            gameState.floor.loose = gameState.floor.loose.filter(c => c.id !== card.id);
+                            if (card && card.id) {
+                                gameState.floor.loose = gameState.floor.loose.filter(c => c.id !== card.id);
+                            }
                         });
                         break;
                         
                     case 'throw':
                         gameState.floor.loose.push(move.card);
                         break;
+                        
+                    default:
+                        console.error("Unknown move type:", move.type);
+                        return;
                 }
 
                 // Now do the card animation
@@ -835,10 +901,9 @@
 
                     setTimeout(() => {
                         clone.remove();
-                        render(); // Re-render after animation to show the card on floor
+                        render();
                     }, 650);
                 } else {
-                    // If no animation element found, render immediately
                     render();
                 }
                 
@@ -846,21 +911,27 @@
 
                 switch(move.type) {
                     case 'pickup':
-                        if (move.targets.length === 1 && move.targets[0].cards) {
+                        if (move.targets && move.targets.length === 1 && move.targets[0].cards) {
                             const house = move.targets[0];
                             moveDescription += ` and captures the ${house.value}-house`;
-                        } else {
+                        } else if (move.targets) {
                             moveDescription += ` and picks up ${move.targets.length} card${move.targets.length > 1 ? 's' : ''}`;
                         }
                         
-                        if (gameState.floor.loose.length === 0 && gameState.floor.houses.length === 0) {
+                        const isSweepCheck = (gameState.floor.loose.length === 0 && gameState.floor.houses.length === 0);
+                        if (isSweepCheck) {
                             moveDescription += ` - SWEEP!`;
+                            if (gameState.isFirstPlay) {
+                                moveDescription += ` (+25 points)`;
+                            } else if (gameState.players.reduce((sum, p) => sum + p.hand.length, 0) > 0) {
+                                moveDescription += ` (+50 points)`;
+                            }
                         }
                         break;
                     
                     case 'build':
-                        const existingHouseIndex = gameState.floor.houses.findIndex(h => h.value === move.value);
-                        if(existingHouseIndex > -1) {
+                        const existingHouseIdx = gameState.floor.houses.findIndex(h => h.value === move.value);
+                        if(existingHouseIdx > -1) {
                             moveDescription += ` and cements the ${move.value}-house`;
                         } else {
                             moveDescription += ` and builds a ${move.value}-house`;
@@ -934,7 +1005,6 @@
 
             // --- AI Logic ---
             function getAIBestMove(player, hand) {
-                // Filter out any undefined cards and ensure we have a valid hand
                 const validHand = (hand || player.hand).filter(card => card && card.id && card.captureValue !== undefined);
                 
                 if (validHand.length === 0) {
@@ -947,18 +1017,18 @@
                 for (const card of validHand) {
                     if (!card || !card.captureValue) continue;
 
-                    // Evaluate picking up houses
+                    // PRIORITY 1: Houses
                     for (const house of gameState.floor.houses) {
                         if (house && house.value && card.captureValue === house.value) {
                             const housePoints = house.cards.reduce((sum, c) => sum + getCardPointValue(c), 0);
-                            const score = 100 + housePoints;
+                            const score = 200 + housePoints;
                             if (score > bestMove.score) {
                                 bestMove = { score, move: { type: 'pickup', card, targets: [house] } };
                             }
                         }
                     }
 
-                    // Evaluate picking up loose cards
+                    // PRIORITY 2: Loose cards
                     const combinations = findCombinations(gameState.floor.loose, card.captureValue);
                     if (combinations.length > 0) {
                         let bestCombo = { points: -1, cards: [] };
@@ -968,20 +1038,20 @@
                                 bestCombo = { points, cards: combo };
                             }
                         });
-                        const score = 50 + bestCombo.points;
+                        const score = 100 + bestCombo.points;
                         if (score > bestMove.score) {
                             bestMove = { score, move: { type: 'pickup', card, targets: bestCombo.cards } };
                         }
                     }
 
-                    // Evaluate building a house
+                    // PRIORITY 3: Building
                     const hasPair = validHand.filter(c => c && c.captureValue === card.captureValue).length > 1;
                     if (hasPair) {
                         for (const looseCard of gameState.floor.loose) {
                             if (!looseCard || !looseCard.captureValue) continue;
                             const newValue = card.captureValue + looseCard.captureValue;
                             if (newValue >= 9 && newValue <= 13 && validHand.some(c => c && c.captureValue === newValue)) {
-                                const score = 20 - getCardPointValue(looseCard);
+                                const score = 50 - getCardPointValue(looseCard);
                                 if (score > bestMove.score) {
                                     bestMove = { score, move: { type: 'build', card, value: newValue, targets: [looseCard] } };
                                 }
@@ -990,9 +1060,39 @@
                     }
                 }
                 
+                // Strategic throwing
                 if (!bestMove.move) {
-                    const throwCard = validHand.sort((a,b) => (getCardPointValue(a) + a.captureValue/10) - (getCardPointValue(b) + b.captureValue/10))[0];
-                    bestMove.move = { type: 'throw', card: throwCard };
+                    const throwOptions = validHand.map(card => {
+                        let score = 0;
+                        
+                        score -= getCardPointValue(card) * 10;
+                        
+                        const matchesFloor = gameState.floor.loose.some(floorCard => 
+                            floorCard.captureValue === card.captureValue
+                        );
+                        if (matchesFloor) score -= 20;
+                        
+                        const matchesHouse = gameState.floor.houses.some(house => 
+                            house.value === card.captureValue
+                        );
+                        if (matchesHouse) score -= 30;
+                        
+                        const wouldCreateEasyCombination = gameState.floor.loose.some(floorCard => {
+                            const sum = card.captureValue + floorCard.captureValue;
+                            return sum >= 9 && sum <= 13;
+                        });
+                        if (wouldCreateEasyCombination) score -= 15;
+                        
+                        if (gameState.floor.loose.length <= 2) score += 10;
+                        
+                        return { card, score };
+                    });
+                    
+                    const bestThrow = throwOptions.reduce((best, current) => 
+                        current.score > best.score ? current : best
+                    );
+                    
+                    bestMove.move = { type: 'throw', card: bestThrow.card };
                 }
 
                 return bestMove.move;
@@ -1021,12 +1121,10 @@
                 if (!humanPlayer || !humanPlayer.hand) return;
                 
                 humanPlayer.hand.sort((a, b) => {
-                    // First sort by suit (Spades, Hearts, Diamonds, Clubs)
                     const suitOrder = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
                     if (suitOrder[a.suit] !== suitOrder[b.suit]) {
                         return suitOrder[a.suit] - suitOrder[b.suit];
                     }
-                    // Then sort by rank within suit (A, 2, 3, ..., J, Q, K)
                     const rankOrder = { 'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13 };
                     return rankOrder[a.rank] - rankOrder[b.rank];
                 });
@@ -1038,11 +1136,9 @@
             function calculateRoundPoints() {
                 let roundPoints = { NS: 0, EW: 0 };
                 
-                // Add sweep points
                 roundPoints.NS += gameState.sweeps.NS;
                 roundPoints.EW += gameState.sweeps.EW;
                 
-                // Add card points
                 for (const card of gameState.capturedCards.NS) {
                     roundPoints.NS += getCardPointValue(card);
                 }
