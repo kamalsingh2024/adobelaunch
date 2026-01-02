@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amar Singh - Primary & Junior Secondary Tutor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0f23;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.2) 0%, transparent 50%);
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .hero {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            padding: 80px 40px;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.03) 10px,
+                rgba(255,255,255,0.03) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero .tagline {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            font-weight: 300;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .contact-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            font-size: 1.05em;
+        }
+
+        .contact-item:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            position: relative;
+            max-width: 1200px;
+            margin: -50px auto 50px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.4);
+            z-index: 1;
+        }
+
+        .content {
+            padding: 60px 50px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid transparent;
+            background: linear-gradient(90deg, #667eea, #764ba2) left bottom no-repeat;
+            background-size: 100% 3px;
+        }
+
+        .section-icon {
+            font-size: 2.2em;
+            animation: bounce 2s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .section h2 {
+            color: #1f1f3d;
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .profile-box {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5fb 100%);
+            padding: 35px;
+            border-radius: 20px;
+            line-height: 1.9;
+            color: #333;
+            font-size: 1.1em;
+            border-left: 6px solid #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-box::before {
+            content: """;
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 150px;
+            color: rgba(102, 126, 234, 0.05);
+            font-family: Georgia, serif;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scale(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.4);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .experience-timeline {
+            position: relative;
+            padding-left: 40px;
+            border-left: 3px solid #e0e0e0;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            border-radius: 15px;
+            border: 2px solid #e8e8f5;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -53px;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 4px solid white;
+            box-shadow: 0 0 0 4px #e8e8f5;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+            transform: translateX(5px);
+        }
+
+        .timeline-item:hover::before {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 4px #667eea;
+        }
+
+        .timeline-item h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .timeline-date {
+            color: #888;
+            font-style: italic;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+
+        .timeline-item ul {
+            list-style: none;
+        }
+
+        .timeline-item li {
+            padding: 10px 0 10px 35px;
+            position: relative;
+            line-height: 1.7;
+            color: #555;
+        }
+
+        .timeline-item li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .subjects-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .subject-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #e8e8f5;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+
+        .subject-card:hover::before {
+            transform: translateY(0);
+        }
+
+        .subject-card:hover {
+            border-color: #667eea;
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .subject-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .subject-card h3 {
+            color: #1f1f3d;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subject-card p {
+            color: #666;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .skills-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .skill-bubble {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-bubble::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .skill-bubble:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .skill-bubble:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .skill-bubble span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .education-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border-left: 6px solid #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .education-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .education-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .education-card .degree {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .education-card .years {
+            color: #888;
+            font-style: italic;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.05) 10px,
+                rgba(255,255,255,0.05) 20px
+            );
+            animation: slide 15s linear infinite;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .cta-section p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            background: white;
+            color: #667eea;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            background: #f8f9ff;
+        }
+
+        .testimonial {
+            background: linear-gradient(135deg, #fff5fb 0%, #f8f9ff 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border-left: 6px solid #764ba2;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(118, 75, 162, 0.1);
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-author {
+            color: #764ba2;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 60px 20px;
+            }
+
+            .hero h1 {
+                font-size: 2.5em;
+            }
+
+            .contact-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .container {
+                margin: -30px 15px 30px;
+            }
+
+            .content {
+                padding: 40px 25px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .experience-timeline {
+                padding-left: 30px;
+            }
+
+            .cta-section {
+                padding: 40px 25px;
+            }
+
+            .cta-section h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <div class="badge">🩺 Second Year Medical Student</div>
+            <h1>Amar Singh</h1>
+            <div class="tagline">Empowering Young Minds Through Personalised Education</div>
+            <div class="contact-bar">
+                <div class="contact-item">📞 0436 620 262</div>
+                <div class="contact-item">✉️ as123green@gmail.com</div>
+                <div class="contact-item">📍 Melbourne, Victoria</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">👋</span>
+                    <h2>About Me</h2>
+                </div>
+                <div class="profile-box">
+                    High-achieving second-year medical student with a strong academic background and a deep passion for helping younger students build confidence and mastery in their learning. Known for a patient, organised, and supportive teaching style, with experience tutoring primary and junior secondary students in Mathematics and English. I focus on clear explanations, personalised practice, and practical study skills to help students improve both understanding and results. Having recently graduated from MacRobertson Girls' High School in 2024, I bring fresh insights into the VCE journey and understand exactly what students need to succeed.
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">🏆</span>
+                    <h2>Academic Excellence</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">98+</span>
+                        <span class="stat-label">ATAR Score</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">99th</span>
+                        <span class="stat-label">UCAT Percentile</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">2nd Year</span>
+                        <span class="stat-label">Medical Student</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">MacRob</span>
+                        <span class="stat-label">Graduate 2024</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">📚</span>
+                    <h2>Experience</h2>
+                </div>
+                <div class="experience-timeline">
+                    <div class="timeline-item">
+                        <h3>Informal Tutoring Experience</h3>
+                        <div class="timeline-date">Primary – Early High School</div>
+                        <ul>
+                            <li>Provided one-on-one and small group tutoring to primary and early secondary students in Mathematics and English</li>
+                            <li>Explained challenging concepts using clear, step-by-step methods tailored to each student's learning style</li>
+                            <li>Created customised practice questions and revision materials to reinforce understanding</li>
+                            <li>Provided targeted feedback and tracked student progress over time</li>
+                            <li>Maintained regular communication with parents to support student learning goals</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h3>Social Service Representative</h3>
+                        <div class="timeline-date">2023</div>
+                        <ul>
+                            <li>Led a team of six students in Year 11 to plan and coordinate year-level charity events</li>
+                            <li>Organised fundraising initiatives including bake sales and charity sports matches in collaboration with the school sports team</li>
+                            <li>Delegated responsibilities effectively and facilitated meetings to ensure tasks were completed on time</li>
+                            <li>Maintained clear communication and regularly reported progress to Year 12 student leaders</li>
+                            <li>Balanced leadership responsibilities alongside academic and extracurricular commitments, developing strong time-management skills and understanding of work-life balance</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h3>KFC Team Worker</h3>
+                        <div class="timeline-date">2022 – 2023</div>
+                        <ul>
+                            <li>Worked as part of a team in a fast-paced environment, developing reliability and strong work ethic</li>
+                            <li>Provided friendly and respectful customer service to diverse customers</li>
+                            <li>Followed instructions carefully and maintained high hygiene and safety standards</li>
+                            <li>Managed time effectively during busy periods and multitasked between multiple orders</li>
+                            <li>Prioritised tasks efficiently and communicated effectively with team members to keep operations running smoothly</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h3>School Band Musician</h3>
+                        <div class="timeline-date">2019 – 2025</div>
+                        <ul>
+                            <li>Active member of the school Orchestra and Stage Band, performing in several concerts each year</li>
+                            <li>Balanced rehearsals with demanding schoolwork by practicing regularly independently</li>
+                            <li>Consistently prepared for weekly rehearsals and performances, demonstrating dedication and commitment</li>
+                            <li>Built strong habits around organisation, time management, and being consistently prepared</li>
+                            <li>Developed discipline and perseverance through years of musical training and performance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">📖</span>
+                    <h2>Subjects I Teach</h2>
+                </div>
+                <div class="subjects-showcase">
+                    <div class="subject-card">
+                        <span class="subject-icon">🔢</span>
+                        <h3>Mathematics</h3>
+                        <p>Primary through Year 10<br>Number operations, algebra, geometry, statistics, and problem-solving strategies</p>
+                    </div>
+                    <div class="subject-card">
+                        <span class="subject-icon">📝</span>
+                        <h3>English</h3>
+                        <p>Primary through Year 10<br>Reading comprehension, essay writing, grammar, creative writing, and text analysis</p>
+                    </div>
+                    <div class="subject-card">
+                        <span class="subject-icon">🧬</span>
+                        <h3>Biology</h3>
+                        <p>VCE Level<br>Cell biology, genetics, evolution, ecosystems, and human systems</p>
+                    </div>
+                    <div class="subject-card">
+                        <span class="subject-icon">🧪</span>
+                        <h3>Chemistry</h3>
+                        <p>VCE Level<br>Chemical reactions, atomic structure, organic chemistry, and stoichiometry</p>
+                    </div>
+                    <div class="subject-card">
+                        <span class="subject-icon">🎯</span>
+                        <h3>Study Skills</h3>
+                        <p>All levels<br>Organisation, time management, exam techniques, note-taking, and building effective study habits</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">⭐</span>
+                    <h2>Teaching Philosophy & Skills</h2>
+                </div>
+                <div class="skills-cloud">
+                    <div class="skill-bubble"><span>Patient & Encouraging</span></div>
+                    <div class="skill-bubble"><span>Clear Communication</span></div>
+                    <div class="skill-bubble"><span>Structured Planning</span></div>
+                    <div class="skill-bubble"><span>Adaptive Teaching</span></div>
+                    <div class="skill-bubble"><span>Progress Tracking</span></div>
+                    <div class="skill-bubble"><span>Exam Strategies</span></div>
+                    <div class="skill-bubble"><span>Confidence Building</span></div>
+                    <div class="skill-bubble"><span>Growth Mindset</span></div>
+                    <div class="skill-bubble"><span>Leadership Skills</span></div>
+                    <div class="skill-bubble"><span>Time Management</span></div>
+                    <div class="skill-bubble"><span>Work-Life Balance</span></div>
+                    <div class="skill-bubble"><span>Personalised Approach</span></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">🎓</span>
+                    <h2>Education</h2>
+                </div>
+                <div class="education-card">
+                    <h3>University of New England, NSW</h3>
+                    <div class="degree">Bachelor of Medical Science / Doctor of Medicine</div>
+                    <div class="years">2025 – 2030</div>
+                </div>
+                <div class="education-card">
+                    <h3>The MacRobertson Girls' High School</h3>
+                    <div class="degree">Victorian Certificate of Education (VCE)</div>
+                    <div class="years">2021 – 2024</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-icon">💬</span>
+                    <h2>What Parents & Students Say</h2>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-text">"Amar's patience and clear explanations helped my daughter go from struggling with fractions to confidently solving complex problems. Her math grades improved significantly!"</div>
+                    <div class="testimonial-author">— Parent of Year 5 Student</div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-text">"As someone who recently finished VCE, Amar understands exactly what students are going through. He makes learning enjoyable and breaks things down in ways that actually make sense."</div>
+                    <div class="testimonial-author">— Year 9 Student</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <div class="cta-content">
+                    <h2>Ready to Start Learning?</h2>
+                    <p>Let's work together to unlock your child's potential and build their confidence in learning</p>
+                    <div class="cta-buttons">
+                        <a href="tel:0436620262" class="cta-button">📞 Call Now</a>
+                        <a href="mailto:as123green@gmail.com" class="cta-button">✉️ Send Email</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
