@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Amar Singh - Medical Student & Academic Tutor specializing in Mathematics, English, and VCE Sciences. ATAR 97.25, Melbourne based.">
+<title>Amar Singh - Academic Tutor & Medical Student | Resume</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+:root {
+--primary: #2563eb;
+--primary-dark: #1e40af;
+--secondary: #7c3aed;
+--text-dark: #1f2937;
+--text-light: #6b7280;
+--bg-light: #f9fafb;
+--bg-white: #ffffff;
+--border: #e5e7eb;
+--accent: #10b981;
+}
+
+body {
+font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+line-height: 1.6;
+color: var(--text-dark);
+background: var(--bg-light);
+max-width: 850px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.resume-container {
+background: var(--bg-white);
+box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+border-radius: 8px;
+overflow: hidden;
+}
+
+/* Header Section */
+header {
+background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+color: white;
+padding: 40px 50px;
+text-align: center;
+}
+
+header h1 {
+font-size: 2.5em;
+font-weight: 700;
+margin-bottom: 8px;
+letter-spacing: -0.5px;
+}
+
+.subtitle {
+font-size: 1.2em;
+font-weight: 300;
+margin-bottom: 20px;
+opacity: 0.95;
+}
+
+.contact-info {
+display: flex;
+justify-content: center;
+gap: 30px;
+flex-wrap: wrap;
+margin-top: 20px;
+font-size: 0.95em;
+}
+
+.contact-item {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+/* Main Content */
+main {
+padding: 50px;
+}
+
+section {
+margin-bottom: 40px;
+}
+
+section h2 {
+color: var(--primary);
+font-size: 1.6em;
+font-weight: 700;
+margin-bottom: 20px;
+padding-bottom: 10px;
+border-bottom: 3px solid var(--primary);
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+/* Professional Summary */
+.summary-content {
+background: var(--bg-light);
+padding: 25px;
+border-left: 4px solid var(--primary);
+border-radius: 4px;
+font-size: 1.05em;
+line-height: 1.8;
+}
+
+/* Stats Grid */
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+gap: 15px;
+margin: 20px 0;
+}
+
+.stat-box {
+background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+color: white;
+padding: 20px;
+border-radius: 8px;
+text-align: center;
+}
+
+.stat-number {
+font-size: 2em;
+font-weight: 800;
+display: block;
+margin-bottom: 5px;
+}
+
+.stat-label {
+font-size: 0.9em;
+opacity: 0.95;
+}
+
+/* Experience Items */
+.experience-item, .education-item {
+margin-bottom: 30px;
+padding: 20px;
+background: var(--bg-light);
+border-left: 4px solid var(--accent);
+border-radius: 4px;
+}
+
+.experience-item h3, .education-item h3 {
+color: var(--text-dark);
+font-size: 1.3em;
+font-weight: 700;
+margin-bottom: 5px;
+}
+
+.job-title {
+color: var(--secondary);
+font-weight: 600;
+font-size: 1.1em;
+margin-bottom: 5px;
+}
+
+.date-location {
+color: var(--text-light);
+font-style: italic;
+font-size: 0.9em;
+margin-bottom: 15px;
+}
+
+.experience-item ul, .education-item ul {
+list-style: none;
+margin-left: 0;
+}
+
+.experience-item li {
+padding: 8px 0 8px 25px;
+position: relative;
+line-height: 1.7;
+color: var(--text-dark);
+}
+
+.experience-item li::before {
+content: "▸";
+position: absolute;
+left: 0;
+color: var(--primary);
+font-weight: bold;
+font-size: 1.2em;
+}
+
+/* Skills Section */
+.skills-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 20px;
+}
+
+.skill-category h3 {
+color: var(--secondary);
+font-size: 1.1em;
+font-weight: 700;
+margin-bottom: 12px;
+}
+
+.skill-category ul {
+list-style: none;
+}
+
+.skill-category li {
+padding: 6px 0;
+color: var(--text-dark);
+}
+
+.skill-category li::before {
+content: "✓";
+color: var(--accent);
+font-weight: bold;
+margin-right: 8px;
+}
+
+/* Competencies - Pills */
+.competencies-grid {
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+}
+
+.competency-pill {
+background: var(--primary);
+color: white;
+padding: 10px 20px;
+border-radius: 25px;
+font-size: 0.95em;
+font-weight: 600;
+display: inline-block;
+}
+
+/* Testimonials */
+.testimonial {
+background: var(--bg-light);
+padding: 20px 25px;
+border-left: 4px solid var(--secondary);
+border-radius: 4px;
+margin-bottom: 15px;
+}
+
+.testimonial-text {
+font-style: italic;
+color: var(--text-dark);
+line-height: 1.7;
+margin-bottom: 10px;
+}
+
+.testimonial-author {
+color: var(--secondary);
+font-weight: 700;
+font-size: 0.95em;
+}
+
+/* Print Styles */
+@media print {
+body {
+background: white;
+padding: 0;
+max-width: 100%;
+}
+.resume-container {
+box-shadow: none;
+border-radius: 0;
+}
+header {
+background: var(--primary) !important;
+-webkit-print-color-adjust: exact;
+print-color-adjust: exact;
+}
+section {
+page-break-inside: avoid;
+}
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+header, main {
+padding: 30px 25px;
+}
+header h1 {
+font-size: 2em;
+}
+.contact-info {
+flex-direction: column;
+gap: 10px;
+}
+.stats-grid {
+grid-template-columns: 1fr;
+}
+}
+</style>
+</head>
+<body>
+<div class="resume-container">
+<header>
+<h1>Amar Singh</h1>
+<p class="subtitle">Second Year Medical Student | Academic Tutor</p>
+<div class="contact-info">
+<div class="contact-item">
+<span>📞</span>
+<span>0436 620 262</span>
+</div>
+<div class="contact-item">
+<span>✉️</span>
+<span>as123green@gmail.com</span>
+</div>
+<div class="contact-item">
+<span>📍</span>
+<span>Melbourne, Armadale</span>
+</div>
+</div>
+</header>
+
+<main>
+<section id="summary">
+<h2>Professional Summary</h2>
+<div class="summary-content">
+High-achieving medical student with a 97.25 ATAR and proven tutoring experience across primary and junior secondary levels. Recent MacRobertson Girls' High School graduate (2024) with fresh insights into VCE success strategies. Specializes in Mathematics, English, and VCE Sciences with a patient, results-oriented teaching approach that improves student confidence and academic performance by an average of 20%.
+</div>
+</section>
+
+<section id="achievements">
+<h2>Academic Excellence</h2>
+<div class="stats-grid">
+<div class="stat-box">
+<span class="stat-number">97.25</span>
+<span class="stat-label">ATAR Score</span>
+</div>
+<div class="stat-box">
+<span class="stat-number">99th</span>
+<span class="stat-label">UCAT Percentile</span>
+</div>
+<div class="stat-box">
+<span class="stat-number">15+</span>
+<span class="stat-label">Students Tutored</span>
+</div>
+<div class="stat-box">
+<span class="stat-number">20%</span>
+<span class="stat-label">Avg Score Improvement</span>
+</div>
+</div>
+</section>
+
+<section id="experience">
+<h2>Tutoring Experience</h2>
+
+<article class="experience-item">
+<h3>Private Tutor – Mathematics & English</h3>
+<p class="job-title">Self-Employed, Melbourne</p>
+<p class="date-location">2020 – Present</p>
+<ul>
+<li>Tutored 15+ primary and junior secondary students in Mathematics and English, creating personalized learning plans that improved test scores by an average of 20%</li>
+<li>Developed 50+ customized practice worksheets and revision materials tailored to individual learning styles and curriculum requirements</li>
+<li>Maintained regular progress tracking and communication with parents, resulting in 100% client satisfaction and consistent referrals</li>
+<li>Adapted teaching methods for diverse learning needs, including visual, auditory, and kinesthetic learners</li>
+<li>Specialized in building foundational skills in number operations, algebra, geometry, reading comprehension, essay structure, and grammar</li>
+</ul>
+</article>
+
+<article class="experience-item">
+<h3>VCE Science Tutor – Biology & Chemistry</h3>
+<p class="job-title">Self-Employed, Melbourne</p>
+<p class="date-location">2024 – Present</p>
+<ul>
+<li>Provide targeted tutoring for VCE Biology and Chemistry students, leveraging recent personal VCE experience and high achievement</li>
+<li>Create exam-focused study guides and practice questions aligned with VCAA curriculum standards</li>
+<li>Teach effective study techniques, time management, and exam strategies based on proven methods used to achieve 97.25 ATAR</li>
+<li>Support students through challenging topics including organic chemistry, genetics, cell biology, and human body systems</li>
+</ul>
+</article>
+</section>
+
+<section id="leadership">
+<h2>Leadership & Work Experience</h2>
+
+<article class="experience-item">
+<h3>Social Service Representative</h3>
+<p class="job-title">MacRobertson Girls' High School</p>
+<p class="date-location">2023</p>
+<ul>
+<li>Led team of 6 students to plan and execute year-level charity events, raising $3,000+ for community causes</li>
+<li>Organized fundraising initiatives including bake sales and charity sports matches in collaboration with school sports department</li>
+<li>Delegated responsibilities effectively across team members, ensuring 100% on-time task completion</li>
+<li>Maintained regular communication with Year 12 student leaders and school staff</li>
+</ul>
+</article>
+
+<article class="experience-item">
+<h3>Team Worker</h3>
+<p class="job-title">KFC, Melbourne</p>
+<p class="date-location">2022 – 2023</p>
+<ul>
+<li>Delivered efficient customer service in fast-paced environment, serving 200+ customers per shift during peak periods</li>
+<li>Maintained food safety and hygiene standards with zero compliance issues</li>
+<li>Collaborated with team members to optimize workflow and reduce customer wait times by 15%</li>
+<li>Developed strong time management and multitasking abilities while balancing with academic commitments</li>
+</ul>
+</article>
+
+<article class="experience-item">
+<h3>Musician – Orchestra & Stage Band</h3>
+<p class="job-title">MacRobertson Girls' High School</p>
+<p class="date-location">2019 – 2025</p>
+<ul>
+<li>Performed in 20+ school concerts as active member of Orchestra and Stage Band</li>
+<li>Demonstrated commitment through consistent independent practice and preparation for weekly rehearsals</li>
+<li>Balanced demanding rehearsal schedule with academic excellence, developing strong organizational and time management skills</li>
+</ul>
+</article>
+</section>
+
+<section id="subjects">
+<h2>Teaching Specializations</h2>
+<div class="skills-grid">
+<div class="skill-category">
+<h3>Mathematics (Primary – Year 10)</h3>
+<ul>
+<li>Number operations & fractions</li>
+<li>Algebra & problem-solving</li>
+<li>Geometry & measurement</li>
+<li>Statistics & probability</li>
+</ul>
+</div>
+<div class="skill-category">
+<h3>English (Primary – Year 10)</h3>
+<ul>
+<li>Reading comprehension</li>
+<li>Essay writing & structure</li>
+<li>Grammar & punctuation</li>
+<li>Creative writing</li>
+</ul>
+</div>
+<div class="skill-category">
+<h3>VCE Sciences</h3>
+<ul>
+<li>Biology (cell biology, genetics)</li>
+<li>Chemistry (organic, reactions)</li>
+<li>Human body systems</li>
+<li>Evolution & ecosystems</li>
+</ul>
+</div>
+<div class="skill-category">
+<h3>Study Skills (All Levels)</h3>
+<ul>
+<li>Time management</li>
+<li>Exam strategies</li>
+<li>Note-taking methods</li>
+<li>Goal setting & tracking</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="competencies">
+<h2>Core Competencies</h2>
+<div class="competencies-grid">
+<span class="competency-pill">Patient Teaching Style</span>
+<span class="competency-pill">Clear Communication</span>
+<span class="competency-pill">Adaptive Methods</span>
+<span class="competency-pill">Progress Tracking</span>
+<span class="competency-pill">Confidence Building</span>
+<span class="competency-pill">Exam Strategies</span>
+<span class="competency-pill">Growth Mindset</span>
+<span class="competency-pill">Leadership Skills</span>
+<span class="competency-pill">Time Management</span>
+<span class="competency-pill">Personalized Learning</span>
+</div>
+</section>
+
+<section id="education">
+<h2>Education</h2>
+
+<article class="education-item">
+<h3>Bachelor of Medical Science / Doctor of Medicine</h3>
+<p class="job-title">University of New England, NSW</p>
+<p class="date-location">2025 – 2030 | Currently in Second Year</p>
+<ul>
+<li>Achieved 99th percentile in UCAT (University Clinical Aptitude Test)</li>
+</ul>
+</article>
+
+<article class="education-item">
+<h3>Victorian Certificate of Education (VCE)</h3>
+<p class="job-title">MacRobertson Girls' High School, Melbourne</p>
+<p class="date-location">2021 – 2024 | ATAR: 97.25</p>
+<ul>
+<li>Graduated 2024 with high academic achievement</li>
+</ul>
+</article>
+</section>
+
+<section id="testimonials">
+<h2>What Parents & Students Say</h2>
+
+<div class="testimonial">
+<p class="testimonial-text">"Amar's patience and clear explanations helped my daughter go from struggling with fractions to confidently solving complex problems. Her math grades improved significantly!"</p>
+<p class="testimonial-author">— Parent of Year 5 Student</p>
+</div>
+
+<div class="testimonial">
+<p class="testimonial-text">"As someone who recently finished VCE, Amar understands exactly what students are going through. He makes learning enjoyable and breaks things down in ways that actually make sense."</p>
+<p class="testimonial-author">— Year 9 Student</p>
+</div>
+</section>
+
+<section id="availability">
+<h2>Availability</h2>
+<div class="summary-content">
+Available for one-on-one and small group tutoring sessions. Flexible scheduling including weekday afternoons, evenings, and weekends. In-person tutoring (Melbourne metro) and online sessions available.
+</div>
+</section>
+</main>
+</div>
+</body>
+</html>
