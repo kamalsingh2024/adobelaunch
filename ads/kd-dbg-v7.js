@@ -1,7 +1,7 @@
 // ============================================================
-//  KD DBG - Ad Slot Debugger v7
+//  AD DBG - Ad Slot Debugger v8
 //  Paste into DevTools console and run immediately.
-//  NEW in v7:
+//  NEW in v8:
 //  - Tooltip now shows targeting pills (slot + page + response)
 //    matching the same visual style as the overlay
 //  - data-advert-name (e.g. 'billboard-advert') shown in overlay header + tooltip
@@ -46,7 +46,7 @@
     ".__dbg_section_label__ {",
     "  display:block;",
     "  font:bold 9px/1.8 monospace;",
-    "  color:rgba(255,255,255,0.4);",
+    "  color:rgba(255,255,255,1);",
     "  text-transform:uppercase;",
     "  letter-spacing:0.8px;",
     "  margin-top:6px;",
@@ -172,6 +172,7 @@
     } catch(e) {}
   }
 
+  var _slotRefs = [];
   var divs = document.querySelectorAll("[id*=tmedia-ad]");
   if (divs.length === 0) { console.warn("KD DBG: No [id*=tmedia-ad] elements found."); return; }
 
@@ -269,15 +270,17 @@
     }
 
     var header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:3px";
+    header.style.cssText = "margin-bottom:4px";
     header.innerHTML =
-      "<span>" + (isFilled ? "\u2705 FILLED" : "\u274c NOT FILLED") + "  [Slot " + i + "]  " +
-      "<span style='color:rgba(255,255,255,0.6);font-size:10px'>" + declaredLabel + "</span>" +
-      (advertName ? "  <span style='background:#1a3a5c;border:1px solid #4488cc;border-radius:3px;padding:1px 5px;font-size:10px;color:#88ccff'>" + advertName + "</span>" : "") +
-      "</span>" +
-      "<span style='color:rgba(255,255,255,0.5);font-size:10px;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
-        (data.unitPath || id) +
-      "</span>";
+      "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+        "<span style='font-size:10px;'>" + (isFilled ? "\u2705 FILLED" : "\u274c NOT FILLED") +
+        "  <span style='color:#aaa;font-size:10px'>[Slot " + i + "]</span></span>" +
+        (advertName ? "<span style='background:#1a3a5c;border:1px solid #4488cc;border-radius:3px;padding:2px 7px;font-size:11px;color:#88ccff;font-weight:bold'>" + advertName + "</span>" : "") +
+      "</div>" +
+      "<div style='display:flex;justify-content:space-between;align-items:baseline;margin-top:2px'>" +
+        "<span style='font-size:12px;color:#fff;letter-spacing:1px;line-height:1.1;text-shadow:0 0 8px rgba(255,255,255,1)'>" + declaredLabel + "</span>" +
+        "<span style='color:rgba(255,255,255,1);font-size:10px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right'>" + (data.unitPath || id) + "</span>" +
+      "</div>";
     label.appendChild(header);
 
     var slotPairs = [["position", data.position], ["above", data.above], ["index", data.slotIndex], ["in_view", data.inView]].filter(function (p) { return p[1] != null; });
@@ -296,6 +299,16 @@
     }
 
     el_slot.appendChild(label);
+    _slotRefs.push({
+      i: i, el: el_slot, label: label, header: header,
+      filled: isFilled, declared: declaredLabel,
+      div: id, unitPath: data.unitPath || null,
+      advertName: advertName || null, position: data.position || null,
+      lineItemId: data.lineItemId || null, iframeType: iframeType,
+      iframeW: iframeW, iframeH: iframeH,
+      collapsed: isCollapsed, tiny: isTiny
+    });
+
 
     // ── Tooltip builder — HTML with pills ─────────────────────────
     function buildTooltip() {
@@ -433,10 +446,10 @@
   panel.innerHTML =
     "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'>" +
       "<b style='font-size:13px'>" +
-        "<span style='background:#cc2222;color:#fff;padding:2px 7px;border-radius:3px;margin-right:7px;font-size:11px;letter-spacing:2px'>KD</span>" +
+        "<span style='background:#cc2222;color:#fff;padding:2px 7px;border-radius:3px;margin-right:7px;font-size:11px;letter-spacing:2px'>AD</span>" +
         "Ad Slot Debugger \u2014 " + summaryRows.length + " slots" +
       "</b>" +
-      "<span style='font-size:11px'>" +
+      "<span id='__dbg_counts__' style='font-size:11px'>" +
         "<span style='color:#00ff88'>\u2705 " + nFilled    + " filled</span>  " +
         "<span style='color:#ff6666'>\u274c " + nUnfilled  + " empty</span>  " +
         "<span style='color:#ff9900'>\u26a0\ufe0f " + nCollapsed + " forced</span>  " +
@@ -457,7 +470,7 @@
           "<th style='padding:4px 8px'>Line Item</th>" +
           "<th style='padding:4px 8px'>Flag</th>" +
         "</tr></thead>" +
-        "<tbody>" + tableRows + "</tbody>" +
+        "<tbody id='__dbg_tbody__'>" + tableRows + "</tbody>" +
       "</table>" +
     "</div>" +
     "<div style='margin-top:8px;padding-top:6px;border-top:1px solid #2a2a2a;font-size:10px;line-height:2'>" +
@@ -471,8 +484,79 @@
     "font:12px/1.5 monospace;padding:10px 14px;z-index:2147483647;" +
     "border-top:3px solid #cc2222;box-shadow:0 -4px 20px rgba(0,0,0,0.8);";
 
+
+  var _pollTimer = null;
+  var _pollStart = Date.now();
+  var _panelCounts, _panelBody;
+
+  function _pollTick() {
+    var anyChange = false;
+    var allFilled = true;
+    _slotRefs.forEach(function (ref) {
+      var _iframe = ref.el.querySelector("iframe");
+      var _filled = !!(_iframe && _iframe.getAttribute("data-load-complete") === "true");
+      var _it = _iframe ? (_iframe.id && _iframe.id.indexOf("_sf") !== -1 ? "SafeFrame" : "FriendlyIframe") : "none";
+      if (_filled !== ref.filled) {
+        anyChange = true;
+        ref.filled = _filled;
+        ref.iframeType = _it;
+        ref.iframeW = _iframe ? _iframe.getAttribute("width")  : null;
+        ref.iframeH = _iframe ? _iframe.getAttribute("height") : null;
+        ref.label.style.background  = _filled ? "rgba(0,80,0,0.88)"  : "rgba(120,0,0,0.88)";
+        ref.label.style.borderColor = _filled ? "#00ff88"            : "#ff4444";
+        ref.header.innerHTML =
+          "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+            "<span style='font-size:12px;font-weight:bold'>" + (_filled ? "\u2705 FILLED" : "\u274c NOT FILLED") +
+            "  <span style='color:#aaa;font-size:10px'>[Slot " + ref.i + "]</span></span>" +
+            (ref.advertName ? "<span style='background:#1a3a5c;border:1px solid #4488cc;border-radius:3px;padding:2px 7px;font-size:11px;color:#88ccff;font-weight:bold'>" + ref.advertName + "</span>" : "") +
+          "</div>" +
+          "<div style='display:flex;justify-content:space-between;align-items:baseline;margin-top:2px'>" +
+            "<span style='font-size:12px;color:#fff;letter-spacing:1px;line-height:1.1;text-shadow:0 0 8px rgba(255,255,255,0.3)'>" + ref.declared + "</span>" +
+            "<span style='color:rgba(255,255,255,0.5);font-size:10px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right'>" + (ref.unitPath || ref.div) + "</span>" +
+          "</div>";
+        summaryRows[ref.i].filled = _filled;
+        summaryRows[ref.i].iframeType = _it;
+      }
+      if (!ref.filled) allFilled = false;
+    });
+    if (anyChange && _panelCounts && _panelBody) {
+      var _nF = _slotRefs.filter(function (r) { return  r.filled; }).length;
+      var _nU = _slotRefs.filter(function (r) { return !r.filled; }).length;
+      var _nC = _slotRefs.filter(function (r) { return  r.collapsed && !r.tiny; }).length;
+      var _nT = _slotRefs.filter(function (r) { return  r.tiny; }).length;
+      _panelCounts.innerHTML =
+        "<span style='color:#00ff88'>\u2705 " + _nF + " filled</span>  " +
+        "<span style='color:#ff6666'>\u274c " + _nU + " empty</span>  " +
+        "<span style='color:#ff9900'>\u26a0\ufe0f " + _nC + " forced</span>  " +
+        "<span style='color:#ffaa00'>\u26a0\ufe0f " + _nT + " tiny</span>";
+      _panelBody.innerHTML = _slotRefs.map(function (r, idx) {
+        var bg   = idx % 2 === 0 ? "#1a1a1a" : "#222";
+        var flag = r.tiny ? "<span style='color:#ffaa00'>\u26a0\ufe0f Tiny</span>"
+                 : r.collapsed ? "<span style='color:#ff9900'>\u26a0\ufe0f Forced</span>"
+                 : "<span style='color:#555'>\u2014</span>";
+        return "<tr style='background:" + bg + ";cursor:pointer'" +
+          " onclick='(function(){var el=document.getElementById(\"" + r.div + "\");if(el)el.scrollIntoView({behavior:\"smooth\",block:\"center\"});})()'" + ">" +
+          "<td style='padding:3px 8px'>" + r.i + "</td>" +
+          "<td style='padding:3px 8px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" + r.div + "</td>" +
+          "<td style='padding:3px 8px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" + (r.unitPath || "\u2014") + "</td>" +
+          "<td style='padding:3px 8px'>" + r.declared + "</td>" +
+          "<td style='padding:3px 8px;color:" + (r.filled ? "#00ff88" : "#ff6666") + ";font-weight:bold'>" + (r.filled ? "\u2705 Filled" : "\u274c Empty") + "</td>" +
+          "<td style='padding:3px 8px;color:#aaa'>" + r.iframeType + "</td>" +
+          "<td style='padding:3px 8px;color:#ffcc44'>" + (r.position || "\u2014") + "</td>" +
+          "<td style='padding:3px 8px;color:#aaa;font-size:10px'>" + (r.lineItemId || "\u2014") + "</td>" +
+          "<td style='padding:3px 8px'>" + flag + "</td></tr>";
+      }).join("");
+    }
+    if (allFilled || (Date.now() - _pollStart) > 60000) {
+      clearInterval(_pollTimer);
+      console.log("\u2705 AD DBG poll stopped. All filled: " + allFilled + " | Elapsed: " + Math.round((Date.now() - _pollStart)/1000) + "s");
+    }
+  }
   document.body.appendChild(panel);
+  _panelCounts = document.getElementById("__dbg_counts__");
+  _panelBody   = document.getElementById("__dbg_tbody__");
+  _pollTimer   = setInterval(_pollTick, 250);
   console.table(summaryRows);
-  console.log("\u2705 KD DBG v7: " + summaryRows.length + " slots | Page targeting: " + JSON.stringify(pageTargeting));
+  console.log("\u2705 AD DBG v8: " + summaryRows.length + " slots | Page targeting: " + JSON.stringify(pageTargeting));
 
 })();
