@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KD Debugger Install</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
+    .bookmarklet-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #0070f3;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: grab;
+    }
+    .steps { background: #f4f4f4; padding: 16px; border-radius: 8px; margin-top: 24px; }
+    .steps ol { margin: 0; padding-left: 20px; line-height: 2; }
+  </style>
+</head>
+<body>
+  <h1>KD Debugger Tool</h1>
+  <p>A one-click debugging tool. Always up to date — no reinstall needed when we push updates.</p>
+
+  <div class="steps">
+    <strong>Install in 2 steps:</strong>
+    <ol>
+      <li>Make sure your <strong>Bookmarks Bar is visible</strong> (Ctrl+Shift+B / Cmd+Shift+B)</li>
+      <li>Drag the button below into your bookmarks bar</li>
+    </ol>
+  </div>
+
+  <br>
+  <a id="bm" class="bookmarklet-btn">⚡ KD Debugger</a>
+  <br><br>
+  <p style="color:#888; font-size:13px">
+    Can't drag? Right-click the button → Copy Link → 
+    Add bookmark manually → paste as URL.
+  </p>
+
+  <script>
+    // Inject the href via JS so GitHub Pages doesn't strip the javascript: protocol
+    var code = `javascript:(function(){
+      fetch('https://cdn.jsdelivr.net/gh/kamalsingh2024/adobelaunch@main/ads/kd-dbg-v7.js?v='+Date.now())
+      .then(function(r){return r.text()})
+      .then(function(c){eval(c)});
+    })();`;
+    document.getElementById('bm').href = code;
+  </script>
+</body>
+</html>
