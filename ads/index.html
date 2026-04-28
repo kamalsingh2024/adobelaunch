@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ADS Debugger Install</title>
+  <title>AD Debugger Tool</title>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
+    body { font-family: sans-serif; max-width: 640px; margin: 60px auto; padding: 0 20px; color: #222; }
+    h1 { margin-bottom: 4px; }
+    .byline { color: #888; font-size: 13px; margin-bottom: 32px; }
     .bookmarklet-btn {
       display: inline-block;
       padding: 12px 24px;
@@ -16,33 +18,66 @@
       font-weight: bold;
       cursor: grab;
     }
-    .steps { background: #f4f4f4; padding: 16px; border-radius: 8px; margin-top: 24px; }
-    .steps ol { margin: 0; padding-left: 20px; line-height: 2; }
+    .card {
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-top: 28px;
+    }
+    .card h2 { margin-top: 0; font-size: 16px; text-transform: uppercase; letter-spacing: 0.05em; color: #555; }
+    ol, ul { padding-left: 20px; line-height: 2; margin: 0; }
+    .tip { background: #fff8e1; border-left: 4px solid #f5a623; padding: 10px 16px; border-radius: 6px; font-size: 14px; margin-top: 16px; }
+    footer { margin-top: 60px; border-top: 1px solid #eee; padding-top: 16px; color: #aaa; font-size: 12px; }
+    a.link { color: #0070f3; }
   </style>
 </head>
 <body>
-  <h1>AD Debugger Tool</h1>
-   <p style="color:#888; font-size:13px; margin-top:4px;">Built by Kamal D Singh</p>
-  <p>A one-click debugging tool. Always up to date — no reinstall needed when we push updates.</p>
 
-  <div class="steps">
-    <strong>Install in 2 steps:</strong>
+  <h1>AD Debugger Tool</h1>
+  <p class="byline">Built and maintained by <strong>Kamal D Singh</strong></p>
+
+  <!-- INSTALL -->
+  <div class="card">
+    <h2>Step 1 — Install</h2>
     <ol>
-      <li>Make sure your <strong>Bookmarks Bar is visible</strong> (Ctrl+Shift+B / Cmd+Shift+B)</li>
+      <li>Show your bookmarks bar: <strong>Ctrl+Shift+B</strong> (Windows) / <strong>Cmd+Shift+B</strong> (Mac)</li>
       <li>Drag the button below into your bookmarks bar</li>
     </ol>
+    <br>
+    <a id="bm" class="bookmarklet-btn">⚡ AD Debugger</a>
+    <br>
+    <div class="tip">
+      Can't drag? Right-click the button → <strong>Copy Link</strong> → manually add a bookmark and paste as the URL.
+    </div>
   </div>
 
-  <br>
-  <a id="bm" class="bookmarklet-btn">⚡ AD Debugger</a>
-  <br><br>
-  <p style="color:#888; font-size:13px">
-    Can't drag? Right-click the button → Copy Link → 
-    Add bookmark manually → paste as URL.
-  </p>
+  <!-- HOW TO USE -->
+  <div class="card">
+    <h2>Step 2 — How to Use</h2>
+    <ol>
+      <li>Go to <a class="link" href="https://www.afl.com.au" target="_blank">AFL Network website</a> (or the relevant page you're testing)</li>
+      <li>Once the page has loaded, click <strong>⚡ AD Debugger</strong> in your bookmarks bar</li>
+      <li>The debugger panel will appear on screen</li>
+      <li>Interact with ads or page elements as normal — the tool will capture and display ad debug data in real time</li>
+    </ol>
+    <div class="tip">
+      The tool only runs on the page you're currently viewing. Navigate to a new page and click again to re-run it.
+    </div>
+  </div>
+
+  <!-- SUPPORT -->
+  <div class="card">
+    <h2>Need Help?</h2>
+    <ul>
+      <li>Tool not loading? Try refreshing the page first, then click again</li>
+      <li>Seeing a blank panel? The page may have blocked external scripts — try disabling your ad blocker</li>
+      <li>Still stuck? Contact <a class="link" href="mailto:kamal@yourdomain.com">kamal@yourdomain.com</a></li>
+    </ul>
+  </div>
+
+  <footer>Built and maintained by <strong>Kamal D Singh</strong></footer>
 
   <script>
-    // Inject the href via JS so GitHub Pages doesn't strip the javascript: protocol
     var code = `javascript:(function(){
       fetch('https://cdn.jsdelivr.net/gh/kamalsingh2024/adobelaunch@main/ads/kd-dbg-v7.js?v='+Date.now())
       .then(function(r){return r.text()})
@@ -50,5 +85,6 @@
     })();`;
     document.getElementById('bm').href = code;
   </script>
+
 </body>
 </html>
