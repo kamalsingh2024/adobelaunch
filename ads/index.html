@@ -2,216 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AD Debugger Tool</title>
-
-  <!-- Favicon: AD initials on blue -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' style='background:%230070f3'><text y='.85em' x='10' font-size='65' font-weight='bold' fill='white'>AD</text></svg>">
-
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      max-width: 660px;
-      margin: 60px auto;
-      padding: 0 24px;
-      color: #1a1a1a;
-      background: #fff;
-      line-height: 1.6;
-    }
-
-    /* Header */
-    .header { margin-bottom: 36px; }
-    .header h1 { font-size: 28px; margin: 0 0 6px; }
-    .byline { color: #888; font-size: 13px; margin: 0; }
-
-    /* Badge */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 28px;
+    body { font-family: sans-serif; max-width: 640px; margin: 60px auto; padding: 0 20px; color: #222; }
+    h1 { margin-bottom: 4px; }
+    .byline { color: #888; font-size: 13px; margin-bottom: 32px; }
+    .bookmarklet-btn {
+      display: inline-block;
+      padding: 12px 24px;
       background: #0070f3;
       color: white;
       text-decoration: none;
-      border-radius: 10px;
-      font-size: 17px;
-      font-weight: 700;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
       cursor: grab;
-      user-select: none;
-      box-shadow: 0 4px 14px rgba(0,112,243,0.35);
-      transition: box-shadow 0.2s;
     }
-    .badge:hover { box-shadow: 0 6px 20px rgba(0,112,243,0.45); }
-    .badge-initials {
-      background: rgba(255,255,255,0.22);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-    }
-
-    /* Cards */
     .card {
-      background: #f7f8fa;
-      border-radius: 12px;
-      padding: 22px 26px;
-      margin-top: 24px;
-      border: 1px solid #ebebeb;
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-top: 28px;
     }
-    .card h2 {
-      margin: 0 0 14px;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #888;
-      font-weight: 600;
-    }
-    ol, ul { padding-left: 20px; margin: 0; }
-    li { margin-bottom: 8px; }
-
-    /* Tip box */
-    .tip {
-      display: flex;
-      gap: 10px;
-      background: #fffbeb;
-      border-left: 4px solid #f5a623;
-      padding: 10px 14px;
-      border-radius: 0 8px 8px 0;
-      font-size: 13.5px;
-      margin-top: 16px;
-      color: #6b5000;
-    }
-    .tip-icon { flex-shrink: 0; }
-
-    /* Step numbers */
-    .step-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      background: #0070f3;
-      color: white;
-      border-radius: 50%;
-      font-size: 12px;
-      font-weight: 700;
-      margin-right: 8px;
-      flex-shrink: 0;
-    }
-
-    /* Site link pill */
-    .site-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #e8f0fe;
-      color: #0070f3;
-      text-decoration: none;
-      border-radius: 20px;
-      padding: 3px 12px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .site-link:hover { background: #d0e2ff; }
-
-    /* Divider */
-    hr { border: none; border-top: 1px solid #ebebeb; margin: 32px 0; }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      color: #bbb;
-      font-size: 12px;
-      margin-top: 52px;
-      padding-top: 20px;
-      border-top: 1px solid #f0f0f0;
-    }
-    footer strong { color: #888; }
-
-    a { color: #0070f3; }
-
-    /* Keyboard shortcut pill */
-    kbd {
-      background: #eee;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-size: 12px;
-      font-family: monospace;
-    }
+    .card h2 { margin-top: 0; font-size: 16px; text-transform: uppercase; letter-spacing: 0.05em; color: #555; }
+    ol, ul { padding-left: 20px; line-height: 2; margin: 0; }
+    .tip { background: #fff8e1; border-left: 4px solid #f5a623; padding: 10px 16px; border-radius: 6px; font-size: 14px; margin-top: 16px; }
+    footer { margin-top: 60px; border-top: 1px solid #eee; padding-top: 16px; color: #aaa; font-size: 12px; }
+    a.link { color: #0070f3; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <h1>AD Debugger Tool</h1>
-    <p class="byline">Built and maintained by <strong>Kamal D Singh</strong></p>
-  </div>
+  <h1>AD Debugger Tool</h1>
+  <p class="byline">Built and maintained by <strong>Kamal D Singh</strong></p>
 
-  <!-- INSTALL CARD -->
+  <!-- INSTALL -->
   <div class="card">
-    <h2>⬇ Install — Do This Once</h2>
+    <h2>Step 1 — Install</h2>
     <ol>
-      <li>Show your bookmarks bar:<br>
-        Windows: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> &nbsp;|&nbsp;
-        Mac: <kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd>
-      </li>
+      <li>Show your bookmarks bar: <strong>Ctrl+Shift+B</strong> (Windows) / <strong>Cmd+Shift+B</strong> (Mac)</li>
       <li>Drag the button below into your bookmarks bar</li>
     </ol>
-
     <br>
-    <a id="bm" class="badge">
-      <span class="badge-initials">AD</span>
-      Debugger
-    </a>
-
+    <a id="bm" class="bookmarklet-btn">⚡ AD Debugger</a>
+    <br>
     <div class="tip">
-      <span class="tip-icon">💡</span>
-      <span>Can't drag? Right-click the button → <strong>Copy Link</strong> → add a bookmark manually and paste it as the URL.</span>
+      Can't drag? Right-click the button → <strong>Copy Link</strong> → manually add a bookmark and paste as the URL.
     </div>
   </div>
 
-  <!-- HOW TO USE CARD -->
+  <!-- HOW TO USE -->
   <div class="card">
-    <h2>▶ How to Use</h2>
+    <h2>Step 2 — How to Use</h2>
     <ol>
-      <li>Navigate to the
-        <a class="site-link" href="https://www.afl.com.au" target="_blank">
-          🏈 AFL Network
-        </a>
-        website or the specific page you need to test
-      </li>
-      <li>Wait for the page to fully load</li>
-      <li>Click <strong>AD Debugger</strong> in your bookmarks bar</li>
-      <li>The debugger panel will appear on screen — interact with ads as normal and watch the data populate in real time</li>
-      <li>To re-run on a new page, simply navigate there and click the bookmarklet again</li>
+      <li>Go to <a class="link" href="https://www.afl.com.au" target="_blank">AFL Network website</a> (or the relevant page you're testing)</li>
+      <li>Once the page has loaded, click <strong>⚡ AD Debugger</strong> in your bookmarks bar</li>
+      <li>The debugger panel will appear on screen</li>
+      <li>Interact with ads or page elements as normal — the tool will capture and display ad debug data in real time</li>
     </ol>
-
     <div class="tip">
-      <span class="tip-icon">🔁</span>
-      <span>The tool is <strong>always up to date</strong>. Every click pulls the latest version automatically — no reinstall needed.</span>
+      The tool only runs on the page you're currently viewing. Navigate to a new page and click again to re-run it.
     </div>
   </div>
 
-  <!-- TROUBLESHOOTING CARD -->
+  <!-- SUPPORT -->
   <div class="card">
-    <h2>🔧 Troubleshooting</h2>
+    <h2>Need Help?</h2>
     <ul>
-      <li><strong>Panel doesn't appear</strong> — Refresh the page and click the bookmarklet again</li>
-      <li><strong>Blank or broken panel</strong> — Disable your ad blocker on this page and retry</li>
-      <li><strong>Nothing happens at all</strong> — Make sure the page has fully loaded before clicking</li>
-      <li><strong>Still stuck</strong> — Contact <a href="mailto:kamal.singh@team.telstra.com">Kamal D Singh</a></li>
+      <li>Tool not loading? Try refreshing the page first, then click again</li>
+      <li>Seeing a blank panel? The page may have blocked external scripts — try disabling your ad blocker</li>
+      <li>Still stuck? Contact <a class="link" href="mailto:kamal.singh@team.telstra.com">Kamal</a></li>
     </ul>
   </div>
 
-  <!-- FOOTER -->
-  <footer>
-    AD Debugger Tool &nbsp;·&nbsp; Built and maintained by <strong>Kamal D Singh</strong>
-  </footer>
+  <footer>Built and maintained by <strong>Kamal D Singh</strong></footer>
 
   <script>
     var code = `javascript:(function(){
