@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ad Test Page</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 10px;
+  background-color: #333;
+}
+
+ul li {
+  display: inline;
+  margin-right: 10px;
+}
+
+ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+#container {
+  width: 900px;
+  margin: 0 auto;
+}
+
+#header, #footer {
+  background-color: #FFA500;
+  padding: 10px;
+}
+
+.advert__container {
+  margin: 20px 0;
+}
+
+.advert__component {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100%;
+  border: 2px dotted red;
+  position: relative;
+  text-align: center;
+  padding: 0;
+  line-height: 0;
+}
+
+.advert__component strong {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 16px;
+  background: white;
+  padding: 2px 4px;
+  z-index: 10;
+}
+
+.advert__component img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: none;
+}
+</style>
+</head>
+<body>
+
+<ul>
+<li><a href="afl.html?s=afl">AFL</a></li>
+<li><a href="sky.html?s=sky">SKY</a></li>
+<li><a href="home.html?s=home">BACK TO HOME</a></li>
+</ul>
+
+<div id="container">
+
+<div id="header">
+  <h1>Ad Layout Test</h1>
+
+<!-- Dropdown for selecting publisher -->
+<!-- Dropdown for selecting publisher -->
+<label for="ad-publisher">Select publisher:</label>
+<select id="ad-publisher" class="ad-dropdown">
+  <option value="afl">AFL</option>
+  <option value="aflw">AFLW</option>
+  <option value="afl.clubs">AFL Clubs</option>
+</select>
+
+<!-- Dropdown for selecting areas -->
+<label for="ad-area">Select area:</label>
+<select id="ad-area" class="ad-dropdown">
+  <option value="HOME">Home</option>
+  <option value="NEWS">News</option>
+  <option value="NEWS/injury_list">Injury List</option>
+  <option value="LADDER">Ladder</option>
+  <option value="STATS">Stats</option>
+  <option value="FIXTURE">Fixture</option>
+  <option value="TICKETS">Tickets</option>
+  <option value="WOMENS">Womens</option>
+  <option value="TV_RADIO">TV and Radio</option>
+  <option value="VIDEO">Videos</option>
+</select>
+
+<!-- Clubs dropdown (hidden by default) -->
+<div id="club-select-wrapper" style="display:none; margin-top:8px;">
+  <label for="ad-club">Select club:</label>
+  <select id="ad-club" class="ad-dropdown">
+    <option value="">-- Select Club --</option>
+    <option value="CROWS">CROWS</option>
+    <option value="LIONS">LIONS</option>
+    <option value="BLUES">BLUES</option>
+    <option value="MAGPIES">MAGPIES</option>
+    <option value="BOMBERS">BOMBERS</option>
+    <option value="DOCKERS">DOCKERS</option>
+    <option value="CATS">CATS</option>
+    <option value="SUNS">SUNS</option>
+    <option value="GIANTS">GIANTS</option>
+    <option value="HAWKS">HAWKS</option>
+    <option value="DEMONS">DEMONS</option>
+    <option value="KANGS">KANGS</option>
+    <option value="POWER">POWER</option>
+    <option value="TIGERS">TIGERS</option>
+    <option value="SAINTS">SAINTS</option>
+    <option value="SWANS">SWANS</option>
+    <option value="EAGLES">EAGLES</option>
+    <option value="BULLDOGS">BULLDOGS</option>
+  </select>
+</div>
+
+<style>
+.ad-dropdown {
+  font-size: 16px;
+  padding: 8px 12px;
+  min-width: 200px;
+  margin: 8px;
+}
+</style>
+
+<script>
+function updateAds(area, publisher, club) {
+  
+    _telstra.adlib.publisher(publisher);
+    _telstra.adlib.area = area;
+    _telstra.adlib.targeting("device", "mobile");
+
+    // If publisher is aflclubs, add the club targeting
+    if (publisher === "afl.clubs" && club) {
+      _telstra.adlib.targeting("club", club);
+    }
+  
+
+  // Delay refresh by 1280ms
+  setTimeout(function() {
+    if (typeof _telstra.adlib !== "undefined" && typeof _telstra.adlib.refresh === "function") {
+      _telstra.adlib.refresh();
+    }
+  }, 1280);
+}
+
+const selectArea = document.getElementById("ad-area");
+const selectPublisher = document.getElementById("ad-publisher");
+const selectClub = document.getElementById("ad-club");
+const clubWrapper = document.getElementById("club-select-wrapper");
+
+function refreshFromSelections() {
+  const publisher = selectPublisher.value;
+
+  // Toggle club dropdown
+  if (publisher === "afl.clubs") {
+    clubWrapper.style.display = "block";
+  } else {
+    clubWrapper.style.display = "none";
+  }
+
+  updateAds(selectArea.value, publisher, selectClub.value);
+}
+
+selectArea.addEventListener("change", refreshFromSelections);
+selectPublisher.addEventListener("change", refreshFromSelections);
+selectClub.addEventListener("change", refreshFromSelections);
+
+// Initialize on page load
+refreshFromSelections();
+</script>
+
+
+<!-- Billboard -->
+<div class="advert advert--leaderboard advert--with-bars">
+    <div class="advert__container">
+        <aside class="advert__component js-advert"
+               data-advert-dimensions="1920x250, 1280x100, 970x250, 970x90, 970x40, 728x90, 320x50"
+               data-advert-name="leaderboard-advert"
+               data-advert-label="Advertisement"
+               data-previous-size="1920x250, 1280x100, 970x250, 970x90, 970x40, 728x90, 320x50">
+            <span id="leaderboard-advert" class="tmframe" 
+                  title="1920x250, 1280x100, 970x250, 970x90, 970x40, 728x90, 320x50" 
+                  lazyload="true"></span>
+        </aside>
+    </div>
+</div>
+
+<!-- Floating MREC 1 -->
+<div class="advert advert--floating-ad u-hide" id="advert-d940128c-eee2-402f-9913-284f1079ed51">
+    <aside class="advert__component advert__component--floating js-advert"
+           data-advert-dimensions="300x250"
+           data-advert-name="mrec-advert"
+           data-advert-label="Advertisement">
+        <span id="mrec-advert-1" class="tmframe" title="300x250" lazyload="true"></span>
+    </aside>
+</div>
+
+
+<!-- Closeable MREC -->
+<div class="advert__container">
+    <button class="advert__close js-close-ad">
+        <svg class="icon" aria-hidden="true">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/resources/v5.36.17/i/svg-output/icons.svg#icn-close"></use>
+        </svg>
+    </button>
+    <aside class="advert__component js-advert"
+           data-advert-dimensions="320x250"
+           data-advert-name="mrec-advert"
+           data-advert-close="true">
+        <span id="mrec-advert-3" class="tmframe" title="320x50" lazyload="true"></span>
+    </aside>
+</div>
+
+<!-- Large MREC -->
+<div id="eb8cdf33-5fef-4fda-8449-9a9322072fcf" class="advert advert--mrec advert--with-bars">
+    <aside class="advert__component js-advert"
+           data-advert-dimensions="300x600, 300x250"
+           data-advert-name="mrec-advert"
+           data-advert-label="Advertisement">
+        <span id="mrec-advert-4" class="tmframe" title="300x600, 300x250" lazyload="true"></span>
+    </aside>
+</div>
+
+
+<div id="footer">
+  Copyright © kdschool.com
+</div>
+
+</div>
+<!-- Telstra Ad Framework setup -->
+<script>
+window._telstra = window._telstra || {};
+_telstra.before = _telstra.before || [];
+_telstra.before.push(function(lib) {
+  lib.publisher("afl");
+  lib.area = "news";
+  lib.targeting("device", "mobile");
+});
+</script>
+<script async src="//medrx.telstra.com.au/tmaf/lib.js"></script>
+
+</body>
+</html>

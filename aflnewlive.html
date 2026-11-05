@@ -1,0 +1,44 @@
+
+<html>
+
+<head>
+    <script src="/adobelaunch/js/conviva/conviva-core-sdk.min.js"></script>
+    <script src="/adobelaunch/js/conviva/ConvivaHelper.js"></script>
+</head>
+
+
+
+<body>
+
+    <div style="max-width: 960px;">
+        <!--video-js id="player" data-account="6057984922001" data-player="1Djg1qHoh" data-embed="default" controls=""
+            data-video-id="6113020506001" data-playlist-id="" data-application-id="" data-player.ads class="vjs-fluid"></video-js-->
+             <video-js id="player" data-account="6076300361001"
+      data-player="1aK7JicjJ"
+      data-embed="default"
+      controls=""
+      data-video-id="6323571300112"
+      data-playlist-id=""
+      data-application-id=""
+      width="600" height="340"
+      playsinline></video-js>
+    </div>
+    <script src="//assets.adobedtm.com/launch-EN3d02652f91254186bbc3ab768d3098b9.min.js"></script>
+    
+    <script src="//players.brightcove.net/6076300361001/1aK7JicjJ_default/index.js"></script>
+	
+    <script src="/adobelaunch/js/conviva/adobeConvivaPlugin.js"></script>
+    
+    <script type="text/javascript">
+        //make data layer
+        var dataLayer = JSON.parse('[{"event":"pageview","digitalHierLevel1":"Digital Rights Network","digitalHierLevel2":"Elite","digitalHierLevel3":"AFL Media","pageName":"/home","siteSection":"home","queryString":"","contentType":"home","platformType":"desktop","siteDelivery":"responsive","environment":"production","keyWords":[],"loginType":"Live Pass","loginSubType":"AFL","loginStatus":"logged out","gtm.uniqueEventId":1},{"gtm.start":1660635671902,"event":"gtm.js","gtm.uniqueEventId":8},{"gtm.start":1660635671903,"event":"gtm.js","gtm.uniqueEventId":27},{"event":"gtm.dom","gtm.uniqueEventId":28},{"event":"gtm.click","gtm.element":{},"gtm.elementClasses":"","gtm.elementId":"","gtm.elementTarget":"","gtm.elementUrl":"/resources/v3.1.17/i/svg-output/icons.svg#icn-video","gtm.uniqueEventId":39},{"event":"gtm.linkClick","gtm.element":{},"gtm.elementClasses":"media-thumbnail__link js-visited-link","gtm.elementId":"","gtm.elementTarget":"","gtm.triggers":"40537625_6,40537625_129,40537625_135,40537625_136,40537625_137,40537625_139,40537625_144,40537625_154,40537625_160,40537625_171,40537625_181,40537625_205,40537625_206,40537625_207,7715739_47,7715739_247","gtm.elementUrl":"https://www.afl.com.au/video/823820/footy-feed-rutten-remains-heppell-feels-for-coach?videoId=823820&modal=true&type=video&publishFrom=1660633560001","eventTimeout":2000,"gtm.uniqueEventId":44},{"event":"gtm.load","gtm.uniqueEventId":63},{"event":"gtm.timer","gtm.timerId":32,"gtm.timerEventNumber":1,"gtm.timerInterval":30000,"gtm.timerLimit":1,"gtm.timerStartTime":1660635672407,"gtm.timerCurrentTime":1660635702683,"gtm.timerElapsedTime":30276,"gtm.triggers":"40537625_163","gtm.uniqueEventId":66}]');
+        //test AFLW
+        var options = { "testing": { "gatewayUrl": "https://telstra-aflw-test.testonly.conviva.com", "customerKey": "3ec8449fa0667d6a4f22dafe59345b8283702c30" }, "production": { "gatewayUrl": "https://cws.conviva.com", "customerKey": "141c85a0da4e3dce9923e9aae4809e05476786e9" }, "env": "testing", "version": "0.11", "adobe": true };
+    </script>
+    <script>videojs.getPlayer('player').AdobeConviva(options);
+	</script>
+	
+    
+</body>
+
+</html>
