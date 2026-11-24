@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>TelstraConviva test (BC 6.67.7, Conviva SDK 4.9.0)</title>
+  <!-- 1. Conviva core SDK 4.9.0 first -->
+  <script src="js/conviva/conviva-core-sdk.min.js"></script>
+  <script>
+    // Optional: simulate a match page so the title gets " - matchName"
+    var dataLayer = [{ "event": "pageview", "pageName": "/home", "environment": "production" }];
+
+    // Same options block as Video Cloud Studio. Test mode = ?conviva_debug=true
+    var options = {
+      "version": "0.14",
+      "production": {
+        "customerKey": "e653500594a781dbc42026afe046762692966809",
+        "gatewayUrl": "https://cws.conviva.com"
+      },
+      "testing": {
+        "customerKey": "69b93c2f8bf26c0edf513501a13f4da18556fb68",
+        "gatewayUrl": "https://69b93c2f8bf26c0edf513501a13f4da18556fb68.ts-testonly.conviva.com"
+      }
+    };
+  </script>
+</head>
+<body>
+  <div style="max-width: 960px;">
+    <video-js id="player"
+      data-account="6076300361001"
+      data-player="1aK7JicjJ"
+      data-embed="default"
+      controls
+      data-playlist-id="1743458424740188423"
+      width="600" height="340"
+      playsinline></video-js>
+  </div>
+
+  <!-- 2. Brightcove player (6.67.7) -->
+  <script src="//players.brightcove.net/6076300361001/1aK7JicjJ_default/index.js"></script>
+  <!-- 3. New plugin (replaces adobeConvivaPlugin.js + ConvivaHelper.js) -->
+  <script src="js/conviva/telstraConvivaPlugin.js"></script>
+  <script>
+    videojs.getPlayer('player').ready(function () {
+      this.TelstraConviva(options);
+    });
+  </script>
+</body>
+</html>

@@ -2,8 +2,8 @@
 <html>
 
 <head>
-    <script src="/adobelaunch/js/conviva/conviva-core-sdk.min.js"></script>
-    <script src="/adobelaunch/js/conviva/ConvivaHelper.js"></script>
+    <script src="js/conviva/conviva-core-sdk.min.js"></script>
+    <script src="js/conviva/ConvivaHelper.js"></script>
     
         <script type="text/javascript"> 
             //make data layer
@@ -11,7 +11,7 @@
             //test AFLW
             var options = {
   "version": "0.13",
-  "adobe": true,
+  "adobe": false,
   "env": "testing",
   "production": {
     "customerKey": "e653500594a781dbc42026afe046762692966809",
@@ -24,7 +24,7 @@
 };
             //var options = { "gatewayUrl": "https://69b93c2f8bf26c0edf513501a13f4da18556fb68.ts-testonly.conviva.com", "customerKey": "69b93c2f8bf26c0edf513501a13f4da18556fb68", "toggleTraces":true, "enableAdExperience":true };
         </script>
-</head>
+</head>  
 
 
 
@@ -48,7 +48,7 @@
 
 	
     <!--script src="/adobelaunch/js/conviva/conviva-brightcove-plugin-module.js"></script-->   
-    <script src="/adobelaunch/js/conviva/adobeConvivaPlugin.js"></script>
+    <script src="js/conviva/adobeConvivaPlugin.js"></script>
     
  
     <script>videojs.getPlayer('player').AdobeConviva(options);</script>
