@@ -648,6 +648,11 @@
                     updateMessage(`Build your ${gameState.firstBuild.value}-house first. You can't throw a card yet.`);
                     return;
                 }
+                const blocker = throwBlockedBy(card);
+                if (blocker) {
+                    updateMessage(`You can't throw a ${card.rank}: the ${blocker.value}-house is on the floor. Use it to pick the house up.`);
+                    return;
+                }
                 clearSelections();
                 const ms = executeMove(gameState.currentPlayerIndex, { type: 'throw', card: card });
                 setTimeout(nextTurn, ms);
@@ -796,8 +801,12 @@
 
                 if (getPickupOption(card, selectedFloorItems)) {
                     handlePlayerAction('pickup');
+                } else if (getRaiseOption(card, selectedFloorItems)) {
+                    handlePlayerAction('raise');
                 } else if (onlyLoose && total >= 9 && total <= 13) {
                     handlePlayerAction('build');
+                } else if (selectedFloorItems.length === 1 && selectedFloorItems[0].type === 'house' && selectedFloorItems[0].obj.cemented) {
+                    updateMessage("That house is doubled up (cemented), so it can't be changed. Only a matching card can pick it up.");
                 } else {
                     updateMessage("That isn't a pickup or a build yet. Drop more floor cards on it, or drop on the empty table to throw.");
                 }
@@ -813,6 +822,21 @@
 
             function sumLoose(items) {
                 return items.reduce((sum, item) => item.type === 'card' ? sum + item.obj.captureValue : sum, 0);
+            }
+
+            // A card can't be thrown while a house of its value is on the floor:
+            // it has to pick that house up (or be added to it).
+            function throwBlockedBy(card) {
+                return gameState.floor.houses.find(h => h.value === card.captureValue) || null;
+            }
+
+            // A single (not doubled-up) house can be raised by adding one hand card, up to 13.
+            function getRaiseOption(card, items) {
+                if (items.length !== 1 || items[0].type !== 'house') return null;
+                const house = items[0].obj;
+                const value = house.value + card.captureValue;
+                if (house.cemented || value > 13) return null;
+                return { house, value };
             }
 
             // Work out everything a hand card would capture: the selected cards,
@@ -916,6 +940,12 @@
                     actionContainer.appendChild(createActionButton(`Build ${newHouseValue}`, () => handlePlayerAction('build'), 'blue'));
                 }
 
+                // Raise a single house with one card
+                const raise = getRaiseOption(card, selectedFloorItems);
+                if (raise) {
+                    actionContainer.appendChild(createActionButton(`Raise to ${raise.value}`, () => handlePlayerAction('raise'), 'blue'));
+                }
+
                 // Throw card
                 actionContainer.appendChild(createActionButton('Throw', () => handlePlayerAction('throw'), 'gray'));
 
@@ -952,7 +982,15 @@
                     if (looseSel.length > 0 && allLoose && total >= 9 && total <= 13) {
                         action = { type: 'build', card, value: total, targets: looseSel };
                     }
+                } else if (intent === 'raise') {
+                    const raise = getRaiseOption(card, items);
+                    if (raise) action = { type: 'raise', card, fromValue: raise.house.value, value: raise.value };
                 } else if (intent === 'throw') {
+                    const blocker = throwBlockedBy(card);
+                    if (blocker) {
+                        updateMessage(`You can't throw a ${card.rank}: the ${blocker.value}-house is on the floor. Use it to pick the house up.`);
+                        return;
+                    }
                     action = { type: 'throw', card };
                 }
 
@@ -1323,7 +1361,7 @@
                     return sweepPoints !== null ? Math.max(total + 100, 2300) : total + 100;
                 }
 
-                const landing = move.type === 'build'
+                const landing = (move.type === 'build' || move.type === 'raise')
                     ? floorEl.querySelector(`[data-house-value="${move.value}"]`)
                     : floorEl.querySelector(`[data-card-id="${move.card.id}"]`);
                 if (!landing) {
@@ -1440,6 +1478,31 @@
                                 gameState.floor.loose = gameState.floor.loose.filter(c => c.id !== card.id);
                             }
                         });
+                        break;
+                    }
+
+                    case 'raise': {
+                        // Add one card to a single (not doubled-up) house to make it a higher number
+                        const house = gameState.floor.houses.find(h => h.value === move.fromValue);
+                        if (!house || house.cemented) {
+                            console.error("Invalid raise move:", move);
+                            player.hand.splice(cardIndex, 0, move.card);
+                            gameState.busy = false;
+                            return 500;
+                        }
+                        house.cards.push(move.card);
+                        house.owner = player.name;
+                        const other = gameState.floor.houses.find(h => h.value === move.value && h !== house);
+                        if (other) {
+                            other.cards.push(...house.cards);
+                            other.cemented = true;
+                            other.owner = player.name;
+                            gameState.floor.houses = gameState.floor.houses.filter(h => h !== house);
+                            desc += ` and joins the ${move.fromValue}-house onto the ${move.value}-house, cementing it`;
+                        } else {
+                            house.value = move.value;
+                            desc += ` and raises the ${move.fromValue}-house to ${move.value}`;
+                        }
                         break;
                     }
 
@@ -1628,6 +1691,18 @@
                         houses = [...houses, { value: move.value, cards: newCards, owner: me.name }];
                     }
                     score += 5;
+                } else if (move.type === 'raise') {
+                    const from = houses.find(h => h.value === move.fromValue);
+                    const existing = houses.find(h => h.value === move.value && h !== from);
+                    const merged = { ...from, value: move.value, cards: [...from.cards, card], owner: me.name };
+                    houses = houses.filter(h => h !== from && h !== existing);
+                    if (existing) {
+                        merged.cards = [...merged.cards, ...existing.cards];
+                        merged.cemented = true;
+                        score += 6;
+                    }
+                    houses = [...houses, merged];
+                    score += 4;
                 } else {
                     loose = [...loose, card];
                 }
@@ -1683,8 +1758,19 @@
                                 candidates.push({ type: 'build', card, value, targets: combo });
                             });
                         }
+                        // Raise a single house with this card if we hold a card of the new value
+                        gameState.floor.houses.forEach(h => {
+                            if (h.cemented) return;
+                            const value = h.value + card.captureValue;
+                            if (value > 13) return;
+                            if (!validHand.some(c => c.id !== card.id && c.captureValue === value)) return;
+                            candidates.push({ type: 'raise', card, fromValue: h.value, value });
+                        });
                     }
-                    candidates.push({ type: 'throw', card });
+                    // A card matching a house on the floor can't be thrown (it picks the house up instead)
+                    if (!throwBlockedBy(card)) {
+                        candidates.push({ type: 'throw', card });
+                    }
                 });
 
                 if (Math.random() < AI_BLUNDER[ctx.lvl - 1]) {
