@@ -1,230 +1,1946 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Seep</title>
-<style>
-:root{--cw:clamp(42px,8vw,64px);color-scheme:dark}
-*{box-sizing:border-box}
-html{min-width:0}
-body{margin:0;font-family:system-ui,Inter,sans-serif;background:#0b1220;color:#fff;min-height:100vh;min-height:100dvh;padding:12px;padding: max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
-.wrap{width:100%;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:10px;min-width:0}
-.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;min-width:0}
-.panel{background:#101c2e;color:#fff;border:1px solid #29364b;border-radius:10px;padding:8px 12px;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
-.panel:empty{display:none}.panel b{color:#fde047}
-#table{background:radial-gradient(ellipse at center,#15803d,#14532d);border:1px solid #276b46;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.mid{display:grid;grid-template-columns:32px minmax(0,1fr) 32px;gap:10px;align-items:center;min-width:0}
-#floor{min-width:0;min-height:180px;display:flex;flex-wrap:wrap;gap:18px 10px;align-content:center;align-items:center;justify-content:center;background:rgba(0,0,0,.18);border:2px solid rgba(255,255,255,.18);border-radius:12px;padding:20px 10px}
-.card{width:var(--cw);height:calc(var(--cw)*1.4);border:2px solid #d1d5db;border-radius:7px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:4px;cursor:pointer;user-select:none;-webkit-user-select:none;flex:0 0 auto;transition:transform .15s;line-height:1}
-.card .r{font-size:calc(var(--cw)*.28);font-weight:700;line-height:1}
-.card .s{font-size:calc(var(--cw)*.3);line-height:1}
-.card.sel{transform:translateY(-5px);box-shadow:0 0 0 3px #60a5fa;z-index:2}
-.card.back{background-color:#1e3a8a;border-color:#fbbf24;background-image:repeating-linear-gradient(45deg,rgba(251,191,36,.3) 0 1px,transparent 1px 8px),repeating-linear-gradient(-45deg,rgba(251,191,36,.3) 0 1px,transparent 1px 8px)}
-.red{color:#dc2626}.blk{color:#111827}
-.hand{display:flex;justify-content:center;align-content:center;flex-wrap:wrap;gap:7px;min-width:0;width:100%;padding:6px 2px}
-.hand .card{margin:0}
-#hand-south{background:rgba(0,0,0,.12);border-radius:10px;min-height:calc(var(--cw)*1.4 + 12px);touch-action:pan-y}
-#hand-north{flex-wrap:nowrap;gap:0;min-height:42px;padding:0}
-#hand-north:empty{display:none}
-#hand-north .card{width:28px;height:40px;cursor:default;border-width:1px;border-radius:4px}
-#hand-north .card+.card{margin-left:-12px}
-.side{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:32px;min-width:0;padding:0}
-.side .card{width:28px;height:40px;margin:0;border-width:1px;border-radius:4px;cursor:default}
-.side .card+.card{margin-top:-28px}
-.house{position:relative;width:calc(var(--cw)*1.5);height:calc(var(--cw)*2);flex:0 0 auto;border:3px dashed #6b7280;border-radius:10px;background:rgba(255,255,255,.92);cursor:pointer;margin:4px 0}
-.house .card{position:absolute;width:var(--cw);height:calc(var(--cw)*1.4);top:5px;left:3px;pointer-events:none}
-.house .card:nth-child(2){top:9px;left:7px}
-.house .card:nth-child(3){top:13px;left:11px}
-.house .card:nth-child(4){top:17px;left:15px}
-.house .val{position:absolute;z-index:3;top:-12px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid #fff}
-.house .own{position:absolute;z-index:3;bottom:-10px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;color:#fff;white-space:nowrap}
-.house.mine{border-color:#2563eb;border-style:solid}.house.mine .own{background:#2563eb}
-.house.partner{border-color:#16a34a;border-style:solid}.house.partner .own{background:#166534}
-.house.opp{border-color:#dc2626;border-style:solid}.house.opp .own{background:#dc2626}
-.house.sel{box-shadow:0 0 0 3px #60a5fa}
-.name{color:#fff;font-size:12px;text-align:center;font-weight:600;overflow-wrap:anywhere;line-height:1.4;min-width:0}
-#table>.bar{align-items:flex-start;gap:12px}
-#name-west,#name-east{flex:1 1 0;max-width:48%;font-size:11px}
-#name-west{text-align:left}#name-east{text-align:right}
-#msg{background:#fff;color:#111827;border-radius:10px;padding:10px 12px;text-align:center;font-size:14px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
-#actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;min-height:44px;padding:2px 0}
-button{border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px 14px;min-height:44px;font-family:inherit;font-weight:700;font-size:14px;line-height:1.3;color:#fff;cursor:pointer;touch-action:manipulation}
-button:focus-visible{outline:3px solid #facc15;outline-offset:3px}
-input[type=range]{accent-color:#3b82f6;max-width:100%}
-.wrap>.bar>div[style]{flex-wrap:wrap}
-#log{background:#101c2e;border:1px solid #29364b;border-radius:10px;padding:8px 10px;max-height:120px;overflow:auto;overflow-wrap:anywhere}
-#log div{font-size:12px;line-height:1.5}
-.ns{color:#93c5fd}.ew{color:#fca5a5}
-.hint{outline:3px solid #facc15;outline-offset:2px}
-.drag{position:fixed;z-index:200;pointer-events:none;transform:rotate(-4deg) scale(1.05)}
-#modal{color:#111827}#mTitle{font-size:22px}#mBody{line-height:1.5}
-.layout-version{text-align:center;color:#94a3b8;font-size:11px;margin:0}
-@media(min-width:700px){#floor{min-height:240px}.mid{grid-template-columns:40px minmax(0,1fr) 40px}.side{width:40px}#table{padding:18px}#hand-south{gap:10px}.name{font-size:14px}}
-@media(max-width:360px){:root{--cw:38px}#table{padding:8px}.mid{grid-template-columns:24px minmax(0,1fr) 24px;gap:5px}.side{width:24px}.side .card{width:22px;height:32px}.side .card+.card{margin-top:-22px}#floor{padding:18px 6px;gap:18px 6px;min-height:155px}.hand{gap:5px}button{padding:10px;font-size:13px}}
-@media(prefers-reduced-motion:reduce){.card{transition:none}}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Seep Card Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+        }
+        .card {
+            width: 72px;
+            height: 100px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            user-select: none;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .card.selected {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .card.cpu-card {
+            border: 2px solid #fef3c7;
+            background-color: #1e3a8a;
+            background-image:
+                repeating-linear-gradient(45deg, rgba(251, 191, 36, 0.35) 0 1.5px, transparent 1.5px 10px),
+                repeating-linear-gradient(-45deg, rgba(251, 191, 36, 0.35) 0 1.5px, transparent 1.5px 10px),
+                radial-gradient(ellipse at 30% 20%, #3b5bdb 0%, #1e3a8a 55%, #0f1e4d 100%);
+            box-shadow: inset 0 0 0 3px #1e3a8a, inset 0 0 0 4.5px #fbbf24, 0 2px 8px rgba(0, 0, 0, 0.35);
+        }
+        .card.cpu-card::after {
+            content: '♠';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid #fbbf24;
+            background: radial-gradient(circle, #1e3a8a 0%, #0f1e4d 100%);
+            box-shadow: 0 0 0 3px rgba(15, 30, 77, 0.9), 0 0 10px rgba(251, 191, 36, 0.45);
+            font-size: 1.3rem;
+            line-height: 1;
+            color: #fbbf24;
+        }
+        .card-rank {
+            font-size: 1.125rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+        .card-suit {
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+        .red-suit { color: #dc2626; }
+        .black-suit { color: #111827; }
+        
+        .house {
+            position: relative;
+            border: 3px dashed #6b7280;
+            border-radius: 12px;
+            padding: 12px;
+            min-width: 120px;
+            min-height: 140px;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .house:hover {
+            border-color: #4b5563;
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .house.selected {
+            border-color: #3b82f6;
+            border-style: solid;
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+        .house.cemented {
+            border-style: solid;
+            border-color: #16a34a;
+            background: rgba(34, 197, 94, 0.15);
+        }
+        .house .card {
+            position: absolute;
+            width: 60px;
+            height: 84px;
+            top: 8px;
+            left: 8px;
+            pointer-events: none;
+        }
+        .house .card:nth-child(n+2) { top: 12px; left: 12px; }
+        .house .card:nth-child(n+3) { top: 16px; left: 16px; }
+        .house .card:nth-child(n+4) { top: 20px; left: 20px; }
+
+        .player-area { 
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            padding: 8px;
+        }
+        .player-area.active {
+            background: rgba(34, 197, 94, 0.15);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.6);
+        }
+
+        .hand-cards {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        
+        .hand-south .card { margin: 0 -20px; }
+        .hand-north .card { margin: 0 -20px; }
+        .hand-west .card { margin: -30px 0; }
+        .hand-east .card { margin: -30px 0; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .action-button {
+            transition: all 0.2s ease;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .game-table {
+            background: radial-gradient(ellipse at center, #15803d 0%, #166534 50%, #14532d 100%);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.3);
+        }
+
+        .info-panel {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                width: 60px;
+                height: 84px;
+                padding: 4px;
+            }
+            .card-rank { font-size: 1rem; }
+            .card-suit { font-size: 1.125rem; }
+            .house {
+                min-width: 100px;
+                min-height: 120px;
+                padding: 8px;
+            }
+            .house .card {
+                width: 50px;
+                height: 70px;
+            }
+        }
+
+        /* --- Animations and effects --- */
+        .capture-hint {
+            border-color: #facc15 !important;
+            box-shadow: 0 0 0 3px #facc15, 0 0 16px rgba(250, 204, 21, 0.8) !important;
+            animation: hintPulse 1s ease-in-out infinite;
+        }
+        @keyframes hintPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        @keyframes dealIn {
+            from { opacity: 0; transform: translateY(-60px) scale(0.7) rotate(-10deg); }
+            to { opacity: 1; transform: none; }
+        }
+        .deal-in {
+            animation: dealIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+            animation-delay: var(--d, 0s);
+        }
+        .sweep-banner {
+            position: fixed;
+            top: 38%;
+            left: 50%;
+            z-index: 70;
+            pointer-events: none;
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #fde047;
+            text-shadow: 0 0 12px #f59e0b, 0 0 32px #ef4444, 0 4px 0 #92400e;
+            white-space: nowrap;
+            animation: sweepPop 2.4s ease-out forwards;
+        }
+        @keyframes sweepPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.25); }
+            25% { transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 0; transform: translate(-50%, -70%) scale(1.1); }
+        }
+        @media (max-width: 768px) { .sweep-banner { font-size: 2.2rem; } }
+        @media (prefers-reduced-motion: reduce) {
+            .deal-in, .capture-hint { animation: none; }
+            .card, .house { transition: none; }
+        }
+
+        /* --- Drag and drop --- */
+        .drag-ghost {
+            position: fixed;
+            z-index: 200;
+            pointer-events: none;
+            margin: 0;
+            transition: none;
+            transform: rotate(-4deg) scale(1.08);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
+        }
+        .drop-hover {
+            outline: 3px solid #22d3ee;
+            outline-offset: 2px;
+            box-shadow: 0 0 18px #22d3ee !important;
+        }
+    </style>
+<style id="seep-responsive">
+/* Seep responsive layer. Desktop layout above 900px wide is unchanged. */
+@media (max-width: 900px), (max-height: 560px) {
+  :root { --cw: clamp(40px, 11.5vw, 72px); }
+  body { overflow-x: hidden !important; overflow-y: auto !important; justify-content: flex-start !important; min-height: 100dvh; padding: 6px !important; }
+  #game-table { aspect-ratio: auto !important; max-width: none !important; width: 100% !important; display: grid !important; grid-template-columns: 48px minmax(0, 1fr) 48px !important; grid-template-rows: none !important; grid-auto-rows: auto !important; grid-template-areas: "sc sc sc" "cp cp cp" "ms ms ms" "no no no" "we fl ea" "so so so" "cl cl cl" "sr sr sr" !important; gap: 8px !important; padding: 8px !important; border-radius: 16px !important; }
+  #game-table > :nth-child(1) { grid-area: no !important; }
+  #game-table > :nth-child(2) { grid-area: we !important; }
+  #game-table > :nth-child(3) { grid-area: fl !important; }
+  #game-table > :nth-child(4) { grid-area: ea !important; }
+  #game-table > :nth-child(5) { grid-area: so !important; }
+  #game-table > :nth-child(6) { grid-area: sc !important; }
+  #game-table > :nth-child(7) { grid-area: cp !important; }
+  #game-table > :nth-child(8) { grid-area: cl !important; }
+  #game-table > :nth-child(9) { grid-area: sr !important; }
+  #game-table > :nth-child(10) { grid-area: ms !important; }
+  #game-table > .info-panel, #game-table > .absolute { position: static !important; width: 100% !important; text-align: left !important; font-size: 11px !important; padding: 6px 10px !important; }
+  #game-table > :nth-child(9) { display: flex !important; flex-direction: row !important; gap: 8px !important; padding: 0 !important; }
+  #game-table > :nth-child(9) button { flex: 1; min-height: 44px; }
+  #message-area { position: static !important; transform: none !important; translate: none !important; min-width: 0 !important; width: 100% !important; border-radius: 12px !important; font-size: 13px !important; padding: 8px 12px !important; }
+  .player-area { padding: 4px !important; min-width: 0; }
+  #floor-area { padding: 6px !important; min-width: 0; }
+  #floor { min-height: calc(var(--cw) * 2) !important; gap: 8px !important; }
+  .card { width: var(--cw) !important; height: calc(var(--cw) * 1.4) !important; padding: 3px !important; border-radius: 6px !important; }
+  .card-rank { font-size: calc(var(--cw) * 0.27) !important; }
+  .card-suit { font-size: calc(var(--cw) * 0.29) !important; }
+  .card.cpu-card::after { width: calc(var(--cw) * 0.45) !important; height: calc(var(--cw) * 0.45) !important; font-size: calc(var(--cw) * 0.3) !important; }
+  .house { min-width: calc(var(--cw) * 1.5) !important; min-height: calc(var(--cw) * 1.95) !important; padding: 6px !important; }
+  .house .card { width: calc(var(--cw) * 0.85) !important; height: calc(var(--cw) * 1.19) !important; }
+  .hand-cards { row-gap: 4px !important; }
+  .hand-south .card, .hand-north .card { margin: 0 calc(var(--cw) * -0.1) !important; }
+  #hand-south .card { touch-action: none; }
+  .hand-west .card, .hand-east .card { width: calc(var(--cw) * 0.6) !important; height: calc(var(--cw) * 0.84) !important; margin: calc(var(--cw) * -0.3) 0 !important; }
+  #name-west, #name-east { transform: none !important; font-size: 10px !important; line-height: 1.15; text-align: center; max-width: 48px; overflow-wrap: anywhere; margin: 0 0 4px !important; }
+  #name-north, #name-south { font-size: 12px !important; margin-bottom: 4px !important; }
+  #hand-south { min-height: calc(var(--cw) * 1.4) !important; margin-bottom: 4px !important; }
+  #action-container { position: sticky; bottom: 0; z-index: 40; width: 100%; height: auto !important; min-height: 52px; margin-top: 8px !important; padding: 6px; background: rgba(15, 23, 42, 0.94); border-radius: 12px; }
+  #action-container .action-button { min-height: 44px; padding: 10px 14px !important; }
+  .sweep-banner { font-size: 2rem !important; }
+  .modal-content { padding: 1.25rem !important; }
+}
 </style>
 </head>
-<body>
-<div class="wrap">
-  <div class="bar">
-    <div class="panel" id="scorePanel"></div>
-    <div class="panel" id="capPanel"></div>
-  </div>
-  <div id="table">
-    <div class="name" id="name-north">North</div>
-    <div class="hand" id="hand-north"></div>
-    <div class="bar"><div class="name" id="name-west">West</div><div class="name" id="name-east">East</div></div>
-    <div class="mid">
-      <div class="side" id="hand-west"></div>
-      <div id="floor"></div>
-      <div class="side" id="hand-east"></div>
+<body class="bg-slate-900 text-gray-800 flex flex-col items-center justify-center min-h-screen p-2 overflow-hidden">
+
+    <!-- Main Game Table -->
+    <div id="game-table" class="game-table w-full max-w-6xl mx-auto aspect-[4/3] rounded-3xl shadow-2xl p-3 md:p-6 relative grid grid-cols-5 grid-rows-3 gap-2 md:gap-4">
+        
+        <!-- Opponent Top (North) -->
+        <div id="player-north-area" class="player-area col-span-3 col-start-2 row-start-1 flex flex-col items-center justify-center">
+            <h2 id="name-north" class="text-white font-semibold text-sm md:text-base mb-2">North (Partner)</h2>
+            <div id="hand-north" class="hand-cards hand-north"></div>
+        </div>
+
+        <!-- Opponent Left (West) -->
+        <div id="player-west-area" class="player-area row-span-1 row-start-2 col-start-1 flex flex-col items-center justify-center">
+            <h2 id="name-west" class="text-white font-semibold text-sm md:text-base mb-2 transform -rotate-90">West</h2>
+            <div id="hand-west" class="hand-cards hand-west flex-col"></div>
+        </div>
+        
+        <!-- Floor Area -->
+        <div id="floor-area" class="col-span-3 row-span-1 row-start-2 bg-green-900/60 rounded-2xl p-3 md:p-4 flex items-center justify-center border-2 border-green-700/50">
+             <div id="floor" class="flex flex-wrap gap-2 md:gap-3 items-center justify-center w-full h-full min-h-[120px]"></div>
+        </div>
+
+        <!-- Opponent Right (East) -->
+        <div id="player-east-area" class="player-area row-span-1 row-start-2 col-start-5 flex flex-col items-center justify-center">
+            <h2 id="name-east" class="text-white font-semibold text-sm md:text-base mb-2 transform rotate-90">East</h2>
+            <div id="hand-east" class="hand-cards hand-east flex-col"></div>
+        </div>
+
+        <!-- Player (South) -->
+        <div id="player-south-area" class="player-area col-span-3 col-start-2 row-start-3 flex flex-col items-center justify-center">
+            <div id="hand-south" class="hand-cards hand-south mb-2 min-h-[100px] md:min-h-[120px]"></div>
+            <h2 id="name-south" class="text-white font-semibold text-sm md:text-base">You (South)</h2>
+        </div>
+
+        <!-- Score & Info Panels -->
+        <div class="absolute top-2 left-2 text-white info-panel p-3 text-xs md:text-sm">
+            <h3 class="font-bold text-base md:text-lg mb-2">Scores</h3>
+            <p><span id="team-name-ns" class="font-medium"></span>: <span id="score-ns" class="font-bold">0</span></p>
+            <p><span id="team-name-ew" class="font-medium"></span>: <span id="score-ew" class="font-bold">0</span></p>
+            <p class="mt-3 font-bold text-yellow-300">Lead: <span id="lead-display"></span></p>
+            <div class="mt-3 pt-2 border-t border-gray-600">
+                <h4 class="font-bold text-sm mb-1">Round Points</h4>
+                <p class="text-xs"><span id="round-points-ns"></span>: <span id="round-total-ns">0</span></p>
+                <p class="text-xs"><span id="round-points-ew"></span>: <span id="round-total-ew">0</span></p>
+            </div>
+        </div>
+
+        <div class="absolute top-2 right-2 text-white info-panel p-3 text-xs md:text-sm text-right">
+            <h3 class="font-bold text-base md:text-lg mb-2">Captured</h3>
+            <p><span id="captured-team-ns" class="font-medium"></span>: <span id="captured-ns" class="font-bold">0</span> cards</p>
+            <p><span id="captured-team-ew" class="font-medium"></span>: <span id="captured-ew" class="font-bold">0</span> cards</p>
+        </div>
+
+        <!-- CPU difficulty -->
+        <div class="absolute bottom-2 left-2 text-white info-panel p-2 text-xs">
+            <label for="cpu-level" class="font-bold block">CPU level: <span id="cpu-level-label"></span></label>
+            <input id="cpu-level" type="range" min="1" max="10" step="1" value="6" class="w-32 mt-1">
+        </div>
+
+        <!-- Card Sort Buttons -->
+        <div class="absolute bottom-2 right-2 flex flex-col gap-1">
+            <button id="sort-suit-btn" class="action-button bg-purple-600 text-white hover:bg-purple-700 text-xs px-3 py-2">Sort: Suit</button>
+            <button id="sort-rank-btn" class="action-button bg-indigo-600 text-white hover:bg-indigo-700 text-xs px-3 py-2">Sort: Rank</button>
+        </div>
+
+        <!-- Game Message Area -->
+        <div id="message-area" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 text-gray-800 font-semibold px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg text-center min-w-[250px] md:min-w-[300px] text-sm md:text-base border-2 border-gray-200">
+            Welcome to Seep!
+        </div>
     </div>
-    <div class="hand" id="hand-south"></div>
-    <div class="name" id="name-south">You</div>
-  </div>
-  <div id="msg">Welcome to Seep!</div>
-  <div id="actions"></div>
-  <div class="bar">
-    <div class="panel">CPU <span id="lvlLabel"></span><br><input id="lvl" type="range" min="1" max="10" value="6" style="width:110px"></div>
-    <div style="display:flex;gap:6px"><button id="sortSuit" style="background:#7c3aed">Sort suit</button><button id="sortRank" style="background:#4f46e5">Sort rank</button></div>
-  </div>
-  <div id="log"></div>
-  <p class="layout-version">Layout repair 3 · wrapping hands</p>
-</div>
-<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);align-items:center;justify-content:center;z-index:50;padding:16px">
-  <div style="background:#fff;border-radius:14px;padding:20px;max-width:360px;text-align:center">
-    <h2 id="mTitle" style="margin:0 0 8px">Game over</h2>
-    <p id="mBody" style="margin:0 0 14px"></p>
-    <button id="mBtn" style="background:#2563eb">Play again</button>
-  </div>
-</div>
-<canvas id="fx" style="position:fixed;inset:0;pointer-events:none;z-index:60"></canvas>
-<script>
-const SUITS=['♠','♥','♦','♣'],RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const NAMES=['South','West','North','East'],TEAM={South:'NS',North:'NS',West:'EW',East:'EW'};
-const LV=['Rookie','Beginner','Casual','Learner','Club','Sharp','Strong','Expert','Master','Grandmaster'];
-const val=r=>r==='A'?1:r==='J'?11:r==='Q'?12:r==='K'?13:+r;
-const pts=c=>c.suit==='♠'?val(c.rank):c.rank==='A'?1:(c.suit==='♦'&&c.rank==='10')?6:0;
-const $=id=>document.getElementById(id);
-let G={},sel=null,selFloor=[],drag=null,suppress=false,rankHigh=false,cpu=6;
-const hands={South:$('hand-south'),West:$('hand-west'),North:$('hand-north'),East:$('hand-east')};
-const floorEl=$('floor'),msgEl=$('msg'),actEl=$('actions'),logEl=$('log');
-const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-try{const s=+localStorage.getItem('seepCpuLevel');if(s>=1&&s<=10)cpu=s}catch(e){}
-$('lvl').value=cpu;
-function lvlText(){$('lvlLabel').textContent=cpu+' · '+LV[cpu-1]}
-lvlText();
-$('lvl').addEventListener('input',e=>{cpu=+e.target.value;try{localStorage.setItem('seepCpuLevel',cpu)}catch(err){}lvlText();say('CPU level '+cpu+' ('+LV[cpu-1]+')')});
+    <!-- Action Buttons -->
+    <div id="action-container" class="mt-3 md:mt-4 h-12 md:h-16 flex items-center justify-center flex-wrap gap-2"></div>
 
-function deck(){return SUITS.flatMap(s=>RANKS.map(r=>({suit:s,rank:r,id:r+s,v:val(r)})))}
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}}
-function newGame(){G={players:NAMES.map(n=>({name:n,hand:[],human:n==='South',team:TEAM[n]})),deck:[],floor:{loose:[],houses:[]},cap:{NS:[],EW:[]},names:{NS:'Golden Sabers',EW:'Crimson Hawks'},score:{NS:0,EW:0},sweeps:{NS:0,EW:0},turn:0,dealer:3,round:0,lastPick:null,first:true,bidding:false,bid:{value:0,player:null},firstBuild:null,openingPending:false,busy:false,log:[],last:{},anim:null}}
+    <!-- Modal for Bidding / Game Over -->
+    <div id="modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="modal-title" class="text-2xl md:text-3xl font-bold mb-4 text-gray-800">Game Over</h2>
+            <p id="modal-body" class="mb-6 text-gray-600 text-base md:text-lg">North/South team wins the Baazi!</p>
+            <button id="modal-button" class="action-button bg-blue-600 text-white hover:bg-blue-700">Play Again</button>
+        </div>
+    </div>
 
-function cardEl(c,back){const d=document.createElement('div');d.className='card'+(back?' back':'');d.dataset.id=c.id;if(back)return d;const col=(c.suit==='♥'||c.suit==='♦')?'red':'blk';d.innerHTML='<div class="'+col+'"><div class="r">'+c.rank+'</div><div class="s">'+c.suit+'</div></div><div class="'+col+'" style="align-self:flex-end;transform:rotate(180deg)"><div class="r">'+c.rank+'</div><div class="s">'+c.suit+'</div></div>';return d}
+    <canvas id="fx-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none" style="z-index: 60;"></canvas>
 
-function render(){
- G.players.forEach(p=>{const h=hands[p.name];h.innerHTML='';p.hand.forEach(c=>{const e=cardEl(c,!p.human);if(p.human){e.addEventListener('click',()=>{if(suppress)return;pickCard(c)});e.addEventListener('dblclick',()=>{if(suppress)return;quickThrow(c)});dragCard(e,c)}h.appendChild(e)});
-  if(p.human){const n=$('name-south');if(n)n.textContent='You ('+G.names.NS+')'}else{const n=$('name-'+p.name.toLowerCase());let t=p.name+' ('+G.names[p.team]+') - '+p.hand.length;if(G.last[p.name])t+=' · last: '+G.last[p.name];if(n)n.textContent=t}});
- floorEl.innerHTML='';
- G.floor.loose.forEach(c=>{const e=cardEl(c);e.addEventListener('click',()=>tapFloor(c));floorEl.appendChild(e)});
- G.floor.houses.forEach(h=>{const d=document.createElement('div');const mine=TEAM[h.owner]==='NS',part=h.owner==='North';d.className='house '+(mine?(part?'partner':'mine'):'opp');d.dataset.house=h.value;h.cards.slice(0,4).forEach(c=>{const e=cardEl(c);e.style.pointerEvents='none';d.appendChild(e)});const v=document.createElement('div');v.className='val';v.textContent=h.value;d.appendChild(v);const o=document.createElement('div');o.className='own';o.textContent=mine?(part?'Partner':'You'):h.owner;d.appendChild(o);d.addEventListener('click',()=>tapHouse(h));floorEl.appendChild(d)});
- $('scorePanel').innerHTML='<b>'+G.names.NS+'</b> '+G.score.NS+' &nbsp; <b>'+G.names.EW+'</b> '+G.score.EW+'<br>Lead: '+leadText();
- $('capPanel').innerHTML='Captured: '+G.cap.NS.length+' vs '+G.cap.EW.length;
- logEl.innerHTML='';const es=G.log.slice(-8);if(!es.length)logEl.innerHTML='<div style="color:#9ca3af">No plays yet.</div>';es.forEach(e=>{const d=document.createElement('div');d.className=e.team==='NS'?'ns':'ew';d.textContent=e.text;logEl.appendChild(d)});logEl.scrollTop=logEl.scrollHeight;
- G.anim=null;
-}
-function leadText(){const d=G.score.NS-G.score.EW;return d>=0?G.names.NS+' +'+d:G.names.EW+' +'+(-d)}
-function say(t){msgEl.textContent=t}
-function humanTurn(){const p=G.players[G.turn];return p&&p.human&&!G.bidding&&!G.busy}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const tableEl = document.getElementById('game-table');
+            const fxCanvas = document.getElementById('fx-canvas');
+            const floorEl = document.getElementById('floor');
+            const messageArea = document.getElementById('message-area');
+            const actionContainer = document.getElementById('action-container');
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const modalButton = document.getElementById('modal-button');
+            const scoreNsEl = document.getElementById('score-ns');
+            const scoreEwEl = document.getElementById('score-ew');
+            const leadDisplayEl = document.getElementById('lead-display');
+            const capturedNsEl = document.getElementById('captured-ns');
+            const capturedEwEl = document.getElementById('captured-ew');
+            const teamNameNsEl = document.getElementById('team-name-ns');
+            const teamNameEwEl = document.getElementById('team-name-ew');
+            const capturedTeamNsEl = document.getElementById('captured-team-ns');
+            const capturedTeamEwEl = document.getElementById('captured-team-ew');
+            const roundPointsNsEl = document.getElementById('round-points-ns');
+            const roundPointsEwEl = document.getElementById('round-points-ew');
+            const roundTotalNsEl = document.getElementById('round-total-ns');
+            const roundTotalEwEl = document.getElementById('round-total-ew');
+            const sortSuitBtn = document.getElementById('sort-suit-btn');
+            const sortRankBtn = document.getElementById('sort-rank-btn');
+            const levelInput = document.getElementById('cpu-level');
+            const levelLabel = document.getElementById('cpu-level-label');
 
-function clearSel(){sel=null;selFloor=[];document.querySelectorAll('.sel').forEach(e=>e.classList.remove('sel'));buttons()}
-function pickCard(c){if(!humanTurn())return;clearSel();sel=c;document.querySelector('[data-id="'+c.id+'"]').classList.add('sel');buttons()}
-function tapFloor(c){if(!sel||!humanTurn())return;const e=document.querySelector('#floor [data-id="'+c.id+'"]');const i=selFloor.findIndex(x=>x.type==='card'&&x.obj.id===c.id);if(i>-1){selFloor.splice(i,1);if(e)e.classList.remove('sel')}else{selFloor.push({type:'card',obj:c});if(e)e.classList.add('sel')}buttons()}
-function tapHouse(h){if(!sel||!humanTurn()||G.firstBuild)return;const e=document.querySelector('#floor [data-house="'+h.value+'"]');const i=selFloor.findIndex(x=>x.type==='house'&&x.obj.value===h.value);if(i>-1){selFloor.splice(i,1);if(e)e.classList.remove('sel')}else{selFloor=selFloor.filter(x=>x.type!=='house');document.querySelectorAll('.house.sel').forEach(x=>x.classList.remove('sel'));selFloor.push({type:'house',obj:h});if(e)e.classList.add('sel')}buttons()}
+            const playerAreas = {
+                'South': document.getElementById('player-south-area'),
+                'West': document.getElementById('player-west-area'),
+                'North': document.getElementById('player-north-area'),
+                'East': document.getElementById('player-east-area'),
+            };
 
-function sumLoose(items){return items.reduce((s,i)=>i.type==='card'?s+i.obj.v:s,0)}
-function blocked(c){return G.floor.houses.find(h=>h.value===c.v)||null}
-function combos(cards,t){const out=[];(function f(i,s,cur){if(s===t&&cur.length)out.push([...cur]);if(s>=t)return;for(let j=i;j<cards.length;j++)f(j+1,s+cards[j].v,[...cur,cards[j]])})(0,0,[]);return out}
-function bestCombos(cards,t){let rest=[...cards],out=[];for(;;){const cs=combos(rest,t);if(!cs.length)break;let best=cs[0],bk=-1;cs.forEach(c=>{const k=c.reduce((s,x)=>s+pts(x),0)*100+c.length;if(k>bk){bk=k;best=c}});out.push(...best);const ids=new Set(best.map(x=>x.id));rest=rest.filter(x=>!ids.has(x.id))}return out}
-function planPick(card,targets){const v=card.v,houses=[],loose=[];(targets||[]).forEach(t=>{if(t&&t.cards)houses.push(t);else if(t&&t.id)loose.push(t)});G.floor.houses.forEach(h=>{if(h.value===v&&!houses.some(x=>x.value===h.value))houses.push(h)});const used=new Set(loose.map(c=>c.id));const rest=G.floor.loose.filter(c=>!used.has(c.id));return{houses,loose:[...loose,...bestCombos(rest,v)]}}
-function pickOpt(card,items){const ls=items.filter(i=>i.type==='card').map(i=>i.obj),hs=items.filter(i=>i.type==='house').map(i=>i.obj);if(hs.length>1)return null;if(hs.length===1){if(ls.length||hs[0].value!==card.v)return null}else if(ls.length){if(ls.reduce((s,c)=>s+c.v,0)!==card.v)return null}const p=planPick(card,items.map(i=>i.obj));const n=p.loose.length+p.houses.reduce((a,h)=>a+h.cards.length,0);return n?{plan:p,count:n}:null}
-function raiseOpt(card,items){if(items.length!==1||items[0].type!=='house')return null;const h=items[0].obj,v=h.value+card.v;if(h.cemented||v>13)return null;return{house:h,value:v}}
-function stackOpt(card,items){const hs=items.filter(i=>i.type==='house');if(hs.length!==1)return null;const h=hs[0].obj;if(h.value!==card.v)return null;const ls=items.filter(i=>i.type==='card').map(i=>i.obj);if(!ls.length)return null;if(ls.reduce((s,c)=>s+c.v,0)!==card.v)return null;const me=G.players[G.turn];if(!me.hand.some(c=>c.id!==card.id&&c.v===card.v))return null;return{house:h,loose:ls,value:h.value}}
+            const playerHands = {
+                'South': document.getElementById('hand-south'),
+                'West': document.getElementById('hand-west'),
+                'North': document.getElementById('hand-north'),
+                'East': document.getElementById('hand-east'),
+            };
 
-function btn(t,fn,col){const b=document.createElement('button');b.textContent=t;b.style.background=col;b.onclick=fn;return b}
-function buttons(){if(G.bidding){if(G.players[G.turn].human)bidUI(G.turn);return}actEl.innerHTML='';document.querySelectorAll('.hint').forEach(e=>e.classList.remove('hint'));if(!humanTurn())return;
- if(G.firstBuild){const fb=G.firstBuild;if(sel){const ls=selFloor.filter(i=>i.type==='card');const tot=sel.v+sumLoose(selFloor);if(ls.length&&ls.length===selFloor.length&&sel.id!==fb.cardId&&tot===fb.value)actEl.appendChild(btn('Build '+fb.value,()=>act('build'),'#2563eb'));if(sel.id!==fb.cardId){const p=pickOpt(sel,selFloor);if(p)actEl.appendChild(btn('Pick up ('+p.count+')',()=>act('pickup'),'#16a34a'))}}actEl.appendChild(btn('Auto build',autoBuild,'#16a34a'));actEl.appendChild(btn('Skip build',()=>{G.firstBuild=null;clearSel();say('Build skipped - play any card.')},'#6b7280'));return}
- if(!sel)return;
- const st=stackOpt(sel,selFloor);if(st)actEl.appendChild(btn('Stack onto '+st.value+'-house',()=>act('stack'),'#ca8a04'));
- const po=pickOpt(sel,selFloor);if(po)actEl.appendChild(btn('Pick up ('+po.count+')',()=>act('pickup'),'#16a34a'));
- const ls=selFloor.filter(i=>i.type==='card');const nv=sel.v+sumLoose(selFloor);if(ls.length&&ls.length===selFloor.length&&nv>=9&&nv<=13)actEl.appendChild(btn('Build '+nv,()=>act('build'),'#2563eb'));
- const ro=raiseOpt(sel,selFloor);if(ro)actEl.appendChild(btn('Raise to '+ro.value,()=>act('raise'),'#2563eb'));
- actEl.appendChild(btn('Throw',()=>act('throw'),'#4b5563'));actEl.appendChild(btn('Cancel',clearSel,'#dc2626'));
-}
+            const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-function act(kind){if(!humanTurn()||!sel)return;const c=sel,items=[...selFloor],ls=items.filter(i=>i.type==='card').map(i=>i.obj),allLoose=ls.length===items.length,tot=c.v+ls.reduce((s,x)=>s+x.v,0);let mv=null;
- if(G.firstBuild){const fb=G.firstBuild;if(kind==='build'&&ls.length&&allLoose&&c.id!==fb.cardId&&tot===fb.value)mv={type:'build',card:c,value:fb.value,targets:ls};else if(kind==='pickup'&&c.id!==fb.cardId&&pickOpt(c,items))mv={type:'pickup',card:c,targets:items.map(i=>i.obj)};if(!mv){say('Build a '+fb.value+'-house first, or pick up matching cards.');return}clearSel();finishFirst(mv);return}
- if(kind==='stack'){const s=stackOpt(c,items);if(s)mv={type:'stack',card:c,value:s.value,targets:s.loose}}
- else if(kind==='pickup'){if(pickOpt(c,items))mv={type:'pickup',card:c,targets:items.map(i=>i.obj)}}
- else if(kind==='build'){if(ls.length&&allLoose&&tot>=9&&tot<=13)mv={type:'build',card:c,value:tot,targets:ls}}
- else if(kind==='raise'){const r=raiseOpt(c,items);if(r)mv={type:'raise',card:c,from:r.house.value,value:r.value}}
- else if(kind==='throw'){const b=blocked(c);if(b){say('You cannot throw a '+c.rank+': the '+b.value+'-house is on the floor.');return}mv={type:'throw',card:c}}
- clearSel();if(mv)commitMove(G.turn,mv)}
-function quickThrow(c){if(!humanTurn())return;if(G.firstBuild){say('Build your '+G.firstBuild.value+'-house first, or press Skip build.');return}const b=blocked(c);if(b){say('You cannot throw a '+c.rank+': the '+b.value+'-house is on the floor.');return}clearSel();commitMove(G.turn,{type:'throw',card:c})}
-function autoBuild(){const fb=G.firstBuild;if(!fb||!humanTurn())return;const me=G.players[fb.playerIndex];const b=findFirst(me.hand,fb.value,fb.cardId);if(!b){say('No build available - press Skip build.');return}clearSel();finishFirst({type:'build',card:b.card,value:fb.value,targets:b.loose})}
-function finishFirst(mv){const i=G.firstBuild.playerIndex;G.firstBuild=null;commitMove(i,mv)}
-function commitMove(i,mv){if(!mv||!mv.card||!G.players[i].hand.some(c=>c.id===mv.card.id))return;const opening=G.openingPending;G.openingPending=false;const ms=play(i,mv);actEl.innerHTML='';setTimeout(()=>{if(opening)dealRest(i);else nextTurn()},ms)}
+            // --- CPU difficulty (1-10) ---
+            const LEVEL_NAMES = ['Rookie', 'Beginner', 'Casual', 'Learner', 'Club player', 'Sharp', 'Strong', 'Expert', 'Master', 'Grandmaster'];
+            let cpuLevel = 6;
+            try {
+                const saved = parseInt(localStorage.getItem('seepCpuLevel'), 10);
+                if (saved >= 1 && saved <= 10) cpuLevel = saved;
+            } catch (e) { /* storage unavailable */ }
 
-function play(idx,mv){const p=G.players[idx];const ci=p.hand.findIndex(c=>c.id===mv.card.id);if(ci<0)return 400;G.busy=true;p.hand.splice(ci,1);let d=p.name+' plays '+mv.card.rank+mv.card.suit;let sweep=null;
- if(mv.type==='pickup'){const pl=planPick(mv.card,mv.targets);const got=[mv.card];pl.houses.forEach(h=>got.push(...h.cards));pl.loose.forEach(c=>got.push(c));const ids=new Set(pl.loose.map(c=>c.id));G.floor.loose=G.floor.loose.filter(c=>!ids.has(c.id));G.floor.houses=G.floor.houses.filter(h=>!pl.houses.some(x=>x.value===h.value));G.cap[p.team].push(...got);G.lastPick=p.team;const bits=[];pl.houses.forEach(h=>bits.push('captures the '+h.value+'-house'));if(pl.loose.length)bits.push('picks up '+pl.loose.length+' card'+(pl.loose.length>1?'s':''));if(bits.length)d+=' and '+bits.join(' and ');if(!G.floor.loose.length&&!G.floor.houses.length){d+=' - SWEEP!';sweep=G.first?25:(G.players.reduce((s,x)=>s+x.hand.length,0)>0?50:0);G.sweeps[p.team]+=sweep;if(sweep)d+=' (+'+sweep+' points)'}}
- else if(mv.type==='build'){const nh={value:mv.value,cards:[mv.card,...mv.targets],owner:p.name,cemented:false};const ex=G.floor.houses.find(h=>h.value===nh.value);if(ex){ex.cards.push(...nh.cards);ex.cemented=true;d+=' and cements the '+mv.value+'-house'}else{G.floor.houses.push(nh);d+=' and builds a '+mv.value+'-house'}mv.targets.forEach(c=>{G.floor.loose=G.floor.loose.filter(x=>x.id!==c.id)})}
- else if(mv.type==='raise'){const h=G.floor.houses.find(x=>x.value===mv.from);if(!h||h.cemented){p.hand.splice(ci,0,mv.card);G.busy=false;return 400}h.cards.push(mv.card);h.owner=p.name;const other=G.floor.houses.find(x=>x.value===mv.value&&x!==h);if(other){other.cards.push(...h.cards);other.cemented=true;other.owner=p.name;G.floor.houses=G.floor.houses.filter(x=>x!==h);d+=' and joins the '+mv.from+'-house onto the '+mv.value+'-house'}else{h.value=mv.value;d+=' and raises the '+mv.from+'-house to '+mv.value}}
- else if(mv.type==='stack'){const h=G.floor.houses.find(x=>x.value===mv.value);if(!h){p.hand.splice(ci,0,mv.card);G.busy=false;return 400}h.cards.push(mv.card,...mv.targets);h.cemented=true;h.owner=p.name;const ids=new Set(mv.targets.map(c=>c.id));G.floor.loose=G.floor.loose.filter(c=>!ids.has(c.id));d+=' and stacks onto the '+mv.value+'-house, doubling it up'}
- else{G.floor.loose.push(mv.card);d+=' to the floor'}
- G.first=false;G.last[p.name]=d.replace(p.name+' plays ','');G.log.push({team:p.team,text:d});if(G.log.length>40)G.log.shift();say(d);render();if(sweep!==null&&!reduce)fireworks();return sweep!==null?1400:700}
+            function getLevelFor(player) {
+                return cpuLevel;
+            }
 
-function nextTurn(){G.busy=false;if(G.players.every(p=>!p.hand.length)){endRound();return}G.turn=(G.turn+1)%4;const p=G.players[G.turn];say(p.name+"'s turn");render();if(!p.human){setTimeout(()=>{const mv=aiMove(p);if(mv&&mv.type!=='invalid')commitMove(G.turn,mv);else setTimeout(nextTurn,400)},600)}else{say('Your turn! Tap a card, then choose an action.');buttons()}}
+            function updateLevelLabel() {
+                levelInput.value = cpuLevel;
+                levelLabel.textContent = `${cpuLevel} · ${LEVEL_NAMES[cpuLevel - 1]}`;
+            }
 
-function startRound(){sel=null;selFloor=[];G.deck=deck();shuffle(G.deck);G.players.forEach(p=>p.hand=[]);G.floor={loose:[],houses:[]};G.cap={NS:[],EW:[]};G.sweeps={NS:0,EW:0};G.first=true;G.lastPick=null;G.bidding=true;G.firstBuild=null;G.openingPending=true;G.busy=false;G.bid={value:0,player:null};G.log=[];G.last={};actEl.innerHTML='';const lead=G.score.NS-G.score.EW;if(lead<0)G.dealer=NAMES.indexOf('North');else if(lead>0)G.dealer=NAMES.indexOf('East');const b=(G.dealer+1)%4;G.turn=b;for(let i=0;i<4;i++){G.players[b].hand.push(G.deck.pop());G.floor.loose.push(G.deck.pop())}render();
- const o=feasible(G.players[b]);
- if(!Object.keys(o).length){G.bidding=false;G.firstBuild=null;G.turn=b;render();say(G.players[b].name+' has no 9-K to bid - playing on');if(G.players[b].human){buttons()}else setTimeout(()=>{const mv=aiMove(G.players[b]);if(mv&&mv.type!=='invalid')commitMove(b,mv)},700);return}
- say('Round '+(G.round+1)+' - '+G.players[b].name+' to bid');if(G.players[b].human)setTimeout(()=>bidUI(b),400);else setTimeout(()=>aiBid(b),1000)}
-function feasible(p){const o={};p.hand.forEach(c=>{if(c.v>=9&&c.v<=13&&!o[c.v])o[c.v]=c});return o}
-function findFirst(hand,v,res){for(const c of hand){if(!c||c.id===res)continue;const need=v-c.v;if(need<=0)continue;const cs=combos(G.floor.loose,need);if(cs.length)return{card:c,loose:cs[0]}}return null}
-function bidUI(i){if(!G.bidding||G.turn!==i)return;const p=G.players[i],o=feasible(p),vs=Object.keys(o).map(Number);actEl.innerHTML='';const t=document.createElement('div');t.textContent='Choose your bid:';t.style.cssText='color:#fff;font-weight:700;width:100%;text-align:center';actEl.appendChild(t);vs.sort((a,b)=>b-a).forEach(v=>actEl.appendChild(btn('Bid '+v,()=>{G.bid={value:v,player:p.name};finishBid(i,o[v])},'#16a34a')))}
-function aiBid(i){const p=G.players[i],o=feasible(p),vs=Object.keys(o).map(Number);const v=Math.min(...vs);G.bid={value:v,player:p.name};say(p.name+' bids '+v);setTimeout(()=>finishBid(i,o[v]),900)}
-function finishBid(i,bc){G.bidding=false;actEl.innerHTML='';const v=G.bid.value;G.turn=i;const p=G.players[i];const b=findFirst(p.hand,v,bc.id);G.firstBuild=b?{value:v,cardId:bc.id,playerIndex:i}:null;render();if(p.human){say('You bid '+v+'. '+(b?'Build a '+v+'-house, or pick up matching cards.':'No build available - play any card.'));buttons()}else setTimeout(()=>{if(b)finishFirst({type:'build',card:b.card,value:v,targets:b.loose});else{const mv=aiMove(p);if(mv&&mv.type!=='invalid')commitMove(i,mv)}},800)}
-function dealRest(i){for(let k=0;k<4;k++)if(k!==i)for(let n=0;n<12;n++)if(G.deck.length)G.players[k].hand.push(G.deck.pop());for(let n=0;n<8;n++)if(G.deck.length)G.players[i].hand.push(G.deck.pop());render();say((G.bid.player?G.bid.player+' bid '+G.bid.value+'. ':'')+'Cards dealt.');setTimeout(nextTurn,1000)}
+            levelInput.addEventListener('input', () => {
+                cpuLevel = parseInt(levelInput.value, 10);
+                try { localStorage.setItem('seepCpuLevel', String(cpuLevel)); } catch (e) { /* ignore */ }
+                updateLevelLabel();
+                updateMessage(`CPU level set to ${cpuLevel} (${LEVEL_NAMES[cpuLevel - 1]})`);
+            });
+            updateLevelLabel();
 
-function endRound(){if(G.lastPick&&G.floor.loose.length){G.cap[G.lastPick].push(...G.floor.loose);G.floor.loose=[]}let s={NS:G.sweeps.NS,EW:G.sweeps.EW};G.cap.NS.forEach(c=>s.NS+=pts(c));G.cap.EW.forEach(c=>s.EW+=pts(c));G.round++;if(s.NS<9||s.EW<9){const lose=s.NS<9?'NS':'EW',win=lose==='NS'?'EW':'NS';say(G.names[win]+' wins the Baazi!');return modal(G.names[win]+' wins the Baazi!',G.names[lose]+' scored only '+s[lose]+' points.')}const diff=s.NS-s.EW,lead=G.score.NS-G.score.EW;if(lead>=0)G.score.NS+=diff;else G.score.EW-=diff;render();const fl=G.score.NS-G.score.EW;if(Math.abs(fl)>=100){const w=fl>0?'NS':'EW';say(G.names[w]+' wins!');return modal(G.names[w]+' wins the Baazi!','Final lead: '+Math.abs(fl)+' points')}setTimeout(startRound,2500)}
-function modal(t,b){$('mTitle').textContent=t;$('mBody').textContent=b;$('modal').style.display='flex'}
-$('mBtn').onclick=()=>{$('modal').style.display='none';newGame();startRound()};
+            // --- Game Constants ---
+            const SUITS = ['♠', '♥', '♦', '♣'];
+            const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            const PLAYER_NAMES = ['South', 'West', 'North', 'East'];
+            const TEAMS = { 'South': 'NS', 'North': 'NS', 'West': 'EW', 'East': 'EW' };
 
-function unseen(me){const seen=new Set();me.hand.forEach(c=>seen.add(c.id));G.floor.loose.forEach(c=>seen.add(c.id));G.floor.houses.forEach(h=>h.cards.forEach(c=>seen.add(c.id)));G.cap.NS.concat(G.cap.EW).forEach(c=>seen.add(c.id));const n={};for(let v=1;v<=13;v++)n[v]=0;deck().forEach(c=>{if(!seen.has(c.id))n[c.v]++});return n}
-function ctx(me){const others=G.players.filter(p=>p!==me);const opp=others.filter(p=>p.team!==me.team).reduce((n,p)=>n+p.hand.length,0);const all=others.reduce((n,p)=>n+p.hand.length,0);return{lvl:cpu,s:(cpu-1)/9,counts:cpu>=6?unseen(me):null,f:all?opp/all:.66}}
-function pHas(c,v){if(v<1||v>13)return 0;const n=c.counts?c.counts[v]:3;return 1-Math.pow(1-c.f,n)}
-function exposure(c,loose,houses){let t=0;loose.forEach(x=>{let p=pHas(c,x.v);loose.forEach(y=>{if(y!==x)p=Math.max(p,pHas(c,x.v+y.v))});t+=(pts(x)+.3)*p});houses.forEach(h=>{t+=(h.cards.reduce((s,x)=>s+pts(x),0)+.3*h.cards.length)*pHas(c,h.value)});return t}
-function aiMove(me){const hand=me.hand.filter(c=>c&&c.id);if(!hand.length)return{type:'invalid'};const c=ctx(me),cands=[];hand.forEach(card=>{const pl=planPick(card,[]);if(pl.loose.length+pl.houses.length)cands.push({type:'pickup',card,targets:[],plan:pl});if(c.lvl>=4){for(let v=9;v<=13;v++){if(v<=card.v)continue;if(!hand.some(x=>x.id!==card.id&&x.v===v))continue;combos(G.floor.loose,v-card.v).slice(0,5).forEach(cb=>cands.push({type:'build',card,value:v,targets:cb}))}G.floor.houses.forEach(h=>{if(h.cemented)return;const v=h.value+card.v;if(v>13)return;if(!hand.some(x=>x.id!==card.id&&x.v===v))return;cands.push({type:'raise',card,from:h.value,value:v})})}if(!blocked(card))cands.push({type:'throw',card})});
- if(!cands.length)return{type:'throw',card:hand[0]};
- const blunder=[.45,.35,.25,.15,.08,.04,.02,0,0,0][c.lvl-1];if(Math.random()<blunder)return cands[Math.random()*cands.length|0];
- let best=null,bs=-1e9;cands.forEach(mv=>{let loose=G.floor.loose.slice(),houses=G.floor.houses.slice(),gain=[],sc=0;const left=G.players.reduce((n,p)=>n+p.hand.length,0)-1;
-  if(mv.type==='pickup'){const pl=mv.plan;gain=[mv.card,...pl.loose];pl.houses.forEach(h=>gain.push(...h.cards));const ids=new Set(pl.loose.map(x=>x.id));loose=loose.filter(x=>!ids.has(x.id));houses=houses.filter(h=>!pl.houses.some(y=>y.value===h.value));if(!loose.length&&!houses.length&&left>0)sc+=50}
-  else if(mv.type==='build'){const ids=new Set(mv.targets.map(x=>x.id));loose=loose.filter(x=>!ids.has(x.id));const nc=[mv.card,...mv.targets];const ex=houses.find(h=>h.value===mv.value);if(ex){houses=houses.map(h=>h===ex?{...h,cards:[...h.cards,...nc]}:h);sc+=6}else houses=[...houses,{value:mv.value,cards:nc,owner:me.name}];sc+=5}
-  else if(mv.type==='raise'){const f=houses.find(h=>h.value===mv.from);const ex=houses.find(h=>h.value===mv.value&&h!==f);const m={...f,value:mv.value,cards:[...f.cards,mv.card],owner:me.name};houses=houses.filter(h=>h!==f&&h!==ex);if(ex){m.cards=[...m.cards,...ex.cards];m.cemented=true;sc+=6}houses=[...houses,m];sc+=4}
-  else loose=[...loose,mv.card];
-  sc+=gain.reduce((s,x)=>s+pts(x),0)+gain.length*.4;sc-=exposure(c,loose,houses)*(.2+.8*c.s);sc+=(Math.random()-.5)*(10-c.lvl)*6;if(sc>bs){bs=sc;best=mv}});return best}
+            // --- Game State ---
+            let gameState = {};
 
-function dragCard(el,c){el.addEventListener('pointerdown',e=>{if(!humanTurn())return;drag={c,el,x:e.clientX,y:e.clientY,ghost:null,id:e.pointerId};try{el.setPointerCapture(e.pointerId)}catch(err){}});el.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;if(!drag.ghost){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<8)return;drag.ghost=cardEl(c);drag.ghost.classList.add('drag');drag.ghost.style.width=getComputedStyle(el).width;document.body.appendChild(drag.ghost);el.style.opacity=.4}const w=drag.ghost.offsetWidth,h=drag.ghost.offsetHeight;drag.ghost.style.left=(e.clientX-w/2)+'px';drag.ghost.style.top=(e.clientY-h/2)+'px'});el.addEventListener('pointerup',e=>{if(!drag||e.pointerId!==drag.id)return;const d=drag;drag=null;if(d.ghost){suppress=true;setTimeout(()=>suppress=false,80);d.ghost.remove();el.style.opacity='';const t=document.elementFromPoint(e.clientX,e.clientY);if(t){const hh=t.closest('.house');const fc=t.closest('#floor .card');if(hh){const h=G.floor.houses.find(x=>String(x.value)===hh.dataset.house);if(h){pickCard(c);tapHouse(h);autoTry()}}else if(fc){const f=G.floor.loose.find(x=>x.id===fc.dataset.id);if(f){pickCard(c);tapFloor(f);autoTry()}}}}});el.addEventListener('pointercancel',()=>{if(drag&&drag.ghost)drag.ghost.remove();drag=null})}
-function autoTry(){const c=sel;if(!c)return;const ls=selFloor.filter(i=>i.type==='card');const tot=c.v+sumLoose(selFloor);if(stackOpt(c,selFloor))return act('stack');if(pickOpt(c,selFloor))return act('pickup');if(raiseOpt(c,selFloor))return act('raise');if(ls.length&&ls.length===selFloor.length&&tot>=9&&tot<=13)return act('build');say('That is not a pickup, build or stack yet.')}
+            function getCardCaptureValue(rank) {
+                if (rank === 'A') return 1;
+                if (rank === 'J') return 11;
+                if (rank === 'Q') return 12;
+                if (rank === 'K') return 13;
+                return parseInt(rank);
+            }
 
-function fireworks(){const cv=$('fx'),x=cv.getContext('2d');if(!x)return;cv.width=innerWidth;cv.height=innerHeight;const ps=[];for(let i=0;i<90;i++){const a=Math.random()*6.28,s=1+Math.random()*5;ps.push({x:innerWidth/2,y:innerHeight*.35,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:1,h:Math.random()*360})}(function loop(){x.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.l-=0.012;x.beginPath();x.fillStyle='hsla('+p.h+',100%,60%,'+Math.max(p.l,0)+')';x.arc(p.x,p.y,2.5,0,6.28);x.fill()});if(ps.some(p=>p.l>0))requestAnimationFrame(loop)})()}
+            function getCardPointValue(card) {
+                if (card.suit === '♠') return getCardCaptureValue(card.rank);
+                if (card.rank === 'A') return 1;
+                if (card.suit === '♦' && card.rank === '10') return 6;
+                return 0;
+            }
 
-$('sortSuit').onclick=()=>{const p=G.players.find(x=>x.human);const so={'♠':0,'♥':1,'♦':2,'♣':3};p.hand.sort((a,b)=>so[a.suit]-so[b.suit]||val(a.rank)-val(b.rank));clearSel();render();say('Sorted by suit')};
-$('sortRank').onclick=()=>{const p=G.players.find(x=>x.human);rankHigh=!rankHigh;const d=rankHigh?-1:1;p.hand.sort((a,b)=>d*(val(a.rank)-val(b.rank)));$('sortRank').textContent=rankHigh?'Rank K→A':'Rank A→K';clearSel();render();say(rankHigh?'Kings first':'Low cards first')};
+            function createDeck() {
+                return SUITS.flatMap(suit =>
+                    RANKS.map(rank => ({
+                        suit,
+                        rank,
+                        id: `${rank}${suit}`,
+                        captureValue: getCardCaptureValue(rank),
+                        pointValue: 0,
+                    }))
+                );
+            }
 
-newGame();startRound();
-</script>
+            function initializeGameState() {
+                gameState = {
+                    players: PLAYER_NAMES.map(name => ({
+                        name,
+                        hand: [],
+                        isHuman: name === 'South',
+                        team: TEAMS[name],
+                    })),
+                    deck: [],
+                    floor: {
+                        loose: [],
+                        houses: []
+                    },
+                    capturedCards: { NS: [], EW: [] },
+                    teamNames: { NS: 'Golden Sabers', EW: 'Crimson Hawks' },
+                    scores: { NS: 0, EW: 0 },
+                    sweeps: { NS: 0, EW: 0 },
+                    roundHistory: [],
+                    currentPlayerIndex: 0,
+                    dealerIndex: 3,
+                    roundNumber: 0,
+                    lastPicker: null,
+                    isFirstPlay: true,
+                    gameRunning: true,
+                    biddingPhase: false,
+                    currentBid: { value: 0, player: null },
+                    firstBuild: null,   // set after a bid: the bidder must build the bid house first
+                    busy: false,        // true while a move is animating
+                    dealAnim: null      // 'all' or 'hands': play the deal animation on next render
+                };
+            }
+
+            // --- UI Rendering ---
+            function createCardDOM(card, isFaceDown = false) {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card';
+                cardEl.dataset.cardId = card.id;
+
+                if (isFaceDown) {
+                    cardEl.classList.add('cpu-card');
+                    return cardEl;
+                }
+
+                const suitColor = (card.suit === '♥' || card.suit === '♦') ? 'red-suit' : 'black-suit';
+                cardEl.innerHTML = `
+                    <div class="text-left">
+                        <div class="card-rank ${suitColor}">${card.rank}</div>
+                        <div class="card-suit ${suitColor}">${card.suit}</div>
+                    </div>
+                    <div class="self-end rotate-180">
+                        <div class="card-rank ${suitColor}">${card.rank}</div>
+                        <div class="card-suit ${suitColor}">${card.suit}</div>
+                    </div>
+                `;
+                return cardEl;
+            }
+
+            function render() {
+                const anim = gameState.dealAnim;
+                let n = 0;
+                const addDeal = (el) => {
+                    el.classList.add('deal-in');
+                    el.style.setProperty('--d', `${(n++ * 0.035).toFixed(3)}s`);
+                };
+
+                // Render hands
+                gameState.players.forEach(player => {
+                    const handEl = playerHands[player.name];
+                    handEl.innerHTML = '';
+                    player.hand.forEach(card => {
+                        const isFaceDown = !player.isHuman;
+                        const cardEl = createCardDOM(card, isFaceDown);
+                        if (player.isHuman) {
+                            cardEl.addEventListener('click', () => {
+                                if (suppressClick) return;
+                                onPlayerCardClick(card);
+                            });
+                            cardEl.addEventListener('dblclick', () => {
+                                if (suppressClick) return;
+                                onPlayerCardDoubleClick(card);
+                            });
+                            attachDrag(cardEl, card);
+                        }
+                        if (anim) addDeal(cardEl);
+                        handEl.appendChild(cardEl);
+                    });
+
+                    // Update player names with card counts
+                    if (!player.isHuman) {
+                        const nameEl = document.getElementById(`name-${player.name.toLowerCase()}`);
+                        const teamName = gameState.teamNames[player.team];
+                        nameEl.textContent = `${player.name} (${teamName}) - ${player.hand.length}`;
+                    } else {
+                        document.getElementById('name-south').textContent = `You (${gameState.teamNames.NS})`;
+                    }
+                });
+
+                // Render floor
+                floorEl.innerHTML = '';
+                gameState.floor.loose.forEach(card => {
+                    const cardEl = createCardDOM(card);
+                    cardEl.addEventListener('click', () => onFloorCardClick(card));
+                    if (anim === 'all') addDeal(cardEl);
+                    floorEl.appendChild(cardEl);
+                });
+                gameState.floor.houses.forEach(house => {
+                    const houseEl = document.createElement('div');
+                    houseEl.className = `house ${house.cemented ? 'cemented' : ''}`;
+                    houseEl.dataset.houseValue = house.value;
+                    houseEl.innerHTML = `<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-white shadow-lg">${house.value}</div>`;
+                    house.cards.slice(0, 4).forEach(card => {
+                        const cardEl = createCardDOM(card);
+                        cardEl.style.pointerEvents = 'none';
+                        houseEl.appendChild(cardEl);
+                    });
+                    houseEl.addEventListener('click', () => onFloorHouseClick(house));
+                    floorEl.appendChild(houseEl);
+                });
+                gameState.dealAnim = null;
+
+                // Update score board
+                teamNameNsEl.textContent = gameState.teamNames.NS;
+                teamNameEwEl.textContent = gameState.teamNames.EW;
+                capturedTeamNsEl.textContent = gameState.teamNames.NS;
+                capturedTeamEwEl.textContent = gameState.teamNames.EW;
+                roundPointsNsEl.textContent = gameState.teamNames.NS;
+                roundPointsEwEl.textContent = gameState.teamNames.EW;
+
+                scoreNsEl.textContent = gameState.scores.NS;
+                scoreEwEl.textContent = gameState.scores.EW;
+
+                const lead = gameState.scores.NS - gameState.scores.EW;
+                if (lead >= 0) {
+                    leadDisplayEl.textContent = `${gameState.teamNames.NS} +${lead}`;
+                } else {
+                    leadDisplayEl.textContent = `${gameState.teamNames.EW} +${-lead}`;
+                }
+
+                capturedNsEl.textContent = gameState.capturedCards.NS.length;
+                capturedEwEl.textContent = gameState.capturedCards.EW.length;
+
+                // Update round points
+                const roundPoints = calculateRoundPoints();
+                roundTotalNsEl.textContent = roundPoints.NS;
+                roundTotalEwEl.textContent = roundPoints.EW;
+
+                // Highlight active player
+                Object.values(playerAreas).forEach(el => el.classList.remove('active'));
+                const activePlayer = gameState.players[gameState.currentPlayerIndex];
+                if (activePlayer) {
+                    playerAreas[activePlayer.name].classList.add('active');
+                }
+            }
+
+            // --- Player Interaction ---
+            let selectedHandCard = null;
+            let selectedFloorItems = [];
+
+            function isHumanTurn() {
+                const p = gameState.players[gameState.currentPlayerIndex];
+                return !!(p && p.isHuman && !gameState.biddingPhase && !gameState.busy);
+            }
+
+            function clearSelections() {
+                selectedHandCard = null;
+                selectedFloorItems = [];
+                document.querySelectorAll('.card.selected, .house.selected').forEach(el => el.classList.remove('selected'));
+                renderActionButtons();
+            }
+
+            function onPlayerCardClick(card) {
+                if (isHumanTurn()) {
+                    clearSelections();
+                    selectedHandCard = card;
+                    document.querySelector(`[data-card-id="${card.id}"]`).classList.add('selected');
+                    renderActionButtons();
+                }
+            }
+
+            function onPlayerCardDoubleClick(card) {
+                if (!isHumanTurn()) return;
+                if (gameState.firstBuild) {
+                    updateMessage(`Build your ${gameState.firstBuild.value}-house first. You can't throw a card yet.`);
+                    return;
+                }
+                const blocker = throwBlockedBy(card);
+                if (blocker) {
+                    updateMessage(`You can't throw a ${card.rank}: the ${blocker.value}-house is on the floor. Use it to pick the house up.`);
+                    return;
+                }
+                clearSelections();
+                const ms = executeMove(gameState.currentPlayerIndex, { type: 'throw', card: card });
+                setTimeout(nextTurn, ms);
+            }
+
+            function onFloorCardClick(card) {
+                if (!selectedHandCard || !isHumanTurn()) return;
+                const el = document.querySelector(`#floor [data-card-id="${card.id}"]`);
+                const index = selectedFloorItems.findIndex(item => item.type === 'card' && item.obj.id === card.id);
+                if (index > -1) {
+                    selectedFloorItems.splice(index, 1);
+                    if (el) el.classList.remove('selected');
+                } else {
+                    selectedFloorItems.push({ type: 'card', obj: card });
+                    if (el) el.classList.add('selected');
+                }
+                renderActionButtons();
+            }
+
+            function onFloorHouseClick(house) {
+                if (!selectedHandCard || !isHumanTurn() || gameState.firstBuild) return;
+                const el = document.querySelector(`#floor [data-house-value="${house.value}"]`);
+                const index = selectedFloorItems.findIndex(item => item.type === 'house' && item.obj.value === house.value);
+                if (index > -1) {
+                    selectedFloorItems.splice(index, 1);
+                    if (el) el.classList.remove('selected');
+                } else {
+                    selectedFloorItems = selectedFloorItems.filter(i => i.type !== 'house');
+                    document.querySelectorAll('.house.selected').forEach(h => h.classList.remove('selected'));
+                    selectedFloorItems.push({ type: 'house', obj: house });
+                    if (el) el.classList.add('selected');
+                }
+                renderActionButtons();
+            }
+
+            // --- Drag and drop (drag a hand card onto the floor) ---
+            let dragState = null;
+            let suppressClick = false;
+
+            function dropTargetAt(x, y) {
+                const el = document.elementFromPoint(x, y);
+                if (!el) return null;
+                const house = el.closest('#floor .house');
+                if (house) return { type: 'house', value: house.dataset.houseValue, el: house };
+                const cardEl = el.closest('#floor > .card');
+                if (cardEl) return { type: 'card', id: cardEl.dataset.cardId, el: cardEl };
+                const area = el.closest('#floor-area');
+                if (area) return { type: 'floor', el: area };
+                return null;
+            }
+
+            function attachDrag(cardEl, card) {
+                cardEl.style.touchAction = 'none';
+                cardEl.addEventListener('pointerdown', (e) => {
+                    if (e.button !== undefined && e.button !== 0) return;
+                    if (!isHumanTurn()) return;
+                    dragState = { card, el: cardEl, startX: e.clientX, startY: e.clientY, ghost: null, hover: null, pointerId: e.pointerId };
+                    try { cardEl.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+                });
+                cardEl.addEventListener('pointermove', onDragMove);
+                cardEl.addEventListener('pointerup', (e) => endDrag(e, false));
+                cardEl.addEventListener('pointercancel', (e) => endDrag(e, true));
+            }
+
+            function onDragMove(e) {
+                const ds = dragState;
+                if (!ds || e.pointerId !== ds.pointerId) return;
+                if (!ds.ghost) {
+                    if (Math.hypot(e.clientX - ds.startX, e.clientY - ds.startY) < 8) return;
+                    const r = ds.el.getBoundingClientRect();
+                    ds.ghost = createCardDOM(ds.card);
+                    ds.ghost.classList.add('drag-ghost');
+                    ds.ghost.style.width = `${r.width}px`;
+                    ds.ghost.style.height = `${r.height}px`;
+                    document.body.appendChild(ds.ghost);
+                    ds.el.style.opacity = '0.35';
+                }
+                const w = parseFloat(ds.ghost.style.width);
+                const h = parseFloat(ds.ghost.style.height);
+                ds.ghost.style.left = `${e.clientX - w / 2}px`;
+                ds.ghost.style.top = `${e.clientY - h / 2}px`;
+                const target = dropTargetAt(e.clientX, e.clientY);
+                if (ds.hover && (!target || ds.hover !== target.el)) {
+                    ds.hover.classList.remove('drop-hover');
+                    ds.hover = null;
+                }
+                if (target && ds.hover !== target.el) {
+                    target.el.classList.add('drop-hover');
+                    ds.hover = target.el;
+                }
+            }
+
+            function endDrag(e, cancelled) {
+                const ds = dragState;
+                if (!ds || e.pointerId !== ds.pointerId) return;
+                dragState = null;
+                try { ds.el.releasePointerCapture(ds.pointerId); } catch (err) { /* ignore */ }
+                if (!ds.ghost) return;
+                suppressClick = true;
+                setTimeout(() => { suppressClick = false; }, 80);
+                const target = cancelled ? null : dropTargetAt(e.clientX, e.clientY);
+                ds.ghost.remove();
+                ds.el.style.opacity = '';
+                if (ds.hover) ds.hover.classList.remove('drop-hover');
+                if (target) handleDrop(ds.card, target);
+            }
+
+            // Dropping on a floor card or house selects it and then does the pickup or build if the numbers work.
+            // Dropping on the empty table throws the card.
+            function handleDrop(card, target) {
+                if (!isHumanTurn()) return;
+                if (!(selectedHandCard && selectedHandCard.id === card.id)) onPlayerCardClick(card);
+                if (target.type === 'card') {
+                    const fc = gameState.floor.loose.find(c => c.id === target.id);
+                    if (fc && !selectedFloorItems.some(i => i.type === 'card' && i.obj.id === fc.id)) onFloorCardClick(fc);
+                } else if (target.type === 'house') {
+                    const h = gameState.floor.houses.find(x => String(x.value) === String(target.value));
+                    if (h && !selectedFloorItems.some(i => i.type === 'house')) onFloorHouseClick(h);
+                } else if (selectedFloorItems.length === 0) {
+                    if (gameState.firstBuild) {
+                        updateMessage(`Build your ${gameState.firstBuild.value}-house first: drop your card onto floor cards that add up to ${gameState.firstBuild.value}, or drop it onto a matching floor card to pick it up.`);
+                        return;
+                    }
+                    handlePlayerAction('throw');
+                    return;
+                }
+                tryAutoAction();
+            }
+
+            function tryAutoAction() {
+                const card = selectedHandCard;
+                if (!card) return;
+                const fb = gameState.firstBuild;
+                const looseSel = selectedFloorItems.filter(i => i.type === 'card');
+                const onlyLoose = looseSel.length > 0 && looseSel.length === selectedFloorItems.length;
+                const total = card.captureValue + sumLoose(selectedFloorItems);
+
+                if (fb) {
+                    if (onlyLoose && card.id !== fb.cardId && total === fb.value) {
+                        handlePlayerAction('build');
+                    } else if (card.id !== fb.cardId && getPickupOption(card, selectedFloorItems)) {
+                        handlePlayerAction('pickup');
+                    } else {
+                        updateMessage(`Keep dropping floor cards until your card plus the floor cards add up to ${fb.value}, or drop a card onto a matching floor card to pick it up.`);
+                    }
+                    return;
+                }
+
+                if (getPickupOption(card, selectedFloorItems)) {
+                    handlePlayerAction('pickup');
+                } else if (getRaiseOption(card, selectedFloorItems)) {
+                    handlePlayerAction('raise');
+                } else if (onlyLoose && total >= 9 && total <= 13) {
+                    handlePlayerAction('build');
+                } else if (selectedFloorItems.length === 1 && selectedFloorItems[0].type === 'house' && selectedFloorItems[0].obj.cemented) {
+                    updateMessage("That house is doubled up (cemented), so it can't be changed. Only a matching card can pick it up.");
+                } else {
+                    updateMessage("That isn't a pickup or a build yet. Drop more floor cards on it, or drop on the empty table to throw.");
+                }
+            }
+
+            function createActionButton(text, onClick, color = 'blue') {
+                const btn = document.createElement('button');
+                btn.textContent = text;
+                btn.className = `action-button bg-${color}-600 text-white hover:bg-${color}-700`;
+                btn.onclick = onClick;
+                return btn;
+            }
+
+            function sumLoose(items) {
+                return items.reduce((sum, item) => item.type === 'card' ? sum + item.obj.captureValue : sum, 0);
+            }
+
+            // A card can't be thrown while a house of its value is on the floor:
+            // it has to pick that house up (or be added to it).
+            function throwBlockedBy(card) {
+                return gameState.floor.houses.find(h => h.value === card.captureValue) || null;
+            }
+
+            // A single (not doubled-up) house can be raised by adding one hand card, up to 13.
+            function getRaiseOption(card, items) {
+                if (items.length !== 1 || items[0].type !== 'house') return null;
+                const house = items[0].obj;
+                const value = house.value + card.captureValue;
+                if (house.cemented || value > 13) return null;
+                return { house, value };
+            }
+
+            // Work out everything a hand card would capture: the selected cards,
+            // any house of the same value, and every other set of loose cards that adds up to the card's value.
+            function pickBestCombos(cards, target) {
+                let remaining = [...cards];
+                const picked = [];
+                while (true) {
+                    const combos = findCombinations(remaining, target);
+                    if (combos.length === 0) break;
+                    let best = combos[0];
+                    let bestKey = -1;
+                    combos.forEach(combo => {
+                        const key = combo.reduce((s, c) => s + getCardPointValue(c), 0) * 100 + combo.length;
+                        if (key > bestKey) { bestKey = key; best = combo; }
+                    });
+                    picked.push(...best);
+                    const ids = new Set(best.map(c => c.id));
+                    remaining = remaining.filter(c => !ids.has(c.id));
+                }
+                return picked;
+            }
+
+            function planPickup(card, targets) {
+                const value = card.captureValue;
+                const houses = [];
+                const loose = [];
+                (targets || []).forEach(t => {
+                    if (t && t.cards) houses.push(t);
+                    else if (t && t.id) loose.push(t);
+                });
+                gameState.floor.houses.forEach(h => {
+                    if (h.value === value && !houses.some(x => x.value === h.value)) houses.push(h);
+                });
+                const used = new Set(loose.map(c => c.id));
+                const rest = gameState.floor.loose.filter(c => !used.has(c.id));
+                const extras = pickBestCombos(rest, value);
+                return { houses, loose: [...loose, ...extras], extras };
+            }
+
+            function getPickupOption(card, items) {
+                const looseSel = items.filter(i => i.type === 'card').map(i => i.obj);
+                const houseSel = items.filter(i => i.type === 'house').map(i => i.obj);
+                if (houseSel.length > 1) return null;
+                if (houseSel.length === 1) {
+                    if (looseSel.length > 0 || houseSel[0].value !== card.captureValue) return null;
+                } else if (looseSel.length > 0) {
+                    if (looseSel.reduce((s, c) => s + c.captureValue, 0) !== card.captureValue) return null;
+                }
+                const plan = planPickup(card, items.map(i => i.obj));
+                const count = plan.loose.length + plan.houses.reduce((n, h) => n + h.cards.length, 0);
+                return count > 0 ? { plan, count } : null;
+            }
+
+            function highlightCapture(plan) {
+                plan.loose.forEach(c => {
+                    const el = floorEl.querySelector(`[data-card-id="${c.id}"]`);
+                    if (el) el.classList.add('capture-hint');
+                });
+                plan.houses.forEach(h => {
+                    const el = floorEl.querySelector(`[data-house-value="${h.value}"]`);
+                    if (el) el.classList.add('capture-hint');
+                });
+            }
+
+            function renderActionButtons() {
+                actionContainer.innerHTML = '';
+                document.querySelectorAll('.capture-hint').forEach(el => el.classList.remove('capture-hint'));
+                if (gameState.biddingPhase || !isHumanTurn()) return;
+
+                // The bidder's first move: build the bid house (or pick up matching cards instead)
+                const fb = gameState.firstBuild;
+                if (fb) {
+                    if (selectedHandCard) {
+                        const loose = selectedFloorItems.filter(i => i.type === 'card');
+                        const total = selectedHandCard.captureValue + sumLoose(selectedFloorItems);
+                        if (loose.length > 0 && loose.length === selectedFloorItems.length &&
+                            selectedHandCard.id !== fb.cardId && total === fb.value) {
+                            actionContainer.appendChild(createActionButton(`Build ${fb.value}`, () => handlePlayerAction('build'), 'blue'));
+                        }
+                        if (selectedHandCard.id !== fb.cardId) {
+                            const pick = getPickupOption(selectedHandCard, selectedFloorItems);
+                            if (pick) {
+                                actionContainer.appendChild(createActionButton(`Pick Up (${pick.count})`, () => handlePlayerAction('pickup'), 'green'));
+                                highlightCapture(pick.plan);
+                            }
+                        }
+                    }
+                    actionContainer.appendChild(createActionButton('Auto Build', autoFirstBuild, 'green'));
+                    actionContainer.appendChild(createActionButton('Cancel', clearSelections, 'red'));
+                    return;
+                }
+
+                if (!selectedHandCard) return;
+                const card = selectedHandCard;
+
+                // Pick up (also takes every other set that adds up to the same number)
+                const option = getPickupOption(card, selectedFloorItems);
+                if (option) {
+                    actionContainer.appendChild(createActionButton(`Pick Up (${option.count})`, () => handlePlayerAction('pickup'), 'green'));
+                    highlightCapture(option.plan);
+                }
+
+                // Build house action
+                const looseSel = selectedFloorItems.filter(i => i.type === 'card');
+                const newHouseValue = card.captureValue + sumLoose(selectedFloorItems);
+                if (looseSel.length > 0 && looseSel.length === selectedFloorItems.length && newHouseValue >= 9 && newHouseValue <= 13) {
+                    actionContainer.appendChild(createActionButton(`Build ${newHouseValue}`, () => handlePlayerAction('build'), 'blue'));
+                }
+
+                // Raise a single house with one card
+                const raise = getRaiseOption(card, selectedFloorItems);
+                if (raise) {
+                    actionContainer.appendChild(createActionButton(`Raise to ${raise.value}`, () => handlePlayerAction('raise'), 'blue'));
+                }
+
+                // Throw card
+                actionContainer.appendChild(createActionButton('Throw', () => handlePlayerAction('throw'), 'gray'));
+
+                // Cancel
+                actionContainer.appendChild(createActionButton('Cancel', clearSelections, 'red'));
+            }
+
+            function handlePlayerAction(intent) {
+                if (!isHumanTurn() || !selectedHandCard) return;
+                const card = selectedHandCard;
+                const items = [...selectedFloorItems];
+                const looseSel = items.filter(i => i.type === 'card').map(i => i.obj);
+                const allLoose = looseSel.length === items.length;
+                const total = card.captureValue + looseSel.reduce((s, c) => s + c.captureValue, 0);
+                let action = null;
+
+                if (gameState.firstBuild) {
+                    const fb = gameState.firstBuild;
+                    if (intent === 'build' && looseSel.length > 0 && allLoose && card.id !== fb.cardId && total === fb.value) {
+                        action = { type: 'build', card, value: fb.value, targets: looseSel };
+                    } else if (intent === 'pickup' && card.id !== fb.cardId && getPickupOption(card, items)) {
+                        action = { type: 'pickup', card, targets: items.map(i => i.obj) };
+                    }
+                    if (!action) {
+                        updateMessage(`Build a ${fb.value}-house: pick a card from your hand (keep your ${fb.value}) plus floor cards that add up to ${fb.value}. Or pick up matching cards with a different card.`);
+                        return;
+                    }
+                    clearSelections();
+                    finishFirstBuild(action);
+                    return;
+                }
+
+                if (intent === 'pickup') {
+                    if (getPickupOption(card, items)) action = { type: 'pickup', card, targets: items.map(i => i.obj) };
+                } else if (intent === 'build') {
+                    if (looseSel.length > 0 && allLoose && total >= 9 && total <= 13) {
+                        action = { type: 'build', card, value: total, targets: looseSel };
+                    }
+                } else if (intent === 'raise') {
+                    const raise = getRaiseOption(card, items);
+                    if (raise) action = { type: 'raise', card, fromValue: raise.house.value, value: raise.value };
+                } else if (intent === 'throw') {
+                    const blocker = throwBlockedBy(card);
+                    if (blocker) {
+                        updateMessage(`You can't throw a ${card.rank}: the ${blocker.value}-house is on the floor. Use it to pick the house up.`);
+                        return;
+                    }
+                    action = { type: 'throw', card };
+                }
+
+                clearSelections();
+                if (action) {
+                    const ms = executeMove(gameState.currentPlayerIndex, action);
+                    setTimeout(nextTurn, ms);
+                }
+            }
+
+            function autoFirstBuild() {
+                const fb = gameState.firstBuild;
+                if (!fb || !isHumanTurn()) return;
+                const human = gameState.players[fb.playerIndex];
+                const b = findFirstBuild(human.hand, fb.value, fb.cardId);
+                if (!b) return;
+                clearSelections();
+                finishFirstBuild({ type: 'build', card: b.card, value: fb.value, targets: b.loose });
+            }
+
+            // --- Game Logic ---
+            function shuffleDeck(deck) {
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+            }
+
+            function startNewRound() {
+                gameState.deck = createDeck();
+                shuffleDeck(gameState.deck);
+                gameState.players.forEach(p => p.hand = []);
+                gameState.floor = { loose: [], houses: [] };
+                gameState.capturedCards = { NS: [], EW: [] };
+                gameState.sweeps = { NS: 0, EW: 0 };
+                gameState.isFirstPlay = true;
+                gameState.lastPicker = null;
+                gameState.biddingPhase = true;
+                gameState.firstBuild = null;
+                gameState.busy = false;
+                gameState.currentBid = { value: 0, player: null };
+                actionContainer.innerHTML = '';
+
+                const lead = gameState.scores.NS - gameState.scores.EW;
+                if (lead < 0) {
+                    gameState.dealerIndex = PLAYER_NAMES.indexOf('North');
+                } else if (lead > 0) {
+                    gameState.dealerIndex = PLAYER_NAMES.indexOf('East');
+                }
+
+                const bidderIndex = (gameState.dealerIndex + 1) % 4;
+                gameState.currentPlayerIndex = bidderIndex;
+
+                // Deal initial cards - 4 to bidder, 4 to floor
+                for (let i = 0; i < 4; i++) {
+                    gameState.players[bidderIndex].hand.push(gameState.deck.pop());
+                    gameState.floor.loose.push(gameState.deck.pop());
+                }
+
+                gameState.dealAnim = 'all';
+                render();
+                updateMessage(`Round ${gameState.roundNumber + 1} - ${gameState.players[bidderIndex].name} to bid (9-13)`);
+
+                if (gameState.players[bidderIndex].isHuman) {
+                    setTimeout(() => showBiddingInterface(bidderIndex), 700);
+                } else {
+                    setTimeout(() => handleAIBid(bidderIndex), 1500);
+                }
+            }
+
+            // A bid is only possible if the bidder holds a 9-K card AND can build that house
+            // from another card in hand plus loose floor cards. Returns { value: reservedCard } options.
+            function getFeasibleBids(bidder) {
+                const options = {};
+                bidder.hand.filter(c => c && c.captureValue >= 9 && c.captureValue <= 13).forEach(card => {
+                    if (options[card.captureValue]) return;
+                    if (findFirstBuild(bidder.hand, card.captureValue, card.id)) {
+                        options[card.captureValue] = card;
+                    }
+                });
+                return options;
+            }
+
+            // Find a card in hand (not the reserved bid card) plus loose floor cards that add up to the bid value
+            function findFirstBuild(hand, value, reservedId) {
+                for (const c of hand) {
+                    if (!c || c.id === reservedId) continue;
+                    const need = value - c.captureValue;
+                    if (need <= 0) continue;
+                    const combos = findCombinations(gameState.floor.loose, need);
+                    if (combos.length > 0) return { card: c, loose: combos[0] };
+                }
+                return null;
+            }
+
+            function showBiddingInterface(bidderIndex) {
+                const bidder = gameState.players[bidderIndex];
+                const options = getFeasibleBids(bidder);
+                const values = Object.keys(options);
+
+                if (values.length === 0) {
+                    updateMessage("You cannot bid (no 9-K card you can build a house for). Redealing...");
+                    setTimeout(startNewRound, 2500);
+                    return;
+                }
+
+                actionContainer.innerHTML = '';
+                const bidTitle = document.createElement('div');
+                bidTitle.textContent = 'Choose your bid (9-13):';
+                bidTitle.className = 'text-white font-bold mb-2';
+                actionContainer.appendChild(bidTitle);
+
+                values.sort((a, b) => b - a).forEach(value => {
+                    const btn = createActionButton(`Bid ${value}`, () => {
+                        gameState.currentBid = { value: parseInt(value), player: bidder.name };
+                        completeBidding(bidderIndex, options[value]);
+                    }, 'green');
+                    actionContainer.appendChild(btn);
+                });
+            }
+
+            function handleAIBid(bidderIndex) {
+                const bidder = gameState.players[bidderIndex];
+                const options = getFeasibleBids(bidder);
+                const values = Object.keys(options).map(Number);
+
+                if (values.length === 0) {
+                    updateMessage(`${bidder.name} cannot bid - redealing cards`);
+                    setTimeout(startNewRound, 2500);
+                    return;
+                }
+
+                const bidValue = Math.min(...values);
+                gameState.currentBid = { value: bidValue, player: bidder.name };
+                updateMessage(`${bidder.name} bids ${bidValue}`);
+
+                setTimeout(() => completeBidding(bidderIndex, options[bidValue]), 1500);
+            }
+
+            // After the bid the bidder keeps the bid card and must first BUILD the bid house on the floor
+            // (or pick up matching cards instead).
+            function completeBidding(bidderIndex, bidCard) {
+                gameState.biddingPhase = false;
+                actionContainer.innerHTML = '';
+                const value = gameState.currentBid.value;
+                gameState.firstBuild = { value, cardId: bidCard.id, playerIndex: bidderIndex };
+                gameState.currentPlayerIndex = bidderIndex;
+                render();
+
+                const bidder = gameState.players[bidderIndex];
+                if (bidder.isHuman) {
+                    updateMessage(`You bid ${value}. Build a ${value}-house: drag a card (keep your ${bidCard.rank}${bidCard.suit}) onto floor cards that add up to ${value}. Or pick up matching cards instead.`);
+                    renderActionButtons();
+                } else {
+                    setTimeout(() => {
+                        const b = findFirstBuild(bidder.hand, value, bidCard.id);
+                        if (!b) { setTimeout(startNewRound, 500); return; }
+                        finishFirstBuild({ type: 'build', card: b.card, value, targets: b.loose });
+                    }, 1200);
+                }
+            }
+
+            function finishFirstBuild(action) {
+                const idx = gameState.firstBuild.playerIndex;
+                gameState.firstBuild = null;
+                const ms = executeMove(idx, action);
+                setTimeout(() => dealRemainingCards(idx), ms);
+            }
+
+            function dealRemainingCards(bidderIndex) {
+                for (let p_idx = 0; p_idx < 4; p_idx++) {
+                    if (p_idx !== bidderIndex) {
+                        for (let cardNum = 0; cardNum < 12; cardNum++) {
+                            if (gameState.deck.length > 0) {
+                                gameState.players[p_idx].hand.push(gameState.deck.pop());
+                            }
+                        }
+                    }
+                }
+
+                while (gameState.players[bidderIndex].hand.length < 11 && gameState.deck.length > 0) {
+                    gameState.players[bidderIndex].hand.push(gameState.deck.pop());
+                }
+
+                gameState.dealAnim = 'hands';
+                render();
+                updateMessage(`${gameState.currentBid.player} bid ${gameState.currentBid.value} and built the ${gameState.currentBid.value}-house. Cards dealt.`);
+                setTimeout(nextTurn, 1500);
+            }
+
+            function nextTurn() {
+                gameState.busy = false;
+                if (gameState.players.every(p => p.hand.length === 0)) {
+                    endRound();
+                    return;
+                }
+
+                gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % 4;
+                const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+
+                updateMessage(`${currentPlayer.name}'s turn`);
+                render();
+
+                if (!currentPlayer.isHuman) {
+                    setTimeout(() => {
+                        const move = getAIBestMove(currentPlayer, currentPlayer.hand);
+                        if (move && move.type !== 'invalid') {
+                            const ms = executeMove(gameState.currentPlayerIndex, move);
+                            setTimeout(nextTurn, ms);
+                        } else {
+                            console.error("AI could not generate valid move for", currentPlayer.name);
+                            setTimeout(nextTurn, 500);
+                        }
+                    }, 800);
+                } else {
+                    updateMessage("Your turn! Drag a card onto the floor (or click a card, then choose an action).");
+                }
+            }
+
+            // --- Move animation helpers ---
+            function rectCenter(r) {
+                return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+            }
+
+            function placeAbs(el, rect, tableRect) {
+                el.style.position = 'absolute';
+                el.style.margin = '0';
+                el.style.left = `${rect.left - tableRect.left}px`;
+                el.style.top = `${rect.top - tableRect.top}px`;
+                el.style.width = `${rect.width}px`;
+                el.style.height = `${rect.height}px`;
+                el.style.zIndex = '100';
+                el.style.pointerEvents = 'none';
+                el.style.transition = 'none';
+            }
+
+            function makeGhost(el, tableRect) {
+                const rect = el.getBoundingClientRect();
+                const ghost = el.cloneNode(true);
+                ghost.classList.remove('selected', 'capture-hint', 'deal-in');
+                placeAbs(ghost, rect, tableRect);
+                tableEl.appendChild(ghost);
+                return ghost;
+            }
+
+            function flyTo(el, to, tableRect, o = {}) {
+                const dur = o.dur !== undefined ? o.dur : 500;
+                const delay = o.delay || 0;
+                const ease = 'cubic-bezier(0.22, 0.8, 0.3, 1)';
+                const w = parseFloat(el.style.width) || 72;
+                const h = parseFloat(el.style.height) || 100;
+                el.style.transition = `left ${dur}ms ${ease} ${delay}ms, top ${dur}ms ${ease} ${delay}ms, transform ${dur}ms ${ease} ${delay}ms, opacity ${dur}ms ease-in ${delay}ms`;
+                el.style.left = `${to.x - tableRect.left - w / 2}px`;
+                el.style.top = `${to.y - tableRect.top - h / 2}px`;
+                el.style.transform = `scale(${o.scale !== undefined ? o.scale : 1}) rotate(${o.rotate || 0}deg)`;
+                el.style.opacity = o.opacity !== undefined ? o.opacity : 1;
+            }
+
+            // --- Fireworks ---
+            const fx = { ctx: fxCanvas.getContext ? fxCanvas.getContext('2d') : null, parts: [], running: false, pending: 0 };
+
+            function resizeFx() {
+                fxCanvas.width = window.innerWidth;
+                fxCanvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeFx);
+            resizeFx();
+
+            function fxBurst(x, y) {
+                const hue = Math.random() * 360;
+                for (let i = 0; i < 70; i++) {
+                    const a = Math.random() * Math.PI * 2;
+                    const s = 1.5 + Math.random() * 4.5;
+                    fx.parts.push({
+                        x, y,
+                        vx: Math.cos(a) * s,
+                        vy: Math.sin(a) * s,
+                        life: 1,
+                        decay: 0.012 + Math.random() * 0.012,
+                        hue: hue + Math.random() * 40 - 20,
+                        size: 2 + Math.random() * 2,
+                    });
+                }
+            }
+
+            function fxLoop() {
+                const ctx = fx.ctx;
+                if (!ctx) { fx.running = false; return; }
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+                ctx.fillRect(0, 0, fxCanvas.width, fxCanvas.height);
+                ctx.globalCompositeOperation = 'lighter';
+                fx.parts = fx.parts.filter(p => p.life > 0);
+                fx.parts.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.06;
+                    p.vx *= 0.99;
+                    p.life -= p.decay;
+                    ctx.beginPath();
+                    ctx.fillStyle = `hsla(${p.hue}, 100%, 60%, ${Math.max(p.life, 0)})`;
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                if (fx.parts.length > 0 || fx.pending > 0) {
+                    requestAnimationFrame(fxLoop);
+                } else {
+                    ctx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+                    fx.running = false;
+                }
+            }
+
+            function launchFireworks() {
+                if (reduceMotion || !fx.ctx) return;
+                const r = tableEl.getBoundingClientRect();
+                for (let i = 0; i < 6; i++) {
+                    fx.pending++;
+                    setTimeout(() => {
+                        fx.pending--;
+                        fxBurst(r.left + r.width * (0.15 + Math.random() * 0.7), r.top + r.height * (0.12 + Math.random() * 0.5));
+                        if (!fx.running) {
+                            fx.running = true;
+                            requestAnimationFrame(fxLoop);
+                        }
+                    }, i * 280);
+                }
+            }
+
+            function showSweepBanner(points) {
+                const banner = document.createElement('div');
+                banner.className = 'sweep-banner';
+                banner.textContent = points > 0 ? `SWEEP! +${points}` : 'SWEEP!';
+                document.body.appendChild(banner);
+                setTimeout(() => banner.remove(), 2400);
+            }
+
+            // Animate a move and return how long (ms) to wait before the next turn
+            function animateMove(player, move, startRect, tableRect, ghosts, sweepPoints) {
+                const fly = createCardDOM(move.card);
+                placeAbs(fly, startRect, tableRect);
+                tableEl.appendChild(fly);
+
+                if (reduceMotion) {
+                    fly.remove();
+                    ghosts.forEach(g => g.remove());
+                    if (sweepPoints !== null) showSweepBanner(sweepPoints);
+                    return 500;
+                }
+                void fly.offsetWidth;
+
+                if (move.type === 'pickup') {
+                    const first = ghosts[0] ? rectCenter(ghosts[0].getBoundingClientRect()) : rectCenter(floorEl.getBoundingClientRect());
+                    flyTo(fly, first, tableRect, { dur: 420 });
+                    const dest = rectCenter(playerAreas[player.name].getBoundingClientRect());
+                    setTimeout(() => {
+                        [fly, ...ghosts].forEach((g, i) => {
+                            flyTo(g, dest, tableRect, { dur: 520, delay: i * 35, scale: 0.3, rotate: (Math.random() - 0.5) * 50, opacity: 0 });
+                        });
+                        if (sweepPoints !== null) {
+                            launchFireworks();
+                            showSweepBanner(sweepPoints);
+                        }
+                    }, 460);
+                    const total = 460 + 520 + ghosts.length * 35 + 120;
+                    setTimeout(() => {
+                        fly.remove();
+                        ghosts.forEach(g => g.remove());
+                    }, total);
+                    return sweepPoints !== null ? Math.max(total + 100, 2300) : total + 100;
+                }
+
+                const landing = (move.type === 'build' || move.type === 'raise')
+                    ? floorEl.querySelector(`[data-house-value="${move.value}"]`)
+                    : floorEl.querySelector(`[data-card-id="${move.card.id}"]`);
+                if (!landing) {
+                    fly.remove();
+                    return 300;
+                }
+                landing.style.opacity = '0';
+                flyTo(fly, rectCenter(landing.getBoundingClientRect()), tableRect, {
+                    dur: 520,
+                    rotate: move.type === 'throw' ? (Math.random() - 0.5) * 24 : 0
+                });
+                setTimeout(() => {
+                    landing.style.opacity = '';
+                    fly.remove();
+                }, 540);
+                return 900;
+            }
+
+            function executeMove(playerIndex, move) {
+                const player = gameState.players[playerIndex];
+
+                if (!move || !move.card || !move.card.id) {
+                    console.error("Invalid move:", move);
+                    return 500;
+                }
+
+                const cardIndex = player.hand.findIndex(c => c && c.id === move.card.id);
+                if (cardIndex === -1) {
+                    console.error("Card not found in hand!", move.card.id, player.hand.map(c => c ? c.id : 'undefined'));
+                    return 500;
+                }
+
+                gameState.busy = true;
+
+                // Measure the DOM before the state changes
+                const tableRect = tableEl.getBoundingClientRect();
+                const cardEl = playerHands[player.name].querySelector(`[data-card-id="${move.card.id}"]`);
+                const startRect = cardEl ? cardEl.getBoundingClientRect() : playerAreas[player.name].getBoundingClientRect();
+                player.hand.splice(cardIndex, 1);
+
+                let desc = `${player.name} plays ${move.card.rank}${move.card.suit}`;
+                const ghosts = [];
+                let sweepPoints = null;
+
+                switch (move.type) {
+                    case 'pickup': {
+                        // Takes the selected cards, a same-value house, and every other set that adds up to the card's value
+                        const plan = planPickup(move.card, move.targets);
+                        plan.loose.forEach(c => {
+                            const el = floorEl.querySelector(`[data-card-id="${c.id}"]`);
+                            if (el) ghosts.push(makeGhost(el, tableRect));
+                        });
+                        plan.houses.forEach(h => {
+                            const el = floorEl.querySelector(`[data-house-value="${h.value}"]`);
+                            if (el) ghosts.push(makeGhost(el, tableRect));
+                        });
+
+                        const captured = [move.card];
+                        plan.houses.forEach(h => captured.push(...h.cards));
+                        plan.loose.forEach(c => captured.push(c));
+
+                        const looseIds = new Set(plan.loose.map(c => c.id));
+                        gameState.floor.loose = gameState.floor.loose.filter(c => !looseIds.has(c.id));
+                        gameState.floor.houses = gameState.floor.houses.filter(h => !plan.houses.some(x => x.value === h.value));
+
+                        gameState.capturedCards[player.team].push(...captured);
+                        gameState.lastPicker = player.team;
+
+                        const parts = [];
+                        plan.houses.forEach(h => parts.push(`captures the ${h.value}-house`));
+                        if (plan.loose.length > 0) parts.push(`picks up ${plan.loose.length} card${plan.loose.length > 1 ? 's' : ''}`);
+                        if (parts.length > 0) desc += ' and ' + parts.join(' and ');
+
+                        const isSweep = (gameState.floor.loose.length === 0 && gameState.floor.houses.length === 0);
+                        if (isSweep) {
+                            desc += ' - SWEEP!';
+                            sweepPoints = 0;
+                            if (gameState.isFirstPlay) {
+                                sweepPoints = 25;
+                            } else if (gameState.players.reduce((sum, p) => sum + p.hand.length, 0) > 0) {
+                                sweepPoints = 50;
+                            }
+                            gameState.sweeps[player.team] += sweepPoints;
+                            if (sweepPoints > 0) desc += ` (+${sweepPoints} points)`;
+                        }
+                        break;
+                    }
+
+                    case 'build': {
+                        if (!move.targets || !move.value) {
+                            console.error("Invalid build move:", move);
+                            break;
+                        }
+
+                        const newHouse = {
+                            value: move.value,
+                            cards: [move.card, ...move.targets],
+                            owner: player.name,
+                            cemented: false,
+                        };
+
+                        const existingHouseIndex = gameState.floor.houses.findIndex(h => h.value === newHouse.value);
+                        if (existingHouseIndex > -1) {
+                            gameState.floor.houses[existingHouseIndex].cards.push(...newHouse.cards);
+                            gameState.floor.houses[existingHouseIndex].cemented = true;
+                            desc += ` and cements the ${move.value}-house`;
+                        } else {
+                            gameState.floor.houses.push(newHouse);
+                            desc += ` and builds a ${move.value}-house`;
+                        }
+
+                        move.targets.forEach(card => {
+                            if (card && card.id) {
+                                gameState.floor.loose = gameState.floor.loose.filter(c => c.id !== card.id);
+                            }
+                        });
+                        break;
+                    }
+
+                    case 'raise': {
+                        // Add one card to a single (not doubled-up) house to make it a higher number
+                        const house = gameState.floor.houses.find(h => h.value === move.fromValue);
+                        if (!house || house.cemented) {
+                            console.error("Invalid raise move:", move);
+                            player.hand.splice(cardIndex, 0, move.card);
+                            gameState.busy = false;
+                            return 500;
+                        }
+                        house.cards.push(move.card);
+                        house.owner = player.name;
+                        const other = gameState.floor.houses.find(h => h.value === move.value && h !== house);
+                        if (other) {
+                            other.cards.push(...house.cards);
+                            other.cemented = true;
+                            other.owner = player.name;
+                            gameState.floor.houses = gameState.floor.houses.filter(h => h !== house);
+                            desc += ` and joins the ${move.fromValue}-house onto the ${move.value}-house, cementing it`;
+                        } else {
+                            house.value = move.value;
+                            desc += ` and raises the ${move.fromValue}-house to ${move.value}`;
+                        }
+                        break;
+                    }
+
+                    case 'throw':
+                        gameState.floor.loose.push(move.card);
+                        desc += ` to the floor`;
+                        break;
+
+                    default:
+                        console.error("Unknown move type:", move.type);
+                        player.hand.splice(cardIndex, 0, move.card);
+                        gameState.busy = false;
+                        return 500;
+                }
+
+                gameState.isFirstPlay = false;
+                updateMessage(desc);
+                render();
+                return animateMove(player, move, startRect, tableRect, ghosts, sweepPoints);
+            }
+
+            function endRound() {
+                updateMessage("Round complete! Calculating scores...");
+
+                if (gameState.lastPicker && gameState.floor.loose.length > 0) {
+                    gameState.capturedCards[gameState.lastPicker].push(...gameState.floor.loose);
+                    gameState.floor.loose = [];
+                }
+
+                let roundScores = { NS: 0, EW: 0 };
+                roundScores.NS += gameState.sweeps.NS;
+                roundScores.EW += gameState.sweeps.EW;
+
+                for (const card of gameState.capturedCards.NS) {
+                    roundScores.NS += getCardPointValue(card);
+                }
+                for (const card of gameState.capturedCards.EW) {
+                    roundScores.EW += getCardPointValue(card);
+                }
+
+                gameState.roundNumber++;
+
+                if (roundScores.NS < 9 || roundScores.EW < 9) {
+                    const losingTeam = roundScores.NS < 9 ? 'NS' : 'EW';
+                    const winningTeam = losingTeam === 'NS' ? 'EW' : 'NS';
+                    const losingTeamName = gameState.teamNames[losingTeam];
+                    const winningTeamName = gameState.teamNames[winningTeam];
+                    const score = losingTeam === 'NS' ? roundScores.NS : roundScores.EW;
+
+                    updateMessage(`${losingTeamName} scored less than 9! ${winningTeamName} wins!`);
+                    showGameOverModal(`${winningTeamName} wins the Baazi!\n${losingTeamName} scored only ${score} points.`);
+                    return;
+                }
+
+                const diff = roundScores.NS - roundScores.EW;
+                const currentLead = gameState.scores.NS - gameState.scores.EW;
+
+                if (currentLead >= 0) {
+                    gameState.scores.NS += diff;
+                } else {
+                    gameState.scores.EW -= diff;
+                }
+
+                render();
+
+                const finalLead = gameState.scores.NS - gameState.scores.EW;
+                if (Math.abs(finalLead) >= 100) {
+                    const winningTeam = finalLead > 0 ? 'NS' : 'EW';
+                    const winningTeamName = gameState.teamNames[winningTeam];
+                    updateMessage(`${winningTeamName} wins with a ${Math.abs(finalLead)} point lead!`);
+                    showGameOverModal(`${winningTeamName} wins the Baazi!\nFinal lead: ${Math.abs(finalLead)} points`);
+                    return;
+                }
+
+                setTimeout(startNewRound, 3000);
+            }
+
+            // --- AI Logic (strength depends on the CPU level slider) ---
+            // Which cards nobody has shown yet, by capture value (used from level 6 up)
+            function aiUnseenCounts(me) {
+                const seen = new Set();
+                me.hand.forEach(c => seen.add(c.id));
+                gameState.floor.loose.forEach(c => seen.add(c.id));
+                gameState.floor.houses.forEach(h => h.cards.forEach(c => seen.add(c.id)));
+                gameState.capturedCards.NS.concat(gameState.capturedCards.EW).forEach(c => seen.add(c.id));
+                const counts = {};
+                for (let v = 1; v <= 13; v++) counts[v] = 0;
+                createDeck().forEach(c => { if (!seen.has(c.id)) counts[c.captureValue]++; });
+                return counts;
+            }
+
+            function aiContext(me) {
+                const lvl = getLevelFor(me);
+                const others = gameState.players.filter(p => p !== me);
+                const oppCards = others.filter(p => p.team !== me.team).reduce((n, p) => n + p.hand.length, 0);
+                const otherCards = others.reduce((n, p) => n + p.hand.length, 0);
+                return {
+                    lvl,
+                    s: (lvl - 1) / 9,
+                    counts: lvl >= 6 ? aiUnseenCounts(me) : null,
+                    f: otherCards > 0 ? oppCards / otherCards : 0.66
+                };
+            }
+
+            // Chance that an opponent holds a card of value v
+            function aiProbOppHas(ctx, v) {
+                if (v < 1 || v > 13) return 0;
+                const n = ctx.counts ? ctx.counts[v] : 3;
+                return 1 - Math.pow(1 - ctx.f, n);
+            }
+
+            // Points likely to be lost if these cards stay on the floor
+            function aiExposure(ctx, loose, houses) {
+                let total = 0;
+                loose.forEach(c => {
+                    let p = aiProbOppHas(ctx, c.captureValue);
+                    loose.forEach(d => {
+                        if (d !== c) p = Math.max(p, aiProbOppHas(ctx, c.captureValue + d.captureValue));
+                    });
+                    total += (getCardPointValue(c) + 0.3) * p;
+                });
+                houses.forEach(h => {
+                    const worth = h.cards.reduce((s, c) => s + getCardPointValue(c), 0) + 0.3 * h.cards.length;
+                    total += worth * aiProbOppHas(ctx, h.value);
+                });
+                return total;
+            }
+
+            function canPartition(cards, v) {
+                const vals = cards.map(c => c.captureValue).sort((a, b) => b - a);
+                const total = vals.reduce((a, b) => a + b, 0);
+                if (total % v !== 0 || vals.some(x => x > v)) return false;
+                const sums = new Array(total / v).fill(0);
+                function place(i) {
+                    if (i === vals.length) return true;
+                    const tried = new Set();
+                    for (let j = 0; j < sums.length; j++) {
+                        if (sums[j] + vals[i] > v || tried.has(sums[j])) continue;
+                        tried.add(sums[j]);
+                        sums[j] += vals[i];
+                        if (place(i + 1)) return true;
+                        sums[j] -= vals[i];
+                    }
+                    return false;
+                }
+                return place(0);
+            }
+
+            // Chance an opponent can clear the whole floor with a single card
+            function aiSweepRisk(ctx, loose, houses) {
+                if (loose.length + houses.length === 0 || loose.length > 10) return 0;
+                let best = 0;
+                for (let v = 1; v <= 13; v++) {
+                    if (houses.some(h => h.value !== v)) continue;
+                    if (loose.length > 0 && !canPartition(loose, v)) continue;
+                    best = Math.max(best, aiProbOppHas(ctx, v));
+                }
+                return best;
+            }
+
+            function aiEvaluate(ctx, me, move) {
+                const card = move.card;
+                let loose = gameState.floor.loose.slice();
+                let houses = gameState.floor.houses.slice();
+                let gained = [];
+                let score = 0;
+                const cardsLeft = gameState.players.reduce((n, p) => n + p.hand.length, 0) - 1;
+
+                if (move.type === 'pickup') {
+                    const plan = move.plan;
+                    gained = [card, ...plan.loose];
+                    plan.houses.forEach(h => gained.push(...h.cards));
+                    const ids = new Set(plan.loose.map(c => c.id));
+                    loose = loose.filter(c => !ids.has(c.id));
+                    houses = houses.filter(h => !plan.houses.some(x => x.value === h.value));
+                    if (loose.length === 0 && houses.length === 0 && cardsLeft > 0) score += 50;
+                } else if (move.type === 'build') {
+                    const ids = new Set(move.targets.map(c => c.id));
+                    loose = loose.filter(c => !ids.has(c.id));
+                    const newCards = [card, ...move.targets];
+                    const existing = houses.find(h => h.value === move.value);
+                    if (existing) {
+                        houses = houses.map(h => h === existing ? { ...h, cards: [...h.cards, ...newCards] } : h);
+                        score += 6;
+                    } else {
+                        houses = [...houses, { value: move.value, cards: newCards, owner: me.name }];
+                    }
+                    score += 5;
+                } else if (move.type === 'raise') {
+                    const from = houses.find(h => h.value === move.fromValue);
+                    const existing = houses.find(h => h.value === move.value && h !== from);
+                    const merged = { ...from, value: move.value, cards: [...from.cards, card], owner: me.name };
+                    houses = houses.filter(h => h !== from && h !== existing);
+                    if (existing) {
+                        merged.cards = [...merged.cards, ...existing.cards];
+                        merged.cemented = true;
+                        score += 6;
+                    }
+                    houses = [...houses, merged];
+                    score += 4;
+                } else {
+                    loose = [...loose, card];
+                }
+
+                score += gained.reduce((s, c) => s + getCardPointValue(c), 0) + gained.length * 0.4;
+                score -= aiExposure(ctx, loose, houses) * (0.2 + 0.8 * ctx.s);
+
+                // Strong levels avoid leaving a floor that one opposing card can sweep
+                if (ctx.lvl >= 6 && cardsLeft > 0) {
+                    score -= 50 * aiSweepRisk(ctx, loose, houses) * ctx.s;
+                }
+
+                // Strong levels keep a card to pick up their own houses
+                if (ctx.lvl >= 5) {
+                    houses.forEach(h => {
+                        if (TEAMS[h.owner] !== me.team) return;
+                        const holds = me.hand.some(c => c.id !== card.id && c.captureValue === h.value);
+                        if (!holds) {
+                            const worth = h.cards.reduce((s, c) => s + getCardPointValue(c), 0) + 3;
+                            score -= 0.5 * worth;
+                        }
+                    });
+                }
+
+                // Weaker levels play noisier
+                score += (Math.random() - 0.5) * (10 - ctx.lvl) * 6;
+                return score;
+            }
+
+            // Chance per move that the CPU just plays a random legal move
+            const AI_BLUNDER = [0.45, 0.35, 0.25, 0.15, 0.08, 0.04, 0.02, 0, 0, 0];
+
+            function getAIBestMove(player, hand) {
+                const validHand = (hand || player.hand).filter(card => card && card.id && card.captureValue !== undefined);
+
+                if (validHand.length === 0) {
+                    console.error("No valid cards in hand for AI player:", player.name);
+                    return { type: 'invalid' };
+                }
+
+                const ctx = aiContext(player);
+                const candidates = [];
+                validHand.forEach(card => {
+                    const plan = planPickup(card, []);
+                    if (plan.loose.length + plan.houses.length > 0) {
+                        candidates.push({ type: 'pickup', card, targets: [], plan });
+                    }
+                    if (ctx.lvl >= 4) {
+                        for (let value = 9; value <= 13; value++) {
+                            if (value <= card.captureValue) continue;
+                            if (!validHand.some(c => c.id !== card.id && c.captureValue === value)) continue;
+                            findCombinations(gameState.floor.loose, value - card.captureValue).slice(0, 6).forEach(combo => {
+                                candidates.push({ type: 'build', card, value, targets: combo });
+                            });
+                        }
+                        // Raise a single house with this card if we hold a card of the new value
+                        gameState.floor.houses.forEach(h => {
+                            if (h.cemented) return;
+                            const value = h.value + card.captureValue;
+                            if (value > 13) return;
+                            if (!validHand.some(c => c.id !== card.id && c.captureValue === value)) return;
+                            candidates.push({ type: 'raise', card, fromValue: h.value, value });
+                        });
+                    }
+                    // A card matching a house on the floor can't be thrown (it picks the house up instead)
+                    if (!throwBlockedBy(card)) {
+                        candidates.push({ type: 'throw', card });
+                    }
+                });
+
+                if (Math.random() < AI_BLUNDER[ctx.lvl - 1]) {
+                    return candidates[Math.floor(Math.random() * candidates.length)];
+                }
+
+                let best = null;
+                let bestScore = -Infinity;
+                candidates.forEach(move => {
+                    const score = aiEvaluate(ctx, player, move);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        best = move;
+                    }
+                });
+                return best;
+            }
+
+            function findCombinations(cards, targetSum) {
+                const results = [];
+                function find(startIndex, currentSum, currentCombo) {
+                    if (currentSum === targetSum && currentCombo.length > 0) {
+                        results.push([...currentCombo]);
+                    }
+                    if (currentSum >= targetSum) {
+                        return;
+                    }
+                    for (let i = startIndex; i < cards.length; i++) {
+                        find(i + 1, currentSum + cards[i].captureValue, [...currentCombo, cards[i]]);
+                    }
+                }
+                find(0, 0, []);
+                return results;
+            }
+
+            // --- Utility Functions ---
+            // mode 'suit': group by suit, low to high inside each suit.
+            // mode 'rank': group by rank (kings together ... aces together); each click flips the direction.
+            let rankHighFirst = false;
+
+            function sortPlayerCards(mode) {
+                const humanPlayer = gameState.players.find(p => p.isHuman);
+                if (!humanPlayer || !humanPlayer.hand) return;
+
+                const suitOrder = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
+                const rankOrder = { 'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13 };
+
+                if (mode === 'rank') {
+                    rankHighFirst = !rankHighFirst;
+                    const dir = rankHighFirst ? -1 : 1;
+                    humanPlayer.hand.sort((a, b) => {
+                        if (rankOrder[a.rank] !== rankOrder[b.rank]) {
+                            return dir * (rankOrder[a.rank] - rankOrder[b.rank]);
+                        }
+                        return suitOrder[a.suit] - suitOrder[b.suit];
+                    });
+                    sortRankBtn.textContent = rankHighFirst ? 'Sort: Rank K→A' : 'Sort: Rank A→K';
+                    updateMessage(rankHighFirst ? "Sorted by rank: kings first, low cards at the end" : "Sorted by rank: low cards first, kings at the end");
+                } else {
+                    humanPlayer.hand.sort((a, b) => {
+                        if (suitOrder[a.suit] !== suitOrder[b.suit]) {
+                            return suitOrder[a.suit] - suitOrder[b.suit];
+                        }
+                        return rankOrder[a.rank] - rankOrder[b.rank];
+                    });
+                    updateMessage("Sorted by suit");
+                }
+
+                clearSelections();
+                render();
+            }
+
+            function calculateRoundPoints() {
+                let roundPoints = { NS: 0, EW: 0 };
+
+                roundPoints.NS += gameState.sweeps.NS;
+                roundPoints.EW += gameState.sweeps.EW;
+
+                for (const card of gameState.capturedCards.NS) {
+                    roundPoints.NS += getCardPointValue(card);
+                }
+                for (const card of gameState.capturedCards.EW) {
+                    roundPoints.EW += getCardPointValue(card);
+                }
+
+                return roundPoints;
+            }
+
+            function updateMessage(text) {
+                messageArea.textContent = text;
+            }
+
+            function showGameOverModal(message) {
+                modalTitle.textContent = 'Baazi Complete!';
+                modalBody.textContent = message;
+                modal.classList.remove('hidden');
+            }
+
+            modalButton.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                initializeGameState();
+                startNewRound();
+            });
+
+            sortSuitBtn.addEventListener('click', () => {
+                sortPlayerCards('suit');
+            });
+
+            sortRankBtn.addEventListener('click', () => {
+                sortPlayerCards('rank');
+            });
+
+            // --- Game Start ---
+            initializeGameState();
+            startNewRound();
+        });
+    </script>
 </body>
 </html>
