@@ -773,7 +773,7 @@
                     if (h && !selectedFloorItems.some(i => i.type === 'house')) onFloorHouseClick(h);
                 } else if (selectedFloorItems.length === 0) {
                     if (gameState.firstBuild) {
-                        updateMessage(`Build your ${gameState.firstBuild.value}-house first: drop your card onto floor cards that add up to ${gameState.firstBuild.value}.`);
+                        updateMessage(`Build your ${gameState.firstBuild.value}-house first: drop your card onto floor cards that add up to ${gameState.firstBuild.value}, or drop it onto a matching floor card to pick it up.`);
                         return;
                     }
                     handlePlayerAction('throw');
@@ -793,8 +793,10 @@
                 if (fb) {
                     if (onlyLoose && card.id !== fb.cardId && total === fb.value) {
                         handlePlayerAction('build');
+                    } else if (card.id !== fb.cardId && getPickupOption(card, selectedFloorItems)) {
+                        handlePlayerAction('pickup');
                     } else {
-                        updateMessage(`Keep dropping floor cards until your card plus the floor cards add up to ${fb.value}.`);
+                        updateMessage(`Keep dropping floor cards until your card plus the floor cards add up to ${fb.value}, or drop a card onto a matching floor card to pick it up.`);
                     }
                     return;
                 }
@@ -907,7 +909,7 @@
                 document.querySelectorAll('.capture-hint').forEach(el => el.classList.remove('capture-hint'));
                 if (gameState.biddingPhase || !isHumanTurn()) return;
 
-                // The bidder's first move: build the bid house
+                // The bidder's first move: build the bid house (or pick up matching cards instead)
                 const fb = gameState.firstBuild;
                 if (fb) {
                     if (selectedHandCard) {
@@ -916,6 +918,13 @@
                         if (loose.length > 0 && loose.length === selectedFloorItems.length &&
                             selectedHandCard.id !== fb.cardId && total === fb.value) {
                             actionContainer.appendChild(createActionButton(`Build ${fb.value}`, () => handlePlayerAction('build'), 'blue'));
+                        }
+                        if (selectedHandCard.id !== fb.cardId) {
+                            const pick = getPickupOption(selectedHandCard, selectedFloorItems);
+                            if (pick) {
+                                actionContainer.appendChild(createActionButton(`Pick Up (${pick.count})`, () => handlePlayerAction('pickup'), 'green'));
+                                highlightCapture(pick.plan);
+                            }
                         }
                     }
                     actionContainer.appendChild(createActionButton('Auto Build', autoFirstBuild, 'green'));
@@ -966,9 +975,11 @@
                     const fb = gameState.firstBuild;
                     if (intent === 'build' && looseSel.length > 0 && allLoose && card.id !== fb.cardId && total === fb.value) {
                         action = { type: 'build', card, value: fb.value, targets: looseSel };
+                    } else if (intent === 'pickup' && card.id !== fb.cardId && getPickupOption(card, items)) {
+                        action = { type: 'pickup', card, targets: items.map(i => i.obj) };
                     }
                     if (!action) {
-                        updateMessage(`Build a ${fb.value}-house: pick a card from your hand (keep your ${fb.value}) plus floor cards that add up to ${fb.value}.`);
+                        updateMessage(`Build a ${fb.value}-house: pick a card from your hand (keep your ${fb.value}) plus floor cards that add up to ${fb.value}. Or pick up matching cards with a different card.`);
                         return;
                     }
                     clearSelections();
@@ -1130,7 +1141,8 @@
                 setTimeout(() => completeBidding(bidderIndex, options[bidValue]), 1500);
             }
 
-            // After the bid the bidder keeps the bid card and must first BUILD the bid house on the floor.
+            // After the bid the bidder keeps the bid card and must first BUILD the bid house on the floor
+            // (or pick up matching cards instead).
             function completeBidding(bidderIndex, bidCard) {
                 gameState.biddingPhase = false;
                 actionContainer.innerHTML = '';
@@ -1141,7 +1153,7 @@
 
                 const bidder = gameState.players[bidderIndex];
                 if (bidder.isHuman) {
-                    updateMessage(`You bid ${value}. Build a ${value}-house: drag a card (keep your ${bidCard.rank}${bidCard.suit}) onto floor cards that add up to ${value}.`);
+                    updateMessage(`You bid ${value}. Build a ${value}-house: drag a card (keep your ${bidCard.rank}${bidCard.suit}) onto floor cards that add up to ${value}. Or pick up matching cards instead.`);
                     renderActionButtons();
                 } else {
                     setTimeout(() => {
