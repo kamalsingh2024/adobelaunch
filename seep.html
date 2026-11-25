@@ -38,18 +38,32 @@
             background-color: #eff6ff;
         }
         .card.cpu-card {
-            background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%);
-            border-color: #1e40af;
+            border: 2px solid #fef3c7;
+            background-color: #1e3a8a;
+            background-image:
+                repeating-linear-gradient(45deg, rgba(251, 191, 36, 0.35) 0 1.5px, transparent 1.5px 10px),
+                repeating-linear-gradient(-45deg, rgba(251, 191, 36, 0.35) 0 1.5px, transparent 1.5px 10px),
+                radial-gradient(ellipse at 30% 20%, #3b5bdb 0%, #1e3a8a 55%, #0f1e4d 100%);
+            box-shadow: inset 0 0 0 3px #1e3a8a, inset 0 0 0 4.5px #fbbf24, 0 2px 8px rgba(0, 0, 0, 0.35);
         }
         .card.cpu-card::after {
-            content: '🂠';
+            content: '♠';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2rem;
-            color: white;
-            opacity: 0.8;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid #fbbf24;
+            background: radial-gradient(circle, #1e3a8a 0%, #0f1e4d 100%);
+            box-shadow: 0 0 0 3px rgba(15, 30, 77, 0.9), 0 0 10px rgba(251, 191, 36, 0.45);
+            font-size: 1.3rem;
+            line-height: 1;
+            color: #fbbf24;
         }
         .card-rank {
             font-size: 1.125rem;
@@ -316,9 +330,10 @@
             <input id="cpu-level" type="range" min="1" max="10" step="1" value="6" class="w-32 mt-1">
         </div>
 
-        <!-- Card Sort Button -->
-        <div class="absolute bottom-2 right-2">
-            <button id="sort-cards-btn" class="action-button bg-purple-600 text-white hover:bg-purple-700 text-xs px-3 py-2">Sort Cards</button>
+        <!-- Card Sort Buttons -->
+        <div class="absolute bottom-2 right-2 flex flex-col gap-1">
+            <button id="sort-suit-btn" class="action-button bg-purple-600 text-white hover:bg-purple-700 text-xs px-3 py-2">Sort: Suit</button>
+            <button id="sort-rank-btn" class="action-button bg-indigo-600 text-white hover:bg-indigo-700 text-xs px-3 py-2">Sort: Rank</button>
         </div>
 
         <!-- Game Message Area -->
@@ -366,7 +381,8 @@
             const roundPointsEwEl = document.getElementById('round-points-ew');
             const roundTotalNsEl = document.getElementById('round-total-ns');
             const roundTotalEwEl = document.getElementById('round-total-ew');
-            const sortCardsBtn = document.getElementById('sort-cards-btn');
+            const sortSuitBtn = document.getElementById('sort-suit-btn');
+            const sortRankBtn = document.getElementById('sort-rank-btn');
             const levelInput = document.getElementById('cpu-level');
             const levelLabel = document.getElementById('cpu-level-label');
 
@@ -1705,22 +1721,40 @@
             }
 
             // --- Utility Functions ---
-            function sortPlayerCards() {
+            // mode 'suit': group by suit, low to high inside each suit.
+            // mode 'rank': group by rank (kings together ... aces together); each click flips the direction.
+            let rankHighFirst = false;
+
+            function sortPlayerCards(mode) {
                 const humanPlayer = gameState.players.find(p => p.isHuman);
                 if (!humanPlayer || !humanPlayer.hand) return;
 
-                humanPlayer.hand.sort((a, b) => {
-                    const suitOrder = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
-                    if (suitOrder[a.suit] !== suitOrder[b.suit]) {
+                const suitOrder = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
+                const rankOrder = { 'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13 };
+
+                if (mode === 'rank') {
+                    rankHighFirst = !rankHighFirst;
+                    const dir = rankHighFirst ? -1 : 1;
+                    humanPlayer.hand.sort((a, b) => {
+                        if (rankOrder[a.rank] !== rankOrder[b.rank]) {
+                            return dir * (rankOrder[a.rank] - rankOrder[b.rank]);
+                        }
                         return suitOrder[a.suit] - suitOrder[b.suit];
-                    }
-                    const rankOrder = { 'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13 };
-                    return rankOrder[a.rank] - rankOrder[b.rank];
-                });
+                    });
+                    sortRankBtn.textContent = rankHighFirst ? 'Sort: Rank K→A' : 'Sort: Rank A→K';
+                    updateMessage(rankHighFirst ? "Sorted by rank: kings first, low cards at the end" : "Sorted by rank: low cards first, kings at the end");
+                } else {
+                    humanPlayer.hand.sort((a, b) => {
+                        if (suitOrder[a.suit] !== suitOrder[b.suit]) {
+                            return suitOrder[a.suit] - suitOrder[b.suit];
+                        }
+                        return rankOrder[a.rank] - rankOrder[b.rank];
+                    });
+                    updateMessage("Sorted by suit");
+                }
 
                 clearSelections();
                 render();
-                updateMessage("Cards sorted by suit and rank");
             }
 
             function calculateRoundPoints() {
@@ -1755,8 +1789,12 @@
                 startNewRound();
             });
 
-            sortCardsBtn.addEventListener('click', () => {
-                sortPlayerCards();
+            sortSuitBtn.addEventListener('click', () => {
+                sortPlayerCards('suit');
+            });
+
+            sortRankBtn.addEventListener('click', () => {
+                sortPlayerCards('rank');
             });
 
             // --- Game Start ---
