@@ -239,6 +239,22 @@
             .deal-in, .capture-hint { animation: none; }
             .card, .house { transition: none; }
         }
+
+        /* --- Drag and drop --- */
+        .drag-ghost {
+            position: fixed;
+            z-index: 200;
+            pointer-events: none;
+            margin: 0;
+            transition: none;
+            transform: rotate(-4deg) scale(1.08);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
+        }
+        .drop-hover {
+            outline: 3px solid #22d3ee;
+            outline-offset: 2px;
+            box-shadow: 0 0 18px #22d3ee !important;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-800 flex flex-col items-center justify-center min-h-screen p-2 overflow-hidden">
@@ -294,6 +310,12 @@
             <p><span id="captured-team-ew" class="font-medium"></span>: <span id="captured-ew" class="font-bold">0</span> cards</p>
         </div>
 
+        <!-- CPU difficulty -->
+        <div class="absolute bottom-2 left-2 text-white info-panel p-2 text-xs">
+            <label for="cpu-level" class="font-bold block">CPU level: <span id="cpu-level-label"></span></label>
+            <input id="cpu-level" type="range" min="1" max="10" step="1" value="6" class="w-32 mt-1">
+        </div>
+
         <!-- Card Sort Button -->
         <div class="absolute bottom-2 right-2">
             <button id="sort-cards-btn" class="action-button bg-purple-600 text-white hover:bg-purple-700 text-xs px-3 py-2">Sort Cards</button>
@@ -345,6 +367,8 @@
             const roundTotalNsEl = document.getElementById('round-total-ns');
             const roundTotalEwEl = document.getElementById('round-total-ew');
             const sortCardsBtn = document.getElementById('sort-cards-btn');
+            const levelInput = document.getElementById('cpu-level');
+            const levelLabel = document.getElementById('cpu-level-label');
 
             const playerAreas = {
                 'South': document.getElementById('player-south-area'),
@@ -361,6 +385,31 @@
             };
 
             const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+            // --- CPU difficulty (1-10) ---
+            const LEVEL_NAMES = ['Rookie', 'Beginner', 'Casual', 'Learner', 'Club player', 'Sharp', 'Strong', 'Expert', 'Master', 'Grandmaster'];
+            let cpuLevel = 6;
+            try {
+                const saved = parseInt(localStorage.getItem('seepCpuLevel'), 10);
+                if (saved >= 1 && saved <= 10) cpuLevel = saved;
+            } catch (e) { /* storage unavailable */ }
+
+            function getLevelFor(player) {
+                return cpuLevel;
+            }
+
+            function updateLevelLabel() {
+                levelInput.value = cpuLevel;
+                levelLabel.textContent = `${cpuLevel} · ${LEVEL_NAMES[cpuLevel - 1]}`;
+            }
+
+            levelInput.addEventListener('input', () => {
+                cpuLevel = parseInt(levelInput.value, 10);
+                try { localStorage.setItem('seepCpuLevel', String(cpuLevel)); } catch (e) { /* ignore */ }
+                updateLevelLabel();
+                updateMessage(`CPU level set to ${cpuLevel} (${LEVEL_NAMES[cpuLevel - 1]})`);
+            });
+            updateLevelLabel();
 
             // --- Game Constants ---
             const SUITS = ['♠', '♥', '♦', '♣'];
@@ -471,8 +520,15 @@
                         const isFaceDown = !player.isHuman;
                         const cardEl = createCardDOM(card, isFaceDown);
                         if (player.isHuman) {
-                            cardEl.addEventListener('click', () => onPlayerCardClick(card));
-                            cardEl.addEventListener('dblclick', () => onPlayerCardDoubleClick(card));
+                            cardEl.addEventListener('click', () => {
+                                if (suppressClick) return;
+                                onPlayerCardClick(card);
+                            });
+                            cardEl.addEventListener('dblclick', () => {
+                                if (suppressClick) return;
+                                onPlayerCardDoubleClick(card);
+                            });
+                            attachDrag(cardEl, card);
                         }
                         if (anim) addDeal(cardEl);
                         handEl.appendChild(cardEl);
@@ -609,6 +665,126 @@
                     if (el) el.classList.add('selected');
                 }
                 renderActionButtons();
+            }
+
+            // --- Drag and drop (drag a hand card onto the floor) ---
+            let dragState = null;
+            let suppressClick = false;
+
+            function dropTargetAt(x, y) {
+                const el = document.elementFromPoint(x, y);
+                if (!el) return null;
+                const house = el.closest('#floor .house');
+                if (house) return { type: 'house', value: house.dataset.houseValue, el: house };
+                const cardEl = el.closest('#floor > .card');
+                if (cardEl) return { type: 'card', id: cardEl.dataset.cardId, el: cardEl };
+                const area = el.closest('#floor-area');
+                if (area) return { type: 'floor', el: area };
+                return null;
+            }
+
+            function attachDrag(cardEl, card) {
+                cardEl.style.touchAction = 'none';
+                cardEl.addEventListener('pointerdown', (e) => {
+                    if (e.button !== undefined && e.button !== 0) return;
+                    if (!isHumanTurn()) return;
+                    dragState = { card, el: cardEl, startX: e.clientX, startY: e.clientY, ghost: null, hover: null, pointerId: e.pointerId };
+                    try { cardEl.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+                });
+                cardEl.addEventListener('pointermove', onDragMove);
+                cardEl.addEventListener('pointerup', (e) => endDrag(e, false));
+                cardEl.addEventListener('pointercancel', (e) => endDrag(e, true));
+            }
+
+            function onDragMove(e) {
+                const ds = dragState;
+                if (!ds || e.pointerId !== ds.pointerId) return;
+                if (!ds.ghost) {
+                    if (Math.hypot(e.clientX - ds.startX, e.clientY - ds.startY) < 8) return;
+                    const r = ds.el.getBoundingClientRect();
+                    ds.ghost = createCardDOM(ds.card);
+                    ds.ghost.classList.add('drag-ghost');
+                    ds.ghost.style.width = `${r.width}px`;
+                    ds.ghost.style.height = `${r.height}px`;
+                    document.body.appendChild(ds.ghost);
+                    ds.el.style.opacity = '0.35';
+                }
+                const w = parseFloat(ds.ghost.style.width);
+                const h = parseFloat(ds.ghost.style.height);
+                ds.ghost.style.left = `${e.clientX - w / 2}px`;
+                ds.ghost.style.top = `${e.clientY - h / 2}px`;
+                const target = dropTargetAt(e.clientX, e.clientY);
+                if (ds.hover && (!target || ds.hover !== target.el)) {
+                    ds.hover.classList.remove('drop-hover');
+                    ds.hover = null;
+                }
+                if (target && ds.hover !== target.el) {
+                    target.el.classList.add('drop-hover');
+                    ds.hover = target.el;
+                }
+            }
+
+            function endDrag(e, cancelled) {
+                const ds = dragState;
+                if (!ds || e.pointerId !== ds.pointerId) return;
+                dragState = null;
+                try { ds.el.releasePointerCapture(ds.pointerId); } catch (err) { /* ignore */ }
+                if (!ds.ghost) return;
+                suppressClick = true;
+                setTimeout(() => { suppressClick = false; }, 80);
+                const target = cancelled ? null : dropTargetAt(e.clientX, e.clientY);
+                ds.ghost.remove();
+                ds.el.style.opacity = '';
+                if (ds.hover) ds.hover.classList.remove('drop-hover');
+                if (target) handleDrop(ds.card, target);
+            }
+
+            // Dropping on a floor card or house selects it and then does the pickup or build if the numbers work.
+            // Dropping on the empty table throws the card.
+            function handleDrop(card, target) {
+                if (!isHumanTurn()) return;
+                if (!(selectedHandCard && selectedHandCard.id === card.id)) onPlayerCardClick(card);
+                if (target.type === 'card') {
+                    const fc = gameState.floor.loose.find(c => c.id === target.id);
+                    if (fc && !selectedFloorItems.some(i => i.type === 'card' && i.obj.id === fc.id)) onFloorCardClick(fc);
+                } else if (target.type === 'house') {
+                    const h = gameState.floor.houses.find(x => String(x.value) === String(target.value));
+                    if (h && !selectedFloorItems.some(i => i.type === 'house')) onFloorHouseClick(h);
+                } else if (selectedFloorItems.length === 0) {
+                    if (gameState.firstBuild) {
+                        updateMessage(`Build your ${gameState.firstBuild.value}-house first: drop your card onto floor cards that add up to ${gameState.firstBuild.value}.`);
+                        return;
+                    }
+                    handlePlayerAction('throw');
+                    return;
+                }
+                tryAutoAction();
+            }
+
+            function tryAutoAction() {
+                const card = selectedHandCard;
+                if (!card) return;
+                const fb = gameState.firstBuild;
+                const looseSel = selectedFloorItems.filter(i => i.type === 'card');
+                const onlyLoose = looseSel.length > 0 && looseSel.length === selectedFloorItems.length;
+                const total = card.captureValue + sumLoose(selectedFloorItems);
+
+                if (fb) {
+                    if (onlyLoose && card.id !== fb.cardId && total === fb.value) {
+                        handlePlayerAction('build');
+                    } else {
+                        updateMessage(`Keep dropping floor cards until your card plus the floor cards add up to ${fb.value}.`);
+                    }
+                    return;
+                }
+
+                if (getPickupOption(card, selectedFloorItems)) {
+                    handlePlayerAction('pickup');
+                } else if (onlyLoose && total >= 9 && total <= 13) {
+                    handlePlayerAction('build');
+                } else {
+                    updateMessage("That isn't a pickup or a build yet. Drop more floor cards on it, or drop on the empty table to throw.");
+                }
             }
 
             function createActionButton(text, onClick, color = 'blue') {
@@ -911,7 +1087,7 @@
 
                 const bidder = gameState.players[bidderIndex];
                 if (bidder.isHuman) {
-                    updateMessage(`You bid ${value}. Build a ${value}-house: pick a card from your hand (keep your ${bidCard.rank}${bidCard.suit}) plus floor cards that add up to ${value}.`);
+                    updateMessage(`You bid ${value}. Build a ${value}-house: drag a card (keep your ${bidCard.rank}${bidCard.suit}) onto floor cards that add up to ${value}.`);
                     renderActionButtons();
                 } else {
                     setTimeout(() => {
@@ -975,7 +1151,7 @@
                         }
                     }, 800);
                 } else {
-                    updateMessage("Your turn! Select a card from your hand, then choose your action.");
+                    updateMessage("Your turn! Drag a card onto the floor (or click a card, then choose an action).");
                 }
             }
 
@@ -1325,7 +1501,149 @@
                 setTimeout(startNewRound, 3000);
             }
 
-            // --- AI Logic ---
+            // --- AI Logic (strength depends on the CPU level slider) ---
+            // Which cards nobody has shown yet, by capture value (used from level 6 up)
+            function aiUnseenCounts(me) {
+                const seen = new Set();
+                me.hand.forEach(c => seen.add(c.id));
+                gameState.floor.loose.forEach(c => seen.add(c.id));
+                gameState.floor.houses.forEach(h => h.cards.forEach(c => seen.add(c.id)));
+                gameState.capturedCards.NS.concat(gameState.capturedCards.EW).forEach(c => seen.add(c.id));
+                const counts = {};
+                for (let v = 1; v <= 13; v++) counts[v] = 0;
+                createDeck().forEach(c => { if (!seen.has(c.id)) counts[c.captureValue]++; });
+                return counts;
+            }
+
+            function aiContext(me) {
+                const lvl = getLevelFor(me);
+                const others = gameState.players.filter(p => p !== me);
+                const oppCards = others.filter(p => p.team !== me.team).reduce((n, p) => n + p.hand.length, 0);
+                const otherCards = others.reduce((n, p) => n + p.hand.length, 0);
+                return {
+                    lvl,
+                    s: (lvl - 1) / 9,
+                    counts: lvl >= 6 ? aiUnseenCounts(me) : null,
+                    f: otherCards > 0 ? oppCards / otherCards : 0.66
+                };
+            }
+
+            // Chance that an opponent holds a card of value v
+            function aiProbOppHas(ctx, v) {
+                if (v < 1 || v > 13) return 0;
+                const n = ctx.counts ? ctx.counts[v] : 3;
+                return 1 - Math.pow(1 - ctx.f, n);
+            }
+
+            // Points likely to be lost if these cards stay on the floor
+            function aiExposure(ctx, loose, houses) {
+                let total = 0;
+                loose.forEach(c => {
+                    let p = aiProbOppHas(ctx, c.captureValue);
+                    loose.forEach(d => {
+                        if (d !== c) p = Math.max(p, aiProbOppHas(ctx, c.captureValue + d.captureValue));
+                    });
+                    total += (getCardPointValue(c) + 0.3) * p;
+                });
+                houses.forEach(h => {
+                    const worth = h.cards.reduce((s, c) => s + getCardPointValue(c), 0) + 0.3 * h.cards.length;
+                    total += worth * aiProbOppHas(ctx, h.value);
+                });
+                return total;
+            }
+
+            function canPartition(cards, v) {
+                const vals = cards.map(c => c.captureValue).sort((a, b) => b - a);
+                const total = vals.reduce((a, b) => a + b, 0);
+                if (total % v !== 0 || vals.some(x => x > v)) return false;
+                const sums = new Array(total / v).fill(0);
+                function place(i) {
+                    if (i === vals.length) return true;
+                    const tried = new Set();
+                    for (let j = 0; j < sums.length; j++) {
+                        if (sums[j] + vals[i] > v || tried.has(sums[j])) continue;
+                        tried.add(sums[j]);
+                        sums[j] += vals[i];
+                        if (place(i + 1)) return true;
+                        sums[j] -= vals[i];
+                    }
+                    return false;
+                }
+                return place(0);
+            }
+
+            // Chance an opponent can clear the whole floor with a single card
+            function aiSweepRisk(ctx, loose, houses) {
+                if (loose.length + houses.length === 0 || loose.length > 10) return 0;
+                let best = 0;
+                for (let v = 1; v <= 13; v++) {
+                    if (houses.some(h => h.value !== v)) continue;
+                    if (loose.length > 0 && !canPartition(loose, v)) continue;
+                    best = Math.max(best, aiProbOppHas(ctx, v));
+                }
+                return best;
+            }
+
+            function aiEvaluate(ctx, me, move) {
+                const card = move.card;
+                let loose = gameState.floor.loose.slice();
+                let houses = gameState.floor.houses.slice();
+                let gained = [];
+                let score = 0;
+                const cardsLeft = gameState.players.reduce((n, p) => n + p.hand.length, 0) - 1;
+
+                if (move.type === 'pickup') {
+                    const plan = move.plan;
+                    gained = [card, ...plan.loose];
+                    plan.houses.forEach(h => gained.push(...h.cards));
+                    const ids = new Set(plan.loose.map(c => c.id));
+                    loose = loose.filter(c => !ids.has(c.id));
+                    houses = houses.filter(h => !plan.houses.some(x => x.value === h.value));
+                    if (loose.length === 0 && houses.length === 0 && cardsLeft > 0) score += 50;
+                } else if (move.type === 'build') {
+                    const ids = new Set(move.targets.map(c => c.id));
+                    loose = loose.filter(c => !ids.has(c.id));
+                    const newCards = [card, ...move.targets];
+                    const existing = houses.find(h => h.value === move.value);
+                    if (existing) {
+                        houses = houses.map(h => h === existing ? { ...h, cards: [...h.cards, ...newCards] } : h);
+                        score += 6;
+                    } else {
+                        houses = [...houses, { value: move.value, cards: newCards, owner: me.name }];
+                    }
+                    score += 5;
+                } else {
+                    loose = [...loose, card];
+                }
+
+                score += gained.reduce((s, c) => s + getCardPointValue(c), 0) + gained.length * 0.4;
+                score -= aiExposure(ctx, loose, houses) * (0.2 + 0.8 * ctx.s);
+
+                // Strong levels avoid leaving a floor that one opposing card can sweep
+                if (ctx.lvl >= 6 && cardsLeft > 0) {
+                    score -= 50 * aiSweepRisk(ctx, loose, houses) * ctx.s;
+                }
+
+                // Strong levels keep a card to pick up their own houses
+                if (ctx.lvl >= 5) {
+                    houses.forEach(h => {
+                        if (TEAMS[h.owner] !== me.team) return;
+                        const holds = me.hand.some(c => c.id !== card.id && c.captureValue === h.value);
+                        if (!holds) {
+                            const worth = h.cards.reduce((s, c) => s + getCardPointValue(c), 0) + 3;
+                            score -= 0.5 * worth;
+                        }
+                    });
+                }
+
+                // Weaker levels play noisier
+                score += (Math.random() - 0.5) * (10 - ctx.lvl) * 6;
+                return score;
+            }
+
+            // Chance per move that the CPU just plays a random legal move
+            const AI_BLUNDER = [0.45, 0.35, 0.25, 0.15, 0.08, 0.04, 0.02, 0, 0, 0];
+
             function getAIBestMove(player, hand) {
                 const validHand = (hand || player.hand).filter(card => card && card.id && card.captureValue !== undefined);
 
@@ -1334,76 +1652,39 @@
                     return { type: 'invalid' };
                 }
 
-                let bestMove = { score: -1000, move: null };
-
-                for (const card of validHand) {
-                    if (!card || !card.captureValue) continue;
-
-                    // PRIORITY 1 and 2: Capture houses and every set of loose cards that adds up
+                const ctx = aiContext(player);
+                const candidates = [];
+                validHand.forEach(card => {
                     const plan = planPickup(card, []);
-                    const count = plan.loose.length + plan.houses.length;
-                    if (count > 0) {
-                        const points = plan.houses.reduce((s, h) => s + h.cards.reduce((a, c) => a + getCardPointValue(c), 0), 0)
-                            + plan.loose.reduce((s, c) => s + getCardPointValue(c), 0);
-                        const sweepBonus = (plan.loose.length === gameState.floor.loose.length && plan.houses.length === gameState.floor.houses.length) ? 30 : 0;
-                        const score = (plan.houses.length > 0 ? 200 : 100) + points + count + sweepBonus;
-                        if (score > bestMove.score) {
-                            bestMove = { score, move: { type: 'pickup', card, targets: [] } };
+                    if (plan.loose.length + plan.houses.length > 0) {
+                        candidates.push({ type: 'pickup', card, targets: [], plan });
+                    }
+                    if (ctx.lvl >= 4) {
+                        for (let value = 9; value <= 13; value++) {
+                            if (value <= card.captureValue) continue;
+                            if (!validHand.some(c => c.id !== card.id && c.captureValue === value)) continue;
+                            findCombinations(gameState.floor.loose, value - card.captureValue).slice(0, 6).forEach(combo => {
+                                candidates.push({ type: 'build', card, value, targets: combo });
+                            });
                         }
                     }
+                    candidates.push({ type: 'throw', card });
+                });
 
-                    // PRIORITY 3: Building
-                    const hasPair = validHand.filter(c => c && c.captureValue === card.captureValue).length > 1;
-                    if (hasPair) {
-                        for (const looseCard of gameState.floor.loose) {
-                            if (!looseCard || !looseCard.captureValue) continue;
-                            const newValue = card.captureValue + looseCard.captureValue;
-                            if (newValue >= 9 && newValue <= 13 && validHand.some(c => c && c.captureValue === newValue)) {
-                                const score = 50 - getCardPointValue(looseCard);
-                                if (score > bestMove.score) {
-                                    bestMove = { score, move: { type: 'build', card, value: newValue, targets: [looseCard] } };
-                                }
-                            }
-                        }
+                if (Math.random() < AI_BLUNDER[ctx.lvl - 1]) {
+                    return candidates[Math.floor(Math.random() * candidates.length)];
+                }
+
+                let best = null;
+                let bestScore = -Infinity;
+                candidates.forEach(move => {
+                    const score = aiEvaluate(ctx, player, move);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        best = move;
                     }
-                }
-
-                // Strategic throwing
-                if (!bestMove.move) {
-                    const throwOptions = validHand.map(card => {
-                        let score = 0;
-
-                        score -= getCardPointValue(card) * 10;
-
-                        const matchesFloor = gameState.floor.loose.some(floorCard =>
-                            floorCard.captureValue === card.captureValue
-                        );
-                        if (matchesFloor) score -= 20;
-
-                        const matchesHouse = gameState.floor.houses.some(house =>
-                            house.value === card.captureValue
-                        );
-                        if (matchesHouse) score -= 30;
-
-                        const wouldCreateEasyCombination = gameState.floor.loose.some(floorCard => {
-                            const sum = card.captureValue + floorCard.captureValue;
-                            return sum >= 9 && sum <= 13;
-                        });
-                        if (wouldCreateEasyCombination) score -= 15;
-
-                        if (gameState.floor.loose.length <= 2) score += 10;
-
-                        return { card, score };
-                    });
-
-                    const bestThrow = throwOptions.reduce((best, current) =>
-                        current.score > best.score ? current : best
-                    );
-
-                    bestMove.move = { type: 'throw', card: bestThrow.card };
-                }
-
-                return bestMove.move;
+                });
+                return best;
             }
 
             function findCombinations(cards, targetSum) {
