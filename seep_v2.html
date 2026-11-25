@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Seep</title>
+<style>
+:root{
+  --cwBase: clamp(44px, 4.6vw + 1.8vh, 82px);
+  --cw: var(--cwBase);
+  --gold:#fbbf24;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;background:#0f172a;color:#e5e7eb;touch-action:manipulation;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+button,select,input{font:inherit}
+#app{max-width:1240px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;gap:8px;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.scores{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;font-size:13px;line-height:1.25;white-space:nowrap}
+.chip b{color:#fff}
+.chip.ns{border-color:rgba(250,204,21,.55)}
+.chip.ew{border-color:rgba(248,113,113,.55)}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer;color:#fff;background:#334155;min-height:42px;transition:transform .15s,filter .15s;display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.btn:hover{filter:brightness(1.15)}
+.btn:active{transform:translateY(1px)}
+.btn.small{padding:6px 10px;font-size:12px;min-height:34px}
+.btn.on{box-shadow:0 0 0 2px #fde68a}
+.btn.green{background:#16a34a}.btn.blue{background:#2563eb}.btn.amber{background:#b45309}.btn.gray{background:#475569}.btn.red{background:#b91c1c}.btn.purple{background:#7c3aed}.btn.teal{background:#0f766e}
+
+/* ---------- table ---------- */
+#table{position:relative;flex:1;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:". north ." "west floor east" "south south south";gap:10px;padding:12px;border-radius:24px;background:radial-gradient(ellipse at center,#15803d 0%,#166534 55%,#14532d 100%);box-shadow:inset 0 0 90px rgba(0,0,0,.35),0 10px 30px rgba(0,0,0,.4)}
+.seat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:14px;padding:6px;transition:box-shadow .3s,background .3s;min-width:0}
+.seat.active{background:rgba(34,197,94,.18);box-shadow:0 0 0 3px rgba(74,222,128,.75)}
+#seat-north{grid-area:north}#seat-west{grid-area:west}#seat-east{grid-area:east}#seat-south{grid-area:south}
+.seat-name{font-size:13px;font-weight:700;color:#fff;text-align:center}
+.seat-name .tag{font-weight:500;opacity:.75;font-size:11px;display:block}
+.seat-name .count{display:inline-block;background:rgba(0,0,0,.35);border-radius:999px;padding:0 7px;margin-left:4px;font-size:11px}
+.seat-name .dealer{display:inline-block;background:#fbbf24;color:#111;border-radius:999px;padding:0 6px;margin-left:4px;font-size:10px;font-weight:800}
+.backs{display:flex;--cw:calc(var(--cwBase)*.58)}
+.backs .card{margin-left:calc(var(--cw)*-.72);cursor:default}
+.backs .card:first-child{margin-left:0}
+#seat-west .backs,#seat-east .backs{flex-direction:column}
+#seat-west .backs .card,#seat-east .backs .card{margin-left:0;margin-top:calc(var(--cw)*-1.12)}
+#seat-west .backs .card:first-child,#seat-east .backs .card:first-child{margin-top:0}
+.south-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+
+/* ---------- floor ---------- */
+#floor-wrap{grid-area:floor;display:flex;flex-direction:column;gap:8px;min-width:0;background:rgba(20,83,45,.55);border:2px solid rgba(74,222,128,.25);border-radius:18px;padding:10px}
+#lastmove{min-height:42px;background:rgba(0,0,0,.38);border-radius:12px;padding:6px 10px;font-size:13px;line-height:1.7;color:#f1f5f9}
+#lastmove .who{font-weight:800;color:#fde68a;margin-right:4px}
+#lastmove .gain{color:#86efac;font-weight:700;margin-left:4px}
+#floor{flex:1;display:flex;flex-wrap:wrap;gap:14px 12px;align-content:center;align-items:center;justify-content:center;min-height:calc(var(--cw)*2.1);padding-top:8px}
+#floor .empty{opacity:.6;font-size:13px}
+
+/* ---------- cards ---------- */
+.card{width:var(--cw);height:calc(var(--cw)*1.4);border-radius:calc(var(--cw)*.11);background:#fff;border:1px solid #cbd5e1;box-shadow:0 2px 6px rgba(0,0,0,.28);position:relative;flex:none;user-select:none;-webkit-user-select:none;cursor:pointer;transition:transform .18s,box-shadow .18s,opacity .2s;color:#111827}
+.card.red{color:#dc2626}
+.card .tl{position:absolute;top:5%;left:8%;display:flex;flex-direction:column;align-items:center;line-height:.95;font-weight:800;font-size:calc(var(--cw)*.27)}
+.card .tl .s{font-size:calc(var(--cw)*.24)}
+.card .mid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cw)*.5);opacity:.9;pointer-events:none}
+.card .br{position:absolute;bottom:5%;right:8%;font-weight:800;font-size:calc(var(--cw)*.22);transform:rotate(180deg);line-height:1}
+.card .pts{position:absolute;bottom:5%;left:7%;background:var(--gold);color:#111;border-radius:999px;font-size:calc(var(--cw)*.17);font-weight:800;padding:0 .4em;line-height:1.4}
+.card.back{cursor:default;border:2px solid #fef3c7;background-color:#1e3a8a;background-image:repeating-linear-gradient(45deg,rgba(251,191,36,.35) 0 1.5px,transparent 1.5px 9px),repeating-linear-gradient(-45deg,rgba(251,191,36,.35) 0 1.5px,transparent 1.5px 9px),radial-gradient(ellipse at 30% 20%,#3b5bdb 0%,#1e3a8a 55%,#0f1e4d 100%);box-shadow:inset 0 0 0 2px #1e3a8a,inset 0 0 0 3px #fbbf24,0 2px 6px rgba(0,0,0,.35)}
+.hand .card:hover{transform:translateY(-4px)}
+.card.selected,.hand .card.selected:hover{transform:translateY(-12px);box-shadow:0 0 0 3px #3b82f6,0 10px 18px rgba(37,99,235,.5)}
+.card.fsel{box-shadow:0 0 0 3px #3b82f6,0 0 14px rgba(59,130,246,.8)}
+.card.dim{opacity:.4}
+.hint{box-shadow:0 0 0 3px rgba(250,204,21,.65)!important}
+.focus{box-shadow:0 0 0 4px #facc15,0 0 20px rgba(250,204,21,.95)!important;transform:translateY(-4px)}
+.just{animation:justPulse 1.5s ease-out}
+@keyframes justPulse{0%{box-shadow:0 0 0 0 rgba(34,211,238,.95)}100%{box-shadow:0 0 0 16px rgba(34,211,238,0)}}
+.hand{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;min-height:calc(var(--cw)*1.4);padding-top:12px}
+
+/* ---------- houses ---------- */
+.house{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 8px 6px;border:2px dashed rgba(255,255,255,.8);border-radius:14px;background:rgba(255,255,255,.12);cursor:pointer;transition:box-shadow .18s,transform .18s}
+.house.cemented{border-style:solid;border-color:#4ade80;background:rgba(74,222,128,.2)}
+.house .stack{display:flex;--cw:calc(var(--cwBase)*.74)}
+.house .stack .card{margin-left:calc(var(--cw)*-.56);cursor:pointer}
+.house .stack .card:first-child{margin-left:0}
+.house .val{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;border:2px solid #fff;border-radius:999px;font-weight:800;font-size:13px;padding:1px 9px;white-space:nowrap}
+.house .owner{font-size:11px;font-weight:600;color:#fff;white-space:nowrap}
+.house.fsel{box-shadow:0 0 0 3px #3b82f6}
+
+/* ---------- message + actions ---------- */
+#message{text-align:center;font-weight:600;font-size:14px;background:rgba(255,255,255,.96);color:#111827;border-radius:14px;padding:8px 14px}
+#actions{position:sticky;bottom:0;z-index:30;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;background:rgba(15,23,42,.96);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:8px;min-height:58px;max-height:40vh;overflow-y:auto;overscroll-behavior:contain}
+#actions .note{font-size:13px;opacity:.8;padding:0 6px}
+.pill{display:inline-flex;align-items:center;background:#fff;color:#111827;border-radius:6px;padding:0 6px;font-weight:800;font-size:13px;line-height:1.55;margin:0 1px;border:1px solid #cbd5e1;white-space:nowrap}
+.pill.red{color:#dc2626}
+.pill.house{background:#111827;color:#fff;border-color:#e5e7eb}
+.pill.house.cem{background:#166534}
+.eq{white-space:nowrap}
+
+/* ---------- overlays ---------- */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:80;padding:12px;backdrop-filter:blur(3px)}
+.overlay.hidden{display:none}
+.panel{background:#fff;color:#111827;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.4);max-width:560px;width:100%;max-height:88dvh;overflow:auto;padding:20px}
+.panel h2{margin:0 0 10px;font-size:22px}
+.panel h3{margin:14px 0 6px;font-size:16px}
+.panel p,.panel li{font-size:14px;line-height:1.5}
+.panel ul{padding-left:20px;margin:6px 0}
+.panel table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}
+.panel th,.panel td{border-bottom:1px solid #e5e7eb;padding:6px;text-align:left}
+.panel .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}
+.panel label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+.panel input[type=range]{width:100%}
+.panel select{padding:6px;border-radius:8px}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(380px,92vw);background:#0b1222;border-left:1px solid rgba(255,255,255,.12);z-index:75;transform:translateX(105%);transition:transform .25s;display:flex;flex-direction:column}
+.drawer.open{transform:none}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.drawer .list{overflow:auto;padding:8px 12px;font-size:13px;line-height:1.75}
+.drawer .entry{padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.drawer .entry.round{color:#fde68a;font-weight:700;margin-top:8px}
+.drawer .who{font-weight:800;color:#93c5fd;margin-right:4px}
+.drawer .gain{color:#86efac;font-weight:700;margin-left:4px}
+
+/* ---------- animation helpers ---------- */
+.ghost{position:fixed;z-index:60;margin:0!important;pointer-events:none;transition:none}
+.drag-ghost{position:fixed;z-index:90;pointer-events:none;transform:rotate(-4deg) scale(1.08);box-shadow:0 14px 28px rgba(0,0,0,.45)}
+.drop-hover{outline:3px solid #22d3ee;outline-offset:2px}
+.sweep-banner{position:fixed;top:38%;left:50%;z-index:85;pointer-events:none;font-size:3.2rem;font-weight:900;letter-spacing:.05em;color:#fde047;text-shadow:0 0 12px #f59e0b,0 0 32px #ef4444,0 4px 0 #92400e;white-space:nowrap;animation:sweepPop 2.4s ease-out forwards}
+@keyframes sweepPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}100%{opacity:0;transform:translate(-50%,-70%) scale(1.1)}}
+@keyframes dealIn{from{opacity:0;transform:translateY(-50px) scale(.7) rotate(-10deg)}to{opacity:1;transform:none}}
+.deal-in{animation:dealIn .45s cubic-bezier(.2,.9,.3,1.2) backwards;animation-delay:var(--d,0s)}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:84}
+
+/* ---------- responsive ---------- */
+@media (max-width:760px){
+  :root{--cwBase:clamp(40px,13.2vw,62px)}
+  #app{padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:6px}
+  #table{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-areas:"west north east" "floor floor floor" "south south south";padding:8px;gap:6px;border-radius:16px}
+  .backs{--cw:calc(var(--cwBase)*.36)}
+  #seat-west .backs,#seat-east .backs{flex-direction:row}
+  #seat-west .backs .card,#seat-east .backs .card{margin-top:0;margin-left:calc(var(--cw)*-.72)}
+  #seat-west .backs .card:first-child,#seat-east .backs .card:first-child{margin-left:0}
+  .seat{padding:4px}
+  .seat-name{font-size:11px}
+  .chip{font-size:11px;padding:4px 8px}
+  .btn{font-size:13px;padding:8px 11px}
+  #actions .btn{font-size:12px;padding:6px 8px;min-height:38px}
+  #actions{max-height:34vh}
+  .topbar .tools .btn{min-height:32px}
+  .hand{gap:4px}
+  #lastmove{font-size:12px}
+  .pill{font-size:12px}
+  .sweep-banner{font-size:2.1rem}
+}
+@media (max-height:520px) and (orientation:landscape){
+  :root{--cwBase:clamp(36px,8.5vh + 8px,58px)}
+  #table{grid-template-columns:auto minmax(0,1fr) auto;padding:6px;gap:4px}
+  #actions{max-height:45vh}
+  #lastmove{min-height:0;font-size:12px}
+  .chip{font-size:11px;padding:3px 8px}
+  .btn.small{min-height:30px;padding:4px 8px}
+  .topbar{flex-wrap:nowrap;overflow-x:auto}
+  .scores{flex-wrap:nowrap}
+}
+@media (prefers-reduced-motion:reduce){
+  .deal-in,.just{animation:none}
+  .card,.house{transition:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="scores">
+      <div class="chip ns"><span id="tn-ns"></span>: <b id="sc-ns">0</b></div>
+      <div class="chip ew"><span id="tn-ew"></span>: <b id="sc-ew">0</b></div>
+      <div class="chip">Lead: <b id="lead">0</b></div>
+      <div class="chip">This round: <b id="rp"></b></div>
+      <div class="chip">Bid: <b id="bidinfo">none yet</b></div>
+    </div>
+    <div class="tools">
+      <button class="btn small teal" id="btn-rules">Rules</button>
+      <button class="btn small gray" id="btn-log">Move log</button>
+      <button class="btn small gray" id="btn-settings">Settings</button>
+    </div>
+  </header>
+
+  <main id="table">
+    <section class="seat" id="seat-north"><div class="seat-name" id="nm-north"></div><div class="backs" id="h-north"></div></section>
+    <section class="seat" id="seat-west"><div class="seat-name" id="nm-west"></div><div class="backs" id="h-west"></div></section>
+    <section id="floor-wrap">
+      <div id="lastmove">Welcome to Seep.</div>
+      <div id="floor"></div>
+    </section>
+    <section class="seat" id="seat-east"><div class="seat-name" id="nm-east"></div><div class="backs" id="h-east"></div></section>
+    <section class="seat" id="seat-south">
+      <div class="hand" id="h-south"></div>
+      <div class="south-row">
+        <div class="seat-name" id="nm-south"></div>
+        <button class="btn small purple" id="sort-rank">Sort: A→K</button>
+        <button class="btn small purple" id="sort-suit">Sort: suit</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="message">Welcome to Seep.</div>
+  <div id="actions"></div>
+</div>
+
+<div id="modal" class="overlay hidden"><div class="panel" id="modal-panel"></div></div>
+
+<aside id="drawer" class="drawer" aria-label="Move log">
+  <header><b>Move log</b><button class="btn small gray" id="btn-log-close">Close</button></header>
+  <div class="list" id="log-list"></div>
+</aside>
+
+<canvas id="fx"></canvas>
+<script>
+(() => {
+'use strict';
+
+/* =========================================================
+   Constants and helpers
+   ========================================================= */
+const $ = (id) => document.getElementById(id);
+const SUITS = ['♠', '♥', '♦', '♣'];
+const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+// Seats: 0 = you (bottom), 1 = left, 2 = partner (top), 3 = right
+const NAMES = ['You', 'Raju', 'Simran', 'Bunty'];
+const SEAT = ['south', 'west', 'north', 'east'];
+const TEAM_OF = ['NS', 'EW', 'NS', 'EW'];
+const TEAM_NAMES = { NS: 'Sher Squad', EW: 'Baaz Brigade' };
+const LEVEL_NAMES = ['Rookie', 'Beginner', 'Casual', 'Learner', 'Club player', 'Sharp', 'Strong', 'Expert', 'Master', 'Grandmaster'];
+const SPEEDS = { fast: 450, normal: 900, slow: 1700 };
+const AI_BLUNDER = [0.45, 0.35, 0.25, 0.15, 0.08, 0.04, 0.02, 0, 0, 0];
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+// Play goes counter clockwise (to the right): You, Bunty, Simran, Raju.
+const nextSeat = (i) => (i + 3) % 4;
+
+const capVal = (r) => (r === 'A' ? 1 : r === 'J' ? 11 : r === 'Q' ? 12 : r === 'K' ? 13 : parseInt(r, 10));
+const isRed = (c) => c.suit === '♥' || c.suit === '♦';
+const label = (c) => c.rank + c.suit;
+const valName = (v) => ({ 1: 'A', 11: 'J (11)', 12: 'Q (12)', 13: 'K (13)' }[v] || String(v));
+const uniq = (a) => [...new Set(a)];
+const verb = (i, base, s) => (i === 0 ? base : s); // "You deal" vs "Raju deals"
+
+function pointsOf(c) {
+  if (c.suit === '♠') return c.v;
+  if (c.rank === 'A') return 1;
+  if (c.suit === '♦' && c.rank === '10') return 6;
+  return 0;
+}
+const ptsSum = (cards) => cards.reduce((s, c) => s + pointsOf(c), 0);
+
+function newDeck() {
+  return SUITS.flatMap((s) => RANKS.map((r) => ({ suit: s, rank: r, id: r + s, v: capVal(r) })));
+}
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+}
+
+/* =========================================================
+   Settings (saved in localStorage)
+   sort: 'rankAsc' (default, A→K) | 'rankDesc' (K→A) | 'suit'
+   showFloor: show the 4 floor cards face up while bidding
+   ========================================================= */
+const settings = { level: 6, speed: 'normal', step: false, hints: true, sort: 'rankAsc', showFloor: true };
+try { Object.assign(settings, JSON.parse(localStorage.getItem('seepSettings') || '{}')); } catch (e) { /* ignore */ }
+const saveSettings = () => { try { localStorage.setItem('seepSettings', JSON.stringify(settings)); } catch (e) { /* ignore */ } };
+const cpuDelay = () => SPEEDS[settings.speed] || SPEEDS.normal;
+
+/* =========================================================
+   State
+   ========================================================= */
+let G = null;
+let houseSeq = 0;
+let gen = 0;                 // bumps on new game so stale timers do nothing
+let dealAnim = null;         // 'all' | 'floor' | 'hands'
+let waitingContinue = null;  // function to run when the player taps Continue (step mode)
+let sel = null;              // selected hand card id
+let selFloor = new Set();    // selected floor keys: 'c:<cardId>' or 'h:<houseId>'
+let focusKeys = null;        // floor keys highlighted while hovering an option
+
+function later(fn, ms) {
+  const g = gen;
+  setTimeout(() => { if (g === gen) fn(); }, ms);
+}
+
+function newGame() {
+  gen++;
+  waitingContinue = null;
+  G = {
+    players: NAMES.map((n, i) => ({ name: n, idx: i, team: TEAM_OF[i], isHuman: i === 0, hand: [] })),
+    scores: { NS: 0, EW: 0 },
+    // First round: Raju (on your left) deals so that YOU bid and play first.
+    // Later rounds follow the normal rule: the losing team deals.
+    dealer: 1,
+    round: 0,
+    log: [],
+    over: false,
+  };
+  $('log-list').innerHTML = '';
+  startRound(false);
+}
+
+function startRound(isRedeal) {
+  G.deck = newDeck();
+  shuffle(G.deck);
+  G.players.forEach((p) => (p.hand = []));
+  G.floor = { loose: [], houses: [] };
+  G.captured = { NS: [], EW: [] };
+  G.sweeps = { NS: 0, EW: 0 };
+  G.sweepCount = { NS: 0, EW: 0 };
+  G.lastCapturer = null;
+  G.firstPlay = true;
+  G.phase = 'bid';
+  G.bid = null;
+  G.busy = false;
+  G.floorHidden = !settings.showFloor;
+  if (!isRedeal) G.round++;
+  const bidder = nextSeat(G.dealer);
+  G.bidder = bidder;
+  G.current = bidder;
+  for (let i = 0; i < 4; i++) {
+    G.players[bidder].hand.push(G.deck.pop());
+    G.floor.loose.push(G.deck.pop());
+  }
+  clearSel(false);
+  const d = G.dealer;
+  if (!isRedeal) addLog({ round: true, html: `Round ${G.round}: ${NAMES[d]} ${verb(d, 'deal', 'deals')}, ${NAMES[bidder]} ${verb(bidder, 'bid', 'bids')}` });
+  setLastMove(`Round ${G.round}. ${NAMES[d]} dealt. ${NAMES[bidder]} ${verb(bidder, 'get', 'gets')} 4 cards and ${verb(bidder, 'bid', 'bids')} a house value (9 to K).`);
+  dealAnim = 'all';
+  render();
+
+  const p = G.players[bidder];
+  if (!bidOptions(p).length) {
+    say(`${p.name} ${verb(bidder, 'have', 'has')} no card of 9 or higher. Same dealer redeals...`);
+    addLog({ html: `${p.name} had no 9 to K, cards redealt` });
+    later(() => startRound(true), 2300);
+    return;
+  }
+  if (p.isHuman) {
+    say(G.floorHidden
+      ? 'Your bid: choose a house value you hold. The floor stays face down until you bid.'
+      : 'Your bid: choose a house value you hold. The floor cards are shown so you can plan your first move.');
+    renderActions();
+  } else {
+    say(`${p.name} is looking at their 4 cards to bid...`);
+    renderActions();
+    later(() => aiBid(bidder), cpuDelay() * 1.4);
+  }
+}
+
+const bidOptions = (p) => uniq(p.hand.filter((c) => c.v >= 9).map((c) => c.v)).sort((a, b) => b - a);
+
+function makeBid(pi, value) {
+  G.bid = { value, player: pi };
+  G.phase = 'first';
+  const wasHidden = G.floorHidden;
+  G.floorHidden = false;
+  const p = G.players[pi];
+  addLog({ pi, html: `${verb(pi, 'bid', 'bids')} <b>${valName(value)}</b>` });
+  setLastMove(`<span class="who">${p.name}</span> bid <b>${valName(value)}</b>.${wasHidden ? ' Floor cards turned face up.' : ''} First move must use the bid: build a ${value} house, capture with a ${valName(value)}, or throw a ${valName(value)} only if neither is possible.`);
+  dealAnim = wasHidden ? 'floor' : null;
+  G.current = pi;
+  render();
+  if (p.isHuman) {
+    say(`You bid ${valName(value)}. Tap a card to see what it can do. Cards that can't be used for the bid are dimmed.`);
+    renderActions();
+  } else {
+    say(`${p.name} bid ${valName(value)}.`);
+    renderActions();
+    later(() => aiPlay(pi), cpuDelay() * 1.5);
+  }
+}
+
+function aiBid(pi) {
+  const p = G.players[pi];
+  const opts = bidOptions(p);
+  let v;
+  if (settings.level <= 3) v = opts[Math.floor(Math.random() * opts.length)];
+  else {
+    // Prefer a value held twice (can build and still keep one), then the highest
+    const counts = {};
+    p.hand.forEach((c) => (counts[c.v] = (counts[c.v] || 0) + 1));
+    v = opts.slice().sort((a, b) => (counts[b] - counts[a]) || (b - a))[0];
+  }
+  makeBid(pi, v);
+}
+
+function dealRest() {
+  G.players.forEach((p, i) => {
+    const target = i === G.bidder ? 11 : 12;
+    while (p.hand.length < target && G.deck.length) p.hand.push(G.deck.pop());
+  });
+  G.phase = 'play';
+  dealAnim = 'hands';
+}
+
+/* =========================================================
+   Rules engine: legal moves
+   ========================================================= */
+function findCombos(cards, target, limit = 60) {
+  const out = [];
+  const acc = [];
+  (function rec(i, sum) {
+    if (out.length >= limit) return;
+    if (sum === target && acc.length) { out.push(acc.slice()); return; }
+    if (sum > target) return;
+    for (let j = i; j < cards.length; j++) {
+      acc.push(cards[j]);
+      rec(j + 1, sum + cards[j].v);
+      acc.pop();
+      if (out.length >= limit) return;
+    }
+  })(0, 0);
+  return out;
+}
+
+// A capture is maximal: the card takes the house of its value and every
+// separate group of loose cards that adds up to its value.
+function planCapture(card) {
+  const houses = G.floor.houses.filter((h) => h.value === card.v);
+  let remaining = G.floor.loose.slice();
+  const groups = [];
+  for (;;) {
+    const combos = findCombos(remaining, card.v, 300);
+    if (!combos.length) break;
+    let best = combos[0];
+    let bestKey = -Infinity;
+    combos.forEach((cb) => {
+      const key = ptsSum(cb) * 100 - cb.length;
+      if (key > bestKey) { bestKey = key; best = cb; }
+    });
+    groups.push(best);
+    const ids = new Set(best.map((c) => c.id));
+    remaining = remaining.filter((c) => !ids.has(c.id));
+  }
+  return { houses, groups, loose: groups.flat() };
+}
+
+// Every legal move for player pi. Rules applied:
+// * A card that can capture can't be thrown loose (it can still build).
+// * Build: hand card + loose floor cards = 9 to 13. You must still hold a card of that value afterwards.
+// * Cement: add a card (or card + loose cards) that totals an existing house's value. Makes it pakka.
+// * Raise: add one hand card to a kachcha house built by someone else, up to 13; you must hold the new value.
+// * Owners must keep a card of every house value they own until it's captured.
+// * First play: build a house of the bid, or capture with a card of the bid value; throw a bid value card only if neither is possible.
+function legalMoves(pi) {
+  const p = G.players[pi];
+  const hand = p.hand;
+  const loose = G.floor.loose;
+  const houses = G.floor.houses;
+  const owned = houses.filter((h) => h.owner === pi).map((h) => h.value);
+  const moves = [];
+  const seenCombo = new Set();
+
+  hand.forEach((c) => {
+    const rest = hand.filter((x) => x !== c);
+    const holds = (vals) => uniq(vals).every((v) => rest.some((x) => x.v === v));
+
+    const plan = planCapture(c);
+    const canCapture = plan.loose.length + plan.houses.length > 0;
+    if (canCapture) moves.push({ type: 'pickup', card: c, plan });
+
+    for (let V = 9; V <= 13; V++) {
+      const need = V - c.v;
+      if (need < 0) continue;
+      if (!holds([...owned, V])) continue;
+      const existing = houses.find((h) => h.value === V) || null;
+      if (need === 0) {
+        if (existing) moves.push({ type: 'build', card: c, value: V, targets: [], house: existing });
+        continue;
+      }
+      findCombos(loose, need, 40).forEach((combo) => {
+        const key = c.id + '|' + V + '|' + combo.map((x) => x.id).sort().join(',');
+        if (seenCombo.has(key)) return;
+        seenCombo.add(key);
+        moves.push({ type: 'build', card: c, value: V, targets: combo, house: existing });
+      });
+    }
+
+    houses.forEach((h) => {
+      if (h.cemented || h.owner === pi) return;
+      const V = h.value + c.v;
+      if (V > 13) return;
+      if (!holds([...owned, V])) return;
+      const merge = houses.find((x) => x !== h && x.value === V) || null;
+      moves.push({ type: 'raise', card: c, house: h, value: V, merge });
+    });
+
+    if (!canCapture && holds(owned)) moves.push({ type: 'throw', card: c });
+  });
+
+  if (G.phase === 'first' && G.bid) {
+    const B = G.bid.value;
+    let f = moves.filter((m) => (m.type === 'build' && m.value === B) || (m.type === 'pickup' && m.card.v === B));
+    if (!f.length) f = moves.filter((m) => m.type === 'throw' && m.card.v === B);
+    if (!f.length) f = hand.filter((c) => c.v === B).map((c) => ({ type: 'throw', card: c }));
+    return f;
+  }
+  if (!moves.length) return hand.map((c) => ({ type: 'throw', card: c })); // safety net
+  return moves;
+}
+
+function involved(m) {
+  const k = new Set();
+  if (m.type === 'pickup') {
+    m.plan.loose.forEach((c) => k.add('c:' + c.id));
+    m.plan.houses.forEach((h) => k.add('h:' + h.id));
+  } else if (m.type === 'build') {
+    m.targets.forEach((c) => k.add('c:' + c.id));
+    if (m.house) k.add('h:' + m.house.id);
+  } else if (m.type === 'raise') {
+    k.add('h:' + m.house.id);
+    if (m.merge) k.add('h:' + m.merge.id);
+  }
+  return k;
+}
+
+/* =========================================================
+   Text helpers for the explainer and log
+   ========================================================= */
+const pill = (c) => `<span class="pill${isRed(c) ? ' red' : ''}">${label(c)}</span>`;
+const pills = (cards) => cards.map(pill).join('');
+const housePill = (h) => `<span class="pill house${h.cemented ? ' cem' : ''}">${h.value} house${h.cemented ? ' (pakka)' : ''}</span>`;
+const eq = (cards, total) => `<span class="eq">${cards.map(pill).join(' + ')} = ${total}</span>`;
+
+function optionLabel(m) {
+  const c = m.card;
+  switch (m.type) {
+    case 'pickup': {
+      const parts = m.plan.groups.map((g) => g.length === 1 ? pill(g[0]) : `(${g.map(pill).join('+')})`);
+      m.plan.houses.forEach((h) => parts.push(housePill(h)));
+      const n = m.plan.loose.length + m.plan.houses.reduce((s, h) => s + h.cards.length, 0);
+      const pts = ptsSum([c, ...m.plan.loose, ...m.plan.houses.flatMap((h) => h.cards)]);
+      return `Capture ${parts.join(' ')} <small>(${n} card${n > 1 ? 's' : ''}${pts ? ', ' + pts + ' pts' : ''})</small>`;
+    }
+    case 'build':
+      if (m.house) return m.targets.length
+        ? `Cement ${m.value}: ${eq([c, ...m.targets], m.value)} onto ${housePill(m.house)}`
+        : `Cement ${m.value}: put ${pill(c)} on ${housePill(m.house)}`;
+      return `Build ${m.value}: ${eq([c, ...m.targets], m.value)}`;
+    case 'raise':
+      return `Raise ${housePill(m.house)} + ${pill(c)} to ${m.value}${m.merge ? ' (joins the ' + m.value + ' house)' : ''}`;
+    default:
+      return `Throw ${pill(c)} loose`;
+  }
+}
+
+/* =========================================================
+   Executing a move
+   ========================================================= */
+function playMove(pi, move) {
+  if (G.busy) return;
+  clearSel(false);
+  const ms = execute(pi, move);
+  later(() => afterMove(pi), ms);
+}
+
+function execute(pi, m) {
+  const p = G.players[pi];
+  const idx = p.hand.findIndex((c) => c.id === m.card.id);
+  if (idx < 0) { console.error('Card not in hand', m); return 300; }
+  G.busy = true;
+
+  const startEl = p.isHuman ? $('h-south').querySelector(`[data-id="${m.card.id}"]`) : $('h-' + SEAT[pi]);
+  const startRect = startEl ? startEl.getBoundingClientRect() : $('seat-' + SEAT[pi]).getBoundingClientRect();
+  const ghosts = [];
+  if (m.type === 'pickup') {
+    involved(m).forEach((k) => {
+      const el = $('floor').querySelector(`[data-key="${k}"]`);
+      if (el) ghosts.push(makeGhost(el));
+    });
+  }
+
+  p.hand.splice(idx, 1);
+  const c = m.card;
+  let html = '';
+  let gainPts = 0;
+  let sweepPts = null;
+  let landingKey = null;
+
+  if (m.type === 'pickup') {
+    const plan = m.plan;
+    const houseCards = plan.houses.flatMap((h) => h.cards);
+    const taken = [c, ...plan.loose, ...houseCards];
+    const ids = new Set(plan.loose.map((x) => x.id));
+    G.floor.loose = G.floor.loose.filter((x) => !ids.has(x.id));
+    G.floor.houses = G.floor.houses.filter((h) => !plan.houses.includes(h));
+    G.captured[p.team].push(...taken);
+    G.lastCapturer = p.team;
+    gainPts = ptsSum(taken);
+    const parts = plan.groups.map((g) => g.length === 1 ? pill(g[0]) : eq(g, c.v));
+    plan.houses.forEach((h) => parts.push(`${housePill(h)} ${pills(h.cards)}`));
+    html = `played ${pill(c)} and captured ${parts.join(' , ')}`;
+    if (!G.floor.loose.length && !G.floor.houses.length) {
+      const cardsLeft = G.players.reduce((s, x) => s + x.hand.length, 0) + (G.phase === 'first' ? G.deck.length : 0);
+      sweepPts = G.firstPlay ? 25 : (cardsLeft > 0 ? 50 : 0);
+      G.sweeps[p.team] += sweepPts;
+      G.sweepCount[p.team]++;
+      html += ` <b>SWEEP${sweepPts ? ' +' + sweepPts : ' (last play, no bonus)'}</b>`;
+    }
+  } else if (m.type === 'build') {
+    const ids = new Set(m.targets.map((x) => x.id));
+    G.floor.loose = G.floor.loose.filter((x) => !ids.has(x.id));
+    if (m.house && G.floor.houses.includes(m.house)) {
+      m.house.cards.push(c, ...m.targets);
+      m.house.cemented = true;
+      m.house.owner = pi;
+      landingKey = 'h:' + m.house.id;
+      html = m.targets.length
+        ? `cemented the ${m.value} house with ${eq([c, ...m.targets], m.value)}. It is now pakka and can't be raised`
+        : `cemented the ${m.value} house by adding ${pill(c)}. It is now pakka and can't be raised`;
+    } else {
+      const h = { id: ++houseSeq, value: m.value, cards: [c, ...m.targets], owner: pi, cemented: false };
+      G.floor.houses.push(h);
+      landingKey = 'h:' + h.id;
+      html = `built a <b>${m.value} house</b>: ${eq([c, ...m.targets], m.value)}. ${p.name} must keep a ${valName(m.value)} to capture it`;
+    }
+  } else if (m.type === 'raise') {
+    const h = m.house;
+    const from = h.value;
+    h.cards.push(c);
+    h.value = m.value;
+    h.owner = pi;
+    if (m.merge && G.floor.houses.includes(m.merge)) {
+      m.merge.cards.push(...h.cards);
+      m.merge.cemented = true;
+      m.merge.owner = pi;
+      G.floor.houses = G.floor.houses.filter((x) => x !== h);
+      landingKey = 'h:' + m.merge.id;
+      html = `raised the ${from} house with ${pill(c)} to ${m.value} and joined it onto the ${m.value} house (now pakka)`;
+    } else {
+      landingKey = 'h:' + h.id;
+      html = `raised the ${from} house with ${pill(c)} to a <b>${m.value} house</b> (${from} + ${c.v} = ${m.value}). It now belongs to ${p.name}`;
+    }
+  } else {
+    G.floor.loose.push(c);
+    landingKey = 'c:' + c.id;
+    html = G.phase === 'first'
+      ? `threw ${pill(c)} loose (no build or capture was possible for the bid)`
+      : `threw ${pill(c)} loose (it couldn't capture anything)`;
+  }
+
+  G.firstPlay = false;
+  addLog({ pi, html, gain: gainPts });
+  setLastMove(`<span class="who">${p.name}</span> ${html}${gainPts ? `<span class="gain">+${gainPts} pts</span>` : ''}`);
+  say(`${p.name} ${m.type === 'pickup' ? 'captured' : m.type === 'throw' ? 'threw a card' : m.type === 'raise' ? 'raised a house' : (m.house ? 'cemented a house' : 'built a house')}.`);
+  render();
+  if (landingKey) {
+    const el = $('floor').querySelector(`[data-key="${landingKey}"]`);
+    if (el) el.classList.add('just');
+  }
+  return animateMove(pi, m, startRect, ghosts, landingKey, sweepPts) + (settings.speed === 'slow' ? 500 : 0);
+}
+
+function afterMove(prevPi) {
+  const go = () => {
+    waitingContinue = null;
+    G.busy = false;
+    if (G.phase === 'first') {
+      dealRest();
+      render();
+      say('Cards dealt. 12 each (the bidder has 11 left).');
+      later(() => beginTurn(nextSeat(G.bidder)), 1100);
+      return;
+    }
+    if (G.players.every((p) => !p.hand.length)) { endRound(); return; }
+    beginTurn(nextSeat(prevPi));
+  };
+  if (settings.step && !G.players[prevPi].isHuman) {
+    waitingContinue = go;
+    G.busy = false;
+    say(`${G.players[prevPi].name}'s move is shown above. Tap Continue when ready.`);
+    renderActions();
+  } else go();
+}
+
+function beginTurn(pi) {
+  G.current = pi;
+  G.busy = false;
+  render();
+  const p = G.players[pi];
+  if (p.isHuman) {
+    say('Your turn: tap a card to see every move it can make, or drag it onto the floor.');
+    renderActions();
+  } else {
+    say(`${p.name} is thinking...`);
+    renderActions();
+    later(() => aiPlay(pi), cpuDelay());
+  }
+}
+
+/* =========================================================
+   End of round and scoring
+   ========================================================= */
+function endRound() {
+  G.phase = 'done';
+  const left = [...G.floor.loose, ...G.floor.houses.flatMap((h) => h.cards)];
+  let leftNote = '';
+  if (left.length && G.lastCapturer) {
+    G.captured[G.lastCapturer].push(...left);
+    leftNote = `${left.length} card(s) left on the floor went to ${TEAM_NAMES[G.lastCapturer]} (last to capture), worth ${ptsSum(left)} pts.`;
+    addLog({ html: `Leftover floor ${pills(left)} goes to ${TEAM_NAMES[G.lastCapturer]}` });
+  }
+  G.floor = { loose: [], houses: [] };
+  render();
+
+  const card = { NS: ptsSum(G.captured.NS), EW: ptsSum(G.captured.EW) };
+  const total = { NS: card.NS + G.sweeps.NS, EW: card.EW + G.sweeps.EW };
+  addLog({ html: `Round ${G.round} result: ${TEAM_NAMES.NS} ${total.NS}, ${TEAM_NAMES.EW} ${total.EW}` });
+
+  const table = `<table><tr><th>Team</th><th>Card pts</th><th>Sweeps</th><th>Round total</th><th>Cards</th></tr>
+    ${['NS', 'EW'].map((t) => `<tr><td>${TEAM_NAMES[t]}</td><td>${card[t]}</td><td>${G.sweeps[t]} (${G.sweepCount[t]})</td><td><b>${total[t]}</b></td><td>${G.captured[t].length}</td></tr>`).join('')}</table>
+    ${leftNote ? `<p>${leftNote}</p>` : ''}`;
+
+  const low = ['NS', 'EW'].find((t) => total[t] < 9);
+  if (low) {
+    const win = low === 'NS' ? 'EW' : 'NS';
+    G.over = true;
+    showModal(`${TEAM_NAMES[win]} win the baazi!`, `${table}<p>${TEAM_NAMES[low]} scored under 9 points this round, which loses the baazi straight away.</p>`, [['Play again', 'green', newGame]]);
+    return;
+  }
+  G.scores.NS += total.NS;
+  G.scores.EW += total.EW;
+  render();
+  const lead = G.scores.NS - G.scores.EW;
+  if (Math.abs(lead) >= 100) {
+    const win = lead > 0 ? 'NS' : 'EW';
+    G.over = true;
+    showModal(`${TEAM_NAMES[win]} win the baazi!`, `${table}<p>Running totals: ${TEAM_NAMES.NS} ${G.scores.NS}, ${TEAM_NAMES.EW} ${G.scores.EW}. Lead of ${Math.abs(lead)} reaches 100.</p>`, [['Play again', 'green', newGame]]);
+    return;
+  }
+  // Normal rule from round 2: the losing team deals. If the dealer's team is behind or level, the same dealer deals again.
+  const dealerTeam = TEAM_OF[G.dealer];
+  const dealerLead = dealerTeam === 'NS' ? lead : -lead;
+  if (dealerLead > 0) G.dealer = nextSeat(G.dealer);
+  const nb = nextSeat(G.dealer);
+  showModal(`Round ${G.round} complete`, `${table}<p>Running totals: ${TEAM_NAMES.NS} <b>${G.scores.NS}</b>, ${TEAM_NAMES.EW} <b>${G.scores.EW}</b>. A lead of 100 wins the baazi.</p><p>Next dealer: ${NAMES[G.dealer]}. ${NAMES[nb]} ${verb(nb, 'bid', 'bids')} first.</p>`,
+    [['Next round', 'green', () => startRound(false)]]);
+}
+
+/* =========================================================
+   CPU players (strength follows the CPU level setting)
+   ========================================================= */
+function aiUnseenCounts(pi) {
+  const seen = new Set();
+  G.players[pi].hand.forEach((c) => seen.add(c.id));
+  G.floor.loose.forEach((c) => seen.add(c.id));
+  G.floor.houses.forEach((h) => h.cards.forEach((c) => seen.add(c.id)));
+  G.captured.NS.concat(G.captured.EW).forEach((c) => seen.add(c.id));
+  const counts = {};
+  for (let v = 1; v <= 13; v++) counts[v] = 0;
+  newDeck().forEach((c) => { if (!seen.has(c.id)) counts[c.v]++; });
+  return counts;
+}
+function aiContext(pi) {
+  const lvl = settings.level;
+  const me = G.players[pi];
+  const others = G.players.filter((p) => p !== me);
+  const opp = others.filter((p) => p.team !== me.team).reduce((n, p) => n + p.hand.length, 0);
+  const all = others.reduce((n, p) => n + p.hand.length, 0);
+  return { pi, team: me.team, lvl, s: (lvl - 1) / 9, counts: lvl >= 6 ? aiUnseenCounts(pi) : null, f: all > 0 ? opp / all : 0.66 };
+}
+function aiProbOppHas(ctx, v) {
+  if (v < 1 || v > 13) return 0;
+  const n = ctx.counts ? ctx.counts[v] : 3;
+  return 1 - Math.pow(1 - ctx.f, n);
+}
+function aiExposure(ctx, loose, houses) {
+  let total = 0;
+  loose.forEach((c) => {
+    let p = aiProbOppHas(ctx, c.v);
+    loose.forEach((d) => { if (d !== c) p = Math.max(p, aiProbOppHas(ctx, c.v + d.v)); });
+    total += (pointsOf(c) + 0.3) * p;
+  });
+  houses.forEach((h) => {
+    total += (ptsSum(h.cards) + 0.3 * h.cards.length) * aiProbOppHas(ctx, h.value);
+  });
+  return total;
+}
+function canPartition(cards, v) {
+  const vals = cards.map((c) => c.v).sort((a, b) => b - a);
+  const total = vals.reduce((a, b) => a + b, 0);
+  if (total % v !== 0 || vals.some((x) => x > v)) return false;
+  const sums = new Array(total / v).fill(0);
+  function place(i) {
+    if (i === vals.length) return true;
+    const tried = new Set();
+    for (let j = 0; j < sums.length; j++) {
+      if (sums[j] + vals[i] > v || tried.has(sums[j])) continue;
+      tried.add(sums[j]);
+      sums[j] += vals[i];
+      if (place(i + 1)) return true;
+      sums[j] -= vals[i];
+    }
+    return false;
+  }
+  return place(0);
+}
+function aiSweepRisk(ctx, loose, houses) {
+  if (loose.length + houses.length === 0 || loose.length > 10) return 0;
+  let best = 0;
+  for (let v = 1; v <= 13; v++) {
+    if (houses.some((h) => h.value !== v)) continue;
+    if (loose.length && !canPartition(loose, v)) continue;
+    best = Math.max(best, aiProbOppHas(ctx, v));
+  }
+  return best;
+}
+function houseEquity(ctx, houses) {
+  return houses.filter((h) => TEAM_OF[h.owner] === ctx.team).reduce((s, h) => s + (ptsSum(h.cards) + 0.3 * h.cards.length) * 0.6, 0);
+}
+function aiEvaluate(ctx, m) {
+  const c = m.card;
+  let loose = G.floor.loose.slice();
+  let houses = G.floor.houses.map((h) => ({ ...h, cards: h.cards.slice() }));
+  const before = houseEquity(ctx, houses);
+  let gained = [];
+  let score = 0;
+  const cardsLeft = G.players.reduce((n, p) => n + p.hand.length, 0) - 1 + (G.phase === 'first' ? G.deck.length : 0);
+
+  if (m.type === 'pickup') {
+    gained = [c, ...m.plan.loose, ...m.plan.houses.flatMap((h) => h.cards)];
+    const ids = new Set(m.plan.loose.map((x) => x.id));
+    const hid = new Set(m.plan.houses.map((h) => h.id));
+    loose = loose.filter((x) => !ids.has(x.id));
+    houses = houses.filter((h) => !hid.has(h.id));
+    if (!loose.length && !houses.length) score += G.firstPlay ? 25 : (cardsLeft > 0 ? 50 : 0);
+  } else if (m.type === 'build') {
+    const ids = new Set(m.targets.map((x) => x.id));
+    loose = loose.filter((x) => !ids.has(x.id));
+    if (m.house) {
+      houses = houses.map((h) => h.id === m.house.id ? { ...h, cards: [...h.cards, c, ...m.targets], cemented: true, owner: ctx.pi } : h);
+      score += 2;
+    } else {
+      houses.push({ id: -1, value: m.value, cards: [c, ...m.targets], owner: ctx.pi, cemented: false });
+      score += 1.5;
+    }
+  } else if (m.type === 'raise') {
+    const from = houses.find((h) => h.id === m.house.id);
+    const raised = { ...from, value: m.value, cards: [...from.cards, c], owner: ctx.pi };
+    houses = houses.filter((h) => h.id !== from.id);
+    if (m.merge) {
+      houses = houses.map((h) => h.id === m.merge.id ? { ...h, cards: [...h.cards, ...raised.cards], cemented: true, owner: ctx.pi } : h);
+      score += 2;
+    } else houses.push(raised);
+    score += 1;
+  } else {
+    loose.push(c);
+  }
+
+  score += ptsSum(gained) + gained.length * 0.4;
+  score += (houseEquity(ctx, houses) - before) * (0.3 + 0.7 * ctx.s);
+  score -= aiExposure(ctx, loose, houses) * (0.2 + 0.8 * ctx.s);
+  if (ctx.lvl >= 6 && cardsLeft > 0) score -= 50 * aiSweepRisk(ctx, loose, houses) * ctx.s;
+  score += (Math.random() - 0.5) * (10 - ctx.lvl) * 6;
+  return score;
+}
+function aiPlay(pi) {
+  if (G.current !== pi || G.busy) return;
+  const moves = legalMoves(pi);
+  const ctx = aiContext(pi);
+  let best = moves[0];
+  if (Math.random() < AI_BLUNDER[ctx.lvl - 1]) {
+    best = moves[Math.floor(Math.random() * moves.length)];
+  } else {
+    let bestScore = -Infinity;
+    moves.forEach((m) => {
+      const s = aiEvaluate(ctx, m);
+      if (s > bestScore) { bestScore = s; best = m; }
+    });
+  }
+  playMove(pi, best);
+}
+
+/* =========================================================
+   Hand sorting: the chosen order is remembered and re-applied
+   every time your hand changes (deal, new round, new game)
+   ========================================================= */
+const SUIT_ORDER = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
+function applySort(hand) {
+  if (settings.sort === 'suit') hand.sort((a, b) => SUIT_ORDER[a.suit] - SUIT_ORDER[b.suit] || a.v - b.v);
+  else {
+    const d = settings.sort === 'rankDesc' ? -1 : 1;
+    hand.sort((a, b) => d * (a.v - b.v) || SUIT_ORDER[a.suit] - SUIT_ORDER[b.suit]);
+  }
+}
+function updateSortButtons() {
+  const r = $('sort-rank');
+  const s = $('sort-suit');
+  r.textContent = settings.sort === 'rankDesc' ? 'Sort: K→A' : 'Sort: A→K';
+  r.classList.toggle('on', settings.sort !== 'suit');
+  s.classList.toggle('on', settings.sort === 'suit');
+}
+function setSort(mode) {
+  if (mode === 'rank') settings.sort = settings.sort === 'rankAsc' ? 'rankDesc' : 'rankAsc';
+  else settings.sort = 'suit';
+  saveSettings();
+  updateSortButtons();
+  render();
+}
+
+/* =========================================================
+   Rendering
+   ========================================================= */
+function cardEl(c, faceDown) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  if (faceDown) { el.classList.add('back'); return el; }
+  if (isRed(c)) el.classList.add('red');
+  el.dataset.id = c.id;
+  const pts = pointsOf(c);
+  el.setAttribute('aria-label', `${label(c)}${pts ? ', ' + pts + ' points' : ''}`);
+  el.innerHTML = `<div class="tl"><span>${c.rank}</span><span class="s">${c.suit}</span></div><div class="mid">${c.suit}</div>${pts ? `<div class="pts">${pts}</div>` : ''}<div class="br">${c.rank}</div>`;
+  return el;
+}
+
+function render() {
+  if (!G) return;
+  let n = 0;
+  const deal = (el, on) => {
+    if (!on || reduceMotion) return;
+    el.classList.add('deal-in');
+    el.style.setProperty('--d', `${(n++ * 0.03).toFixed(2)}s`);
+  };
+  const handAnim = dealAnim === 'all' || dealAnim === 'hands';
+
+  G.players.forEach((p, i) => {
+    const nm = $('nm-' + SEAT[i]);
+    const dealer = G.dealer === i ? '<span class="dealer">D</span>' : '';
+    if (p.isHuman) {
+      applySort(p.hand);
+      nm.innerHTML = `You${dealer} <span class="tag">${TEAM_NAMES[p.team]}</span>`;
+      const hand = $('h-south');
+      hand.innerHTML = '';
+      p.hand.forEach((c) => {
+        const el = cardEl(c, false);
+        el.addEventListener('click', () => { if (!suppressClick) onHandClick(c); });
+        el.addEventListener('dblclick', () => { if (!suppressClick) onHandDouble(c); });
+        attachDrag(el, c);
+        deal(el, handAnim);
+        hand.appendChild(el);
+      });
+    } else {
+      nm.innerHTML = `${p.name}${dealer}<span class="count">${p.hand.length}</span><span class="tag">${TEAM_NAMES[p.team]}${TEAM_OF[i] === 'NS' ? ' (partner)' : ''}</span>`;
+      const backs = $('h-' + SEAT[i]);
+      backs.innerHTML = '';
+      p.hand.forEach(() => {
+        const el = cardEl(null, true);
+        deal(el, handAnim);
+        backs.appendChild(el);
+      });
+    }
+    $('seat-' + SEAT[i]).classList.toggle('active', G.current === i && ['bid', 'first', 'play'].includes(G.phase));
+  });
+
+  const floor = $('floor');
+  floor.innerHTML = '';
+  const floorAnim = dealAnim === 'all' || dealAnim === 'floor';
+  G.floor.loose.forEach((c) => {
+    const el = cardEl(c, G.floorHidden);
+    el.dataset.key = 'c:' + c.id;
+    if (!G.floorHidden) el.addEventListener('click', () => onFloorClick('c:' + c.id));
+    deal(el, floorAnim);
+    floor.appendChild(el);
+  });
+  G.floor.houses.forEach((h) => {
+    const el = document.createElement('div');
+    el.className = 'house' + (h.cemented ? ' cemented' : '');
+    el.dataset.key = 'h:' + h.id;
+    el.title = `${h.value} house: ${h.cards.map(label).join(' ')}`;
+    el.innerHTML = `<div class="val">${h.value} house${h.cemented ? ' · pakka' : ''}</div>`;
+    const stack = document.createElement('div');
+    stack.className = 'stack';
+    h.cards.forEach((c) => stack.appendChild(cardEl(c, false)));
+    el.appendChild(stack);
+    const ow = document.createElement('div');
+    ow.className = 'owner';
+    ow.textContent = `Owner: ${NAMES[h.owner]} · ${h.cards.length} cards${ptsSum(h.cards) ? ' · ' + ptsSum(h.cards) + ' pts' : ''}`;
+    el.appendChild(ow);
+    el.addEventListener('click', () => onFloorClick('h:' + h.id));
+    floor.appendChild(el);
+  });
+  if (!G.floor.loose.length && !G.floor.houses.length) floor.innerHTML = '<div class="empty">The floor is empty</div>';
+  dealAnim = null;
+
+  $('tn-ns').textContent = TEAM_NAMES.NS;
+  $('tn-ew').textContent = TEAM_NAMES.EW;
+  $('sc-ns').textContent = G.scores.NS;
+  $('sc-ew').textContent = G.scores.EW;
+  const lead = G.scores.NS - G.scores.EW;
+  $('lead').textContent = lead === 0 ? 'level' : `${lead > 0 ? TEAM_NAMES.NS : TEAM_NAMES.EW} +${Math.abs(lead)}`;
+  const rNS = ptsSum(G.captured.NS) + G.sweeps.NS;
+  const rEW = ptsSum(G.captured.EW) + G.sweeps.EW;
+  $('rp').textContent = `Sher ${rNS} · Baaz ${rEW}`;
+  $('bidinfo').textContent = G.bid ? `${valName(G.bid.value)} by ${NAMES[G.bid.player]}` : 'none yet';
+  applySelection();
+}
+
+function applySelection() {
+  document.querySelectorAll('.selected,.fsel,.hint,.focus,.dim').forEach((el) => el.classList.remove('selected', 'fsel', 'hint', 'focus', 'dim'));
+  if (!G) return;
+  const hand = $('h-south');
+  if (isHumanTurn()) {
+    const ids = new Set(legalMoves(0).map((m) => m.card.id));
+    hand.querySelectorAll('.card').forEach((el) => { if (!ids.has(el.dataset.id)) el.classList.add('dim'); });
+  }
+  if (sel) {
+    const el = hand.querySelector(`[data-id="${sel}"]`);
+    if (el) el.classList.add('selected');
+    if (settings.hints) {
+      const keys = new Set();
+      currentOptions().forEach((m) => involved(m).forEach((k) => keys.add(k)));
+      keys.forEach((k) => { const f = $('floor').querySelector(`[data-key="${k}"]`); if (f) f.classList.add('hint'); });
+    }
+  }
+  selFloor.forEach((k) => { const f = $('floor').querySelector(`[data-key="${k}"]`); if (f) f.classList.add('fsel'); });
+  if (focusKeys) focusKeys.forEach((k) => { const f = $('floor').querySelector(`[data-key="${k}"]`); if (f) f.classList.add('focus'); });
+}
+
+/* =========================================================
+   Human interaction
+   ========================================================= */
+function isHumanTurn() {
+  return !!(G && !G.over && G.current === 0 && (G.phase === 'first' || G.phase === 'play') && !G.busy && !waitingContinue);
+}
+function clearSel(refresh = true) {
+  sel = null;
+  selFloor = new Set();
+  focusKeys = null;
+  if (refresh) { applySelection(); renderActions(); }
+}
+const ORDER = { pickup: 0, build: 1, raise: 3, throw: 4 };
+function currentOptions() {
+  if (!sel || !isHumanTurn()) return [];
+  return legalMoves(0)
+    .filter((m) => m.card.id === sel)
+    .filter((m) => { const inv = involved(m); return [...selFloor].every((k) => inv.has(k)); })
+    .sort((a, b) => (ORDER[a.type] + (a.house && a.type === 'build' ? 1 : 0)) - (ORDER[b.type] + (b.house && b.type === 'build' ? 1 : 0)) || (a.value || 0) - (b.value || 0));
+}
+function whyNoThrow(c) {
+  if (G.phase === 'first') return `your first move has to use the ${valName(G.bid.value)} bid`;
+  const pc = planCapture(c);
+  if (pc.loose.length || pc.houses.length) return 'it can capture, and a card that can capture must not be thrown loose';
+  return 'you must keep a card for every house you own';
+}
+function onHandClick(c) {
+  if (!isHumanTurn()) return;
+  if (sel === c.id) { clearSel(); say('Selection cleared.'); return; }
+  sel = c.id;
+  selFloor = new Set();
+  focusKeys = null;
+  const opts = currentOptions();
+  if (!opts.length) say(`${label(c)} has no legal move right now${G.phase === 'first' ? ' (the first move must use your bid)' : ''}.`);
+  else say(`${label(c)}: ${opts.length} option${opts.length > 1 ? 's' : ''}. Hover or focus an option to see the cards it uses, or tap floor cards to narrow the list.`);
+  applySelection();
+  renderActions();
+}
+function onHandDouble(c) {
+  if (!isHumanTurn()) return;
+  sel = c.id;
+  selFloor = new Set();
+  const opts = currentOptions();
+  if (opts.length === 1) playMove(0, opts[0]);
+}
+function onFloorClick(key) {
+  if (!isHumanTurn()) return;
+  if (!sel) { say('Pick a card from your hand first, then tap floor cards to narrow down the options.'); return; }
+  const had = selFloor.has(key);
+  if (had) selFloor.delete(key); else selFloor.add(key);
+  if (!currentOptions().length) {
+    if (had) selFloor.add(key); else selFloor.delete(key);
+    const card = G.players[0].hand.find((x) => x.id === sel);
+    say(`No legal move with ${card ? label(card) : 'that card'} uses that combination.`);
+  } else {
+    say(`${currentOptions().length} option(s) use the selected floor cards.`);
+  }
+  applySelection();
+  renderActions();
+}
+
+function btn(html, color, onClick) {
+  const b = document.createElement('button');
+  b.className = `btn ${color}`;
+  b.innerHTML = html;
+  b.addEventListener('click', onClick);
+  return b;
+}
+function note(text) {
+  const d = document.createElement('div');
+  d.className = 'note';
+  d.innerHTML = text;
+  return d;
+}
+function renderActions() {
+  const ac = $('actions');
+  ac.innerHTML = '';
+  if (!G) return;
+  if (waitingContinue) {
+    ac.appendChild(btn('Continue ▶', 'green', () => { const f = waitingContinue; waitingContinue = null; renderActions(); if (f) f(); }));
+    ac.appendChild(note('Step mode is on (Settings).'));
+    return;
+  }
+  if (G.phase === 'bid' && G.current === 0 && !G.busy) {
+    const opts = bidOptions(G.players[0]);
+    if (!opts.length) return;
+    ac.appendChild(note('<b>Your bid:</b>'));
+    opts.forEach((v) => ac.appendChild(btn(`Bid ${valName(v)}`, 'green', () => makeBid(0, v))));
+    return;
+  }
+  if (!isHumanTurn()) {
+    const p = G.players[G.current];
+    if (['bid', 'first', 'play'].includes(G.phase) && p && !p.isHuman) ac.appendChild(note(`Waiting for ${p.name}...`));
+    return;
+  }
+  if (!sel) {
+    ac.appendChild(note(G.phase === 'first'
+      ? `First move: build a ${G.bid.value} house, capture with a ${valName(G.bid.value)}, or throw a ${valName(G.bid.value)} if nothing else works. Tap a card.`
+      : 'Tap a card in your hand to see all its moves, or drag it onto the floor.'));
+    return;
+  }
+  const opts = currentOptions();
+  const MAX = 12;
+  opts.slice(0, MAX).forEach((m) => {
+    const color = m.type === 'pickup' ? 'green' : m.type === 'build' ? (m.house ? 'teal' : 'blue') : m.type === 'raise' ? 'amber' : 'gray';
+    const b = btn(optionLabel(m), color, () => playMove(0, m));
+    const on = () => { focusKeys = involved(m); applySelection(); };
+    const off = () => { focusKeys = null; applySelection(); };
+    b.addEventListener('mouseenter', on);
+    b.addEventListener('focus', on);
+    b.addEventListener('mouseleave', off);
+    b.addEventListener('blur', off);
+    ac.appendChild(b);
+  });
+  if (opts.length > MAX) ac.appendChild(note(`+${opts.length - MAX} more. Tap floor cards to narrow down.`));
+  if (!opts.length) ac.appendChild(note('No legal move for this card.'));
+  ac.appendChild(btn('Cancel', 'red', () => { clearSel(); say('Selection cleared.'); }));
+}
+
+/* ---------- drag and drop ---------- */
+let dragState = null;
+let suppressClick = false;
+function dropTargetAt(x, y) {
+  const el = document.elementFromPoint(x, y);
+  if (!el) return null;
+  const house = el.closest('#floor .house');
+  if (house) return { type: 'key', key: house.dataset.key, el: house };
+  const c = el.closest('#floor > .card');
+  if (c && c.dataset.key) return { type: 'key', key: c.dataset.key, el: c };
+  const area = el.closest('#floor-wrap');
+  if (area) return { type: 'floor', el: area };
+  return null;
+}
+function attachDrag(el, card) {
+  el.style.touchAction = 'none';
+  el.addEventListener('pointerdown', (e) => {
+    if (e.button !== undefined && e.button !== 0) return;
+    if (!isHumanTurn()) return;
+    dragState = { card, el, sx: e.clientX, sy: e.clientY, ghost: null, hover: null, id: e.pointerId };
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+  });
+  el.addEventListener('pointermove', (e) => {
+    const ds = dragState;
+    if (!ds || e.pointerId !== ds.id) return;
+    if (!ds.ghost) {
+      if (Math.hypot(e.clientX - ds.sx, e.clientY - ds.sy) < 8) return;
+      const r = ds.el.getBoundingClientRect();
+      ds.ghost = cardEl(ds.card, false);
+      ds.ghost.classList.add('drag-ghost');
+      ds.ghost.style.width = r.width + 'px';
+      ds.ghost.style.height = r.height + 'px';
+      document.body.appendChild(ds.ghost);
+      ds.el.style.opacity = '0.35';
+    }
+    const w = parseFloat(ds.ghost.style.width);
+    const h = parseFloat(ds.ghost.style.height);
+    ds.ghost.style.left = e.clientX - w / 2 + 'px';
+    ds.ghost.style.top = e.clientY - h / 2 + 'px';
+    const t = dropTargetAt(e.clientX, e.clientY);
+    if (ds.hover && (!t || ds.hover !== t.el)) { ds.hover.classList.remove('drop-hover'); ds.hover = null; }
+    if (t && ds.hover !== t.el) { t.el.classList.add('drop-hover'); ds.hover = t.el; }
+  });
+  const end = (e, cancelled) => {
+    const ds = dragState;
+    if (!ds || e.pointerId !== ds.id) return;
+    dragState = null;
+    try { ds.el.releasePointerCapture(ds.id); } catch (err) { /* ignore */ }
+    if (!ds.ghost) return;
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 80);
+    const t = cancelled ? null : dropTargetAt(e.clientX, e.clientY);
+    ds.ghost.remove();
+    ds.el.style.opacity = '';
+    if (ds.hover) ds.hover.classList.remove('drop-hover');
+    if (t) handleDrop(ds.card, t);
+  };
+  el.addEventListener('pointerup', (e) => end(e, false));
+  el.addEventListener('pointercancel', (e) => end(e, true));
+}
+// A drop plays straight away only if exactly one move fits; otherwise every option is listed.
+function handleDrop(c, t) {
+  if (!isHumanTurn()) return;
+  sel = c.id;
+  selFloor = new Set();
+  focusKeys = null;
+  if (t.type === 'key') {
+    selFloor.add(t.key);
+    const opts = currentOptions();
+    if (!opts.length) {
+      selFloor = new Set();
+      say(`${label(c)} can't do anything with that. Here is everything it can do:`);
+    } else if (opts.length === 1) {
+      playMove(0, opts[0]);
+      return;
+    } else {
+      say(`${opts.length} ways to play ${label(c)} with that. Choose one below.`);
+    }
+  } else {
+    const opts = currentOptions();
+    const th = opts.find((m) => m.type === 'throw');
+    if (th) { playMove(0, th); return; }
+    say(`You can't throw ${label(c)} loose: ${whyNoThrow(c)}. Choose a move below.`);
+  }
+  applySelection();
+  renderActions();
+}
+
+/* =========================================================
+   Animation and effects
+   ========================================================= */
+const centre = (r) => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+function placeFixed(el, rect) {
+  el.classList.add('ghost');
+  el.style.left = rect.left + 'px';
+  el.style.top = rect.top + 'px';
+  el.style.width = rect.width + 'px';
+  el.style.height = rect.height + 'px';
+}
+function makeGhost(el) {
+  const rect = el.getBoundingClientRect();
+  const g = el.cloneNode(true);
+  g.classList.remove('selected', 'fsel', 'hint', 'focus', 'deal-in', 'just');
+  placeFixed(g, rect);
+  document.body.appendChild(g);
+  return g;
+}
+function flyTo(el, pt, o = {}) {
+  const dur = o.dur ?? 500;
+  const delay = o.delay || 0;
+  const ease = 'cubic-bezier(.22,.8,.3,1)';
+  const w = parseFloat(el.style.width) || 60;
+  const h = parseFloat(el.style.height) || 84;
+  el.style.transition = `left ${dur}ms ${ease} ${delay}ms, top ${dur}ms ${ease} ${delay}ms, transform ${dur}ms ${ease} ${delay}ms, opacity ${dur}ms ease-in ${delay}ms`;
+  el.style.left = pt.x - w / 2 + 'px';
+  el.style.top = pt.y - h / 2 + 'px';
+  el.style.transform = `scale(${o.scale ?? 1}) rotate(${o.rotate || 0}deg)`;
+  el.style.opacity = o.opacity ?? 1;
+}
+function animateMove(pi, m, startRect, ghosts, landingKey, sweepPts) {
+  const fly = cardEl(m.card, false);
+  document.body.appendChild(fly);
+  const w = fly.offsetWidth || 60;
+  const h = fly.offsetHeight || 84;
+  const sc = centre(startRect);
+  placeFixed(fly, { left: sc.x - w / 2, top: sc.y - h / 2, width: w, height: h });
+  if (reduceMotion) {
+    fly.remove();
+    ghosts.forEach((g) => g.remove());
+    if (sweepPts !== null) showSweepBanner(sweepPts);
+    return 500;
+  }
+  void fly.offsetWidth;
+  if (m.type === 'pickup') {
+    const first = ghosts[0] ? centre(ghosts[0].getBoundingClientRect()) : centre($('floor').getBoundingClientRect());
+    flyTo(fly, first, { dur: 420 });
+    const dest = centre($('seat-' + SEAT[pi]).getBoundingClientRect());
+    setTimeout(() => {
+      [fly, ...ghosts].forEach((g, i) => flyTo(g, dest, { dur: 520, delay: i * 35, scale: 0.3, rotate: (Math.random() - 0.5) * 50, opacity: 0 }));
+      if (sweepPts !== null) { launchFireworks(); showSweepBanner(sweepPts); }
+    }, 480);
+    const total = 480 + 520 + ghosts.length * 35 + 150;
+    setTimeout(() => { fly.remove(); ghosts.forEach((g) => g.remove()); }, total);
+    return sweepPts !== null ? Math.max(total + 100, 2300) : total + 150;
+  }
+  const landing = landingKey ? $('floor').querySelector(`[data-key="${landingKey}"]`) : null;
+  if (!landing) { fly.remove(); return 400; }
+  landing.style.opacity = '0';
+  flyTo(fly, centre(landing.getBoundingClientRect()), { dur: 520, rotate: m.type === 'throw' ? (Math.random() - 0.5) * 24 : 0 });
+  setTimeout(() => { landing.style.opacity = ''; fly.remove(); }, 540);
+  return 950;
+}
+
+const fxCanvas = $('fx');
+const fx = { ctx: fxCanvas.getContext ? fxCanvas.getContext('2d') : null, parts: [], running: false, pending: 0 };
+function resizeFx() { fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeFx);
+resizeFx();
+function fxBurst(x, y) {
+  const hue = Math.random() * 360;
+  for (let i = 0; i < 70; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = 1.5 + Math.random() * 4.5;
+    fx.parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, decay: 0.012 + Math.random() * 0.012, hue: hue + Math.random() * 40 - 20, size: 2 + Math.random() * 2 });
+  }
+}
+function fxLoop() {
+  const ctx = fx.ctx;
+  if (!ctx) { fx.running = false; return; }
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.fillStyle = 'rgba(0,0,0,.18)';
+  ctx.fillRect(0, 0, fxCanvas.width, fxCanvas.height);
+  ctx.globalCompositeOperation = 'lighter';
+  fx.parts = fx.parts.filter((p) => p.life > 0);
+  fx.parts.forEach((p) => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.vx *= 0.99; p.life -= p.decay;
+    ctx.beginPath();
+    ctx.fillStyle = `hsla(${p.hue},100%,60%,${Math.max(p.life, 0)})`;
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  if (fx.parts.length || fx.pending) requestAnimationFrame(fxLoop);
+  else { ctx.clearRect(0, 0, fxCanvas.width, fxCanvas.height); fx.running = false; }
+}
+function launchFireworks() {
+  if (reduceMotion || !fx.ctx) return;
+  const r = $('table').getBoundingClientRect();
+  for (let i = 0; i < 6; i++) {
+    fx.pending++;
+    setTimeout(() => {
+      fx.pending--;
+      fxBurst(r.left + r.width * (0.15 + Math.random() * 0.7), r.top + r.height * (0.12 + Math.random() * 0.5));
+      if (!fx.running) { fx.running = true; requestAnimationFrame(fxLoop); }
+    }, i * 280);
+  }
+}
+function showSweepBanner(points) {
+  const b = document.createElement('div');
+  b.className = 'sweep-banner';
+  b.textContent = points > 0 ? `SWEEP! +${points}` : 'SWEEP!';
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 2400);
+}
+
+/* =========================================================
+   Messages, log, modals
+   ========================================================= */
+function say(text) { $('message').textContent = text; }
+function setLastMove(html) { $('lastmove').innerHTML = html; }
+function addLog(e) {
+  G.log.push(e);
+  const d = document.createElement('div');
+  d.className = 'entry' + (e.round ? ' round' : '');
+  d.innerHTML = e.round ? e.html : `${e.pi !== undefined ? `<span class="who">${NAMES[e.pi]}</span>` : ''}${e.html}${e.gain ? `<span class="gain">+${e.gain} pts</span>` : ''}`;
+  const list = $('log-list');
+  list.appendChild(d);
+  list.scrollTop = list.scrollHeight;
+}
+function showModal(title, html, buttons) {
+  const panel = $('modal-panel');
+  panel.innerHTML = `<h2>${title}</h2><div>${html}</div><div class="row"></div>`;
+  const row = panel.querySelector('.row');
+  buttons.forEach(([text, color, fn]) => row.appendChild(btn(text, color, () => { hideModal(); fn && fn(); })));
+  $('modal').classList.remove('hidden');
+}
+function hideModal() { $('modal').classList.add('hidden'); }
+
+function showRules() {
+  showModal('How to play Seep', `
+    <p>Four players in two teams, partners opposite. You and <b>Simran</b> (top) are ${TEAM_NAMES.NS}; <b>Raju</b> (left) and <b>Bunty</b> (right) are ${TEAM_NAMES.EW}. Play goes counter clockwise: You, Bunty, Simran, Raju.</p>
+    <h3>Card values</h3>
+    <p>For capturing: A = 1, 2 to 10 face value, J = 11, Q = 12, K = 13.<br>For points: every spade scores its value, the other three aces 1 each, 10♦ scores 6. That is 100 points a round. The gold number on a card shows its points.</p>
+    <h3>Bid and first move</h3>
+    <ul><li>You always bid first in the first round. After that the losing team deals, and the player to the dealer's right bids.</li>
+    <li>The bidder gets 4 cards and bids a house value from 9 to K that they hold. With no 9 or higher, the same dealer redeals.</li>
+    <li>Strict rules keep the 4 floor cards face down until the bid. This game shows them by default; turn that off in Settings for the strict version.</li>
+    <li>The bidder must build a house of the bid value, or capture with a card of that value. Only if neither works do they throw a card of the bid value.</li>
+    <li>A first move capture that clears the floor is a sweep worth 25.</li>
+    <li>Then everyone gets 12 cards (the bidder has 11 left).</li></ul>
+    <h3>On your turn, play one card</h3>
+    <ul><li><b>Capture:</b> take every loose card and every group of loose cards that adds up to your card, plus the house of that value.</li>
+    <li><b>Build:</b> your card plus loose floor cards making 9 to 13. You must still hold a card of that value.</li>
+    <li><b>Cement:</b> add a card, or a card plus loose cards, totalling an existing house's value. A cemented (pakka) house can't be raised.</li>
+    <li><b>Raise:</b> add one card to a kachcha house someone else built, making it a higher value up to 13 that you hold.</li>
+    <li><b>Throw:</b> put a card down loose, only if it can't capture anything.</li>
+    <li>While you own a house you must keep a card of its value. Only one house of each value can be on the floor.</li></ul>
+    <h3>Scoring</h3>
+    <ul><li>Sweep (clear the floor): 50, or 25 on the first move, nothing on the very last play.</li>
+    <li>Cards left at the end go to the last team that captured.</li>
+    <li>A team scoring under 9 in a round loses the baazi. Otherwise the first team 100 points ahead wins.</li></ul>`,
+    [['Got it', 'blue', null]]);
+}
+function showSettings() {
+  showModal('Settings', `
+    <label for="set-level">CPU level: <span id="set-level-lbl"></span></label>
+    <input id="set-level" type="range" min="1" max="10" step="1" value="${settings.level}">
+    <label for="set-speed">CPU speed</label>
+    <select id="set-speed"><option value="fast">Fast</option><option value="normal">Normal</option><option value="slow">Slow (easier to follow)</option></select>
+    <label><input type="checkbox" id="set-floor" ${settings.showFloor ? 'checked' : ''}> Show the 4 floor cards face up while bidding (untick for strict rules)</label>
+    <label><input type="checkbox" id="set-step" ${settings.step ? 'checked' : ''}> Step mode: pause after every CPU move until I tap Continue</label>
+    <label><input type="checkbox" id="set-hints" ${settings.hints ? 'checked' : ''}> Highlight floor cards my selected card can use</label>`,
+    [['New game', 'red', () => newGame()], ['Done', 'blue', null]]);
+  const lvl = $('set-level');
+  const lbl = $('set-level-lbl');
+  const upd = () => { lbl.textContent = `${settings.level} · ${LEVEL_NAMES[settings.level - 1]}`; };
+  upd();
+  lvl.addEventListener('input', () => { settings.level = parseInt(lvl.value, 10); upd(); saveSettings(); });
+  $('set-speed').value = settings.speed;
+  $('set-speed').addEventListener('change', (e) => { settings.speed = e.target.value; saveSettings(); });
+  $('set-floor').addEventListener('change', (e) => {
+    settings.showFloor = e.target.checked;
+    saveSettings();
+    if (G && G.phase === 'bid') { G.floorHidden = !settings.showFloor; render(); }
+  });
+  $('set-step').addEventListener('change', (e) => { settings.step = e.target.checked; saveSettings(); });
+  $('set-hints').addEventListener('change', (e) => { settings.hints = e.target.checked; saveSettings(); applySelection(); });
+}
+
+/* =========================================================
+   Wire up and start
+   ========================================================= */
+$('btn-rules').addEventListener('click', showRules);
+$('btn-settings').addEventListener('click', showSettings);
+$('btn-log').addEventListener('click', () => $('drawer').classList.add('open'));
+$('btn-log-close').addEventListener('click', () => $('drawer').classList.remove('open'));
+$('sort-suit').addEventListener('click', () => setSort('suit'));
+$('sort-rank').addEventListener('click', () => setSort('rank'));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { $('drawer').classList.remove('open'); if (sel) clearSel(); } });
+
+// Test hook for automated checks
+window.__seep = { get G() { return G; }, freeze() { gen++; waitingContinue = null; }, legalMoves, planCapture, playMove, makeBid, isHumanTurn, settings };
+
+updateSortButtons();
+newGame();
+})();
+</script>
+</body>
+</html>
